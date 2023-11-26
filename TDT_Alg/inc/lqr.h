@@ -62,9 +62,10 @@ public:
     float fdValue[CON_VAL_NUM * 2];
     float setValue[CON_VAL_NUM * 2];
     float errValue[CON_VAL_NUM * 2];
-    float resultValue[CON_VAL_NUM * 2];
+    float resultValue[CTR_VAL_NUM];
     void getFbValue(float *_fbvalue, u8 size);
     void getSetValue(float *_setValue, u8 size);
+
 };
 
 #endif

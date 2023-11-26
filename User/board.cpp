@@ -32,8 +32,8 @@ History:
 #include "dbus.h"
 #include "pwm.h"
 #include "adc.h"
-#include "rs485.h"
 #include "usart3.h"
+#include "flash.h"
 /***宏定义***/
 #define TICK_PER_SECOND 1000
 #define TICK_US	(1000000/TICK_PER_SECOND)
@@ -126,7 +126,7 @@ void boardALLInit(void)
 	imuInit();
 //	adcMpuTemp.adcInit();
 //	pwmMpuTemp.pwmInit(1000);
-	RS485_Init();
+//	RS485_Init();
 	Custom_Init();
 	RC.init();
 	/*看门狗初始化-喂狗在LED*/

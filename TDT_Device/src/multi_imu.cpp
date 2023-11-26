@@ -83,11 +83,11 @@ u8 OPEN_PROTECT = 1;
 
 void MultiImu::getOffset()
 {
-	if (!forceGetOffset && IFlash.read() == 0) //成功读取并且不需要强行矫正
-	{
-		initalAngle();
-		return;
-	}
+//	if (!forceGetOffset && IFlash.read() == 0) //成功读取并且不需要强行矫正
+//	{
+//		initalAngle();
+//		return;
+//	}
 
 	forceGetOffset = 1;
 	boardLed.setError(0, LedES_BlinkFast);
@@ -121,7 +121,7 @@ void MultiImu::getOffset()
 	boardLed.show(1);
 	laser.show(1);
 
-	IFlash.save();
+//	IFlash.save();
 	__set_FAULTMASK(1);							  //关闭所有中断
 	NVIC_SystemReset();							  //复位
 	while (1)

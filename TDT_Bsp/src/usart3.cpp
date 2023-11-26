@@ -1,12 +1,16 @@
 #include "usart3.h"
 #include "crc.h"
 #include "lqrCtrl_task.h"
+#include "stdio.h"
 Custom_Recv_Struct_t custom_RecvStruct;
 Custom_Send_Struct_t custom_SendStruct;
-
+char customSendData[sizeof(int)*100];
 DMA_InitTypeDef custom_Rx_DMA_InitStructure;
 DMA_InitTypeDef custom_Tx_DMA_InitStructure;
 u8 tmp_RecvBuff1[sizeof(Custom_Recv_Struct_t) + 1];
+//重定义fputc函数
+
+
 void Custom_Init(void)
 {
     USART_InitTypeDef USART_InitStructure;
@@ -68,9 +72,9 @@ void Custom_Init(void)
     DMA_DeInit(DMA1_Stream3);
     custom_Tx_DMA_InitStructure.DMA_Channel = DMA_Channel_4;
     custom_Tx_DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t) & (USART3->DR);
-    custom_Tx_DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)&custom_SendStruct;
+    custom_Tx_DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)&customSendData;
     custom_Tx_DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToPeripheral;
-    custom_Tx_DMA_InitStructure.DMA_BufferSize = sizeof(custom_SendStruct);
+    custom_Tx_DMA_InitStructure.DMA_BufferSize = sizeof(customSendData);
     custom_Tx_DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
     custom_Tx_DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
     custom_Tx_DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
@@ -106,14 +110,19 @@ void USART3_IRQHandler(void)
         DMA_Cmd(DMA1_Stream1, ENABLE);
     }
 }  
+
 void custom_Send_Data(void)
 {
     /*****GetValueStart******/
-    custom_SendStruct.lqrKLoad = balance.roboLqr->lqrKLoadFlag;
+    custom_SendStruct.sinValue = sinValue;
+//		custom_SendStruct.part1 = CUSTOM_PART_SIGN;
+		custom_SendStruct.cosValue = cosValue;
+	sprintf(customSendData,"/*%f,%f*/",sinValue,cosValue);
     /***** GetValueEnd *****/
     /*****SetDefaultValue*****/
-    custom_SendStruct.frameHeader = 0xA5;
-    Append_CRC16_Check_Sum((u8 *)&custom_SendStruct, sizeof(custom_SendStruct));
+//    custom_SendStruct.frameHeader = 0xA5;
+//		custom_SendStruct.frameEnd = CUSTOM_PART_END;
+//    Append_CRC16_Check_Sum((u8 *)&custom_SendStruct, sizeof(custom_SendStruct));
     // 设置传输数据长度
     DMA_Cmd(DMA1_Stream3, DISABLE);
     while (DMA_GetCmdStatus(DMA1_Stream3) != DISABLE)

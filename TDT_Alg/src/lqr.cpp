@@ -42,23 +42,6 @@ void Lqr::getLqrK(float *_LqrValue)
         lqrK[i] = *(custom_RecvStruct.lqrK + i);
         lqrKLoadFlag = 1;
     }
-//				// 看门狗复位时间1.5s
-//				IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable); // 使能对IWDG->PR IWDG->RLR的写
-//				auto oldIWDG_P = IWDG->PR;
-//				auto oldIWDG_RL = IWDG->RLR;
-//				IWDG_SetPrescaler(IWDG_Prescaler_64); // 设置IWDG分频系数
-//				IWDG_SetReload(750);				  // 设置IWDG装载值
-//				IFlash.save();
-//				// 恢复看门狗时间
-//				IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable); // 使能对IWDG->PR IWDG->RLR的写
-//				IWDG_SetPrescaler(oldIWDG_P);				  // 设置IWDG分频系数
-//				IWDG_SetReload(oldIWDG_RL);					  // 设置IWDG装载值
-//				iwdgFeed();									  // reload
-//				__set_FAULTMASK(1);							  // 关闭所有中断
-//				NVIC_SystemReset();							  // 复位
-//				while (1)
-//				{
-//				} // 仅等待复位
 }
 /**
  * @brief 获取反馈值
@@ -100,7 +83,8 @@ void Lqr::getSetValue(float *_setValue, u8 size)
 void Lqr::calLqrResult()
 {
     // TODO  判断设定值和反馈值nan和inf
-    Matrix_Subtract(&set_Value, &fd_Value, &err_Value);
-//    Matrix_Multiply(&err_Value, &lqr_K, &result_Value);
+    arm_status matState;
+    matState = arm_mat_sub_f32(&set_Value, &fd_Value, &err_Value);
+    matState = arm_mat_mult_f32(&lqr_K, &err_Value, &result_Value);
     // TODO  判断输出值nan和inf
 }

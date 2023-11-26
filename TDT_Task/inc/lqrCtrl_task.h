@@ -23,6 +23,7 @@ public:
     void getSpeedFb();
     void getThetaFb();
     void getFiFb();
+    void getXfb();
     void lqrKset();
     bool lqrKsetFlag = false;
     float xSet[2] = {0, 0};
@@ -43,5 +44,8 @@ extern float laqK_buffer[40];
 void linkLqrFlash();
 void saveLqrMessage();
 void lqrRunTask();
+void readLqrMessage();
+void customMessageTest();
 extern LqrCtrl balance;
+extern float sinValue,cosValue;
 #endif
