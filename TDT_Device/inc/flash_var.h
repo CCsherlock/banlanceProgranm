@@ -275,7 +275,7 @@ private:
 	}
 };
 
-extern FlashVar IFlash;
+//extern FlashVar IFlash;
 
 /** @} */
 

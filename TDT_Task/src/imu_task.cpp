@@ -31,16 +31,16 @@ History:
 #include "cycle.h"
 #include "parameter.h"
 #include "flash_var.h"
-#include "bmi088.h"
+
 extern TimeSimultaneity imuTimeMatch;
 
 ImuCalc *mpu6050Cal;
-//ImuCalc *bmi;
-
+//ImuCalc *mpu6050Out;
 eulerAngle angleForWatch;
 eulerAngle angleForWatchAHRS;
 accdata accForWatch1;
 gyrodata gyroForWatch1;
+
 float *visionSendYaw, *visionSendPitch;
 void startControlTasks(); //等待imu初始化后开启控制任务
 /**
@@ -73,47 +73,32 @@ void Imu_Task()
 void imuInit()
 {
 	mpu6050Cal = new ImuCalc;
-	
 	/*当前主控陀螺仪的引脚号*/
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC,ENABLE);
 	mpu6050Cal = new Mpu6050(GPIOC, GPIO_Pin_2, GPIO_Pin_1);
-
+	
+//	mpu6050Out = new ImuCalc;
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA,ENABLE);
+//	mpu6050Out = new Mpu6050(GPIOA, GPIO_Pin_10, GPIO_Pin_9);
 	/*陀螺仪和加速度的方向旋转矩阵*/
 	float gyroScaleFactor[3][3] =  {{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
 	mpu6050Cal->setGyroScaleFactor(gyroScaleFactor);
+//	mpu6050Out->setGyroScaleFactor(gyroScaleFactor);
 	float accScaleFactor[3][3] = {{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
 	mpu6050Cal->setAccScaleFactor(accScaleFactor);
-	
-//	bmi = new ImuCalc;
-//	bmi = new Bmi088(SPI1,SPI_BaudRatePrescaler_256);
-////	float gyroScaleFactorBMI[3][3] =  {{0.0f, -1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}};
-//		float gyroScaleFactorBMI[3][3] =  {{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
-//	bmi->setGyroScaleFactor(gyroScaleFactorBMI);
-////	float accScaleFactorBMI[3][3] = {{0.0f, 1.0f, 0.0f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, -1.0f}};
-//		float accScaleFactorBMI[3][3] = {{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
-//	bmi->setAccScaleFactor(accScaleFactorBMI);
-//	
-//	bmi->init();
-//	delayMs(50);
-//	bmi->initalAngle();
-//	bmi->imu_OK = 1;
+//	mpu6050Out->setAccScaleFactor(accScaleFactor);
 	#if FROM_FLASH
 	/*从Flash获取校准数据*/
-	// IFlash.link(mpu6050Cal->gyro.offset, 2);
-	// IFlash.link(mpu6050Cal->acc.offset, 3);
-	IFlash.link(mpu6050Cal->KTest, 3);
-	IFlash.link(mpu6050Cal->sixCaliFector, 4);
-	IFlash.link(mpu6050Cal->sixCaliOffset, 5);
-	IFlash.link(mpu6050Cal->gyroCaliOffset,6);
-//	vec3f gyroOffset;
-//	gyroOffset.data[0] = -50.7874125874126;
-//	gyroOffset.data[1] = 29.6986790986791;
-//	gyroOffset.data[2] = -0.903574203574204;
-//	memcpy(&mpu6050Cal->gyro.offset,&gyroOffset,sizeof(gyroOffset));
-	
-	
-	
-	
+	//IFlash.link(mpu6050Cal->gyro.offset, 2);
+	//IFlash.link(mpu6050Cal->acc.offset, 3);
+//	IFlash.link(mpu6050Cal->sixCaliFector, 4);
+//	IFlash.link(mpu6050Cal->sixCaliOffset, 5);
+//	IFlash.link(mpu6050Cal->gyroCaliOffset, 6);
+	vec3f gyroOffset;
+	gyroOffset.data[0] = -50.7874125874126;
+	gyroOffset.data[1] = 29.6986790986791;
+	gyroOffset.data[2] = -0.903574203574204;
+	memcpy(&mpu6050Cal->gyro.offset,&gyroOffset,sizeof(gyroOffset));
 	#endif
 	#if FROM_MANUL
 	float accCaliFector[3] = {0.991165494425534,0.996649691628215,0.983589087624697};
@@ -145,7 +130,7 @@ void imuInit()
 //	mpu6050Out->imu_OK = 1;
 
 	//视觉发送的值的初始化
-//	visionSendYaw = &bmi->Angle.yaw;
-//	visionSendPitch = &bmi->Angle.pitch;
+	visionSendYaw = &mpu6050Cal->Angle.yaw;
+	visionSendPitch = &mpu6050Cal->Angle.pitch;
 }
 

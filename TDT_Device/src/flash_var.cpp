@@ -230,4 +230,4 @@ u32 *ReadFromMEMORY()
 	return pBuff;
 }
 
-FlashVar IFlash(SaveToMEMORY,ReadFromMEMORY);
+//FlashVar IFlash(SaveToMEMORY,ReadFromMEMORY);

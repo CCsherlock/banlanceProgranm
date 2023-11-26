@@ -23,7 +23,7 @@ History:
 
 #define USE_AHRS_LIB 1                   ///< 使能AHRS航资参考系统
 #define COMPARE_SELF_LIB 1               ///< 若使能则将AHRS输出到另一个数组上(AHRS_data.nowAngle)
-#define AUTO_CALIBRATION 0               ///< 使能动态自动校准
+#define AUTO_CALIBRATION 1               ///< 使能动态自动校准
 #define GYRO_Auto_Calibration_Times 500 ///< 每多少次循环进行一次自动校正 在静止状态下5s校准一次
 #define FILTER_NUM 10                    ///< 陀螺仪校准后数据的浮动窗口滤波参数——窗口大小
 #define ITEMS 6
@@ -257,8 +257,6 @@ public:
     bool sixCaliFalg = false;
     void sixCalibration();
     float gravite;
-		float KTest[40];
-		void setKbuf();
 };
 
 /** @} */

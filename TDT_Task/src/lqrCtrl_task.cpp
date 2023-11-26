@@ -1,31 +1,47 @@
 #include "lqrCtrl_task.h"
 #include "usart3.h"
-#include "flash_var.h"
 #include "iwdg.h"
-LqrCtrl balance;
-float laqK_buffer[40];
+#include "flash.h"
+#include "stdio.h"
+#include "imu_task.h"
+LqrCtrl balance;       // lqr运算实例化
+float laqK_buffer[40]; // lqrK矩阵暂存数组
 LqrCtrl::LqrCtrl(/* args */)
 {
 }
+/**
+ * @brief 初始化lqr所需数据来源
+ *  初始LQR算法矩阵 电机 陀螺仪参数
+ */
 void LqrCtrl::LqrInit()
 {
     roboLqr = new Lqr(5, 4);
     chassis = new Chassis;
+    roboLqr->lqrInit();
+    chassis->chassisInit();
+    chassis->setChassisOutPutDir(1, 1);
+    chassis->setlegOutPutDir(1, 1);
+    chassis->setChassisFbDir(1, 1);
+    chassis->setLegFbDir(1, 1);
 }
+/**
+ * @brief lqr算法执行
+ *        获取反馈->获取设定值->lqr计算->输出
+ */
 void LqrCtrl::lqrCalRun()
 {
-    if (!lqrInitflag)
-    {
-        lqrInitflag = true;
-    }
-    // roboLqr->getLqrK(custom_RecvStruct.lqrK);
     getAllFbValue();
     getAllSetValue();
     roboLqr->calLqrResult();
     lqrOutput();
 }
+/**
+ * @brief 获取所有反馈值并传入LQR模块
+ *
+ */
 void LqrCtrl::getAllFbValue()
 {
+    getXfb();
     getSpeedFb();
     getThetaFb();
     fbValue[roboLqr->X_LEFT] = xFb[LEFT];
@@ -40,6 +56,10 @@ void LqrCtrl::getAllFbValue()
     fbValue[roboLqr->FI_DOT] = fiSpeedFb;
     roboLqr->getFbValue(fbValue, sizeof(fbValue));
 }
+/**
+ * @brief 获取所有设定值并传入LQR模块
+ *
+ */
 void LqrCtrl::getAllSetValue()
 {
     setValue[roboLqr->X_LEFT] = xSet[LEFT] = xFb[LEFT];
@@ -54,27 +74,30 @@ void LqrCtrl::getAllSetValue()
     setValue[roboLqr->FI_DOT] = fiSpeedSet;
     roboLqr->getSetValue(setValue, sizeof(setValue));
 }
+void LqrCtrl::getXfb()
+{
+    for (uint8_t i = 0; i < 2; i++)
+    {
+        /* code */
+        xFb[i] = chassis->getChassisAngel()[i];
+    }
+}
 void LqrCtrl::getSpeedFb()
 {
-
     for (u8 i = 0; i < 2; i++)
     {
         /* code */
-        speedFb[i] = chassis->chssisMotor[i]->canInfo.speed;
+        speedFb[i] = chassis->getChassisSpeed()[i];
     }
 }
 void LqrCtrl::getThetaFb()
 {
-    static uint64_t speedTime, speedTimeLast, speedTimeErr;
-    speedTime = getSysTimeUs();
-    speedTimeErr = timeIntervalFrom(speedTimeLast);
-    speedTimeLast = speedTime;
+    getFiFb();
     for (u8 i = 0; i < 2; i++)
     {
         /* code */
-        angleFb[i] = chassis->legMotor[i]->MOTOR_recv.Pos + fiFb;
-        angleSpeedFb[i] = (angleFb[i] - angleFb_last[i]) / (float)(speedTimeErr / 1e6f);
-        angleFb_last[i] = angleFb[i];
+        angleFb[i] = chassis->getLegAngel()[i] + fiFb;
+        angleSpeedFb[i] = chassis->getLegSpeed()[i] + fiSpeedFb;
     }
 }
 void LqrCtrl::getFiFb()
@@ -87,8 +110,15 @@ void LqrCtrl::getFiFb()
     fiSpeedFb = (fiFb - fiFb_last) / (float)(fiTimeErr / 1e6f);
     fiFb_last = fiFb;
 }
+#define OUTPUT_TEST
+float chassisTq[2] = {1, 0};
+float legTq[2] = {0, 0};
 void LqrCtrl::lqrOutput()
 {
+#ifdef OUTPUT_TEST
+    chassis->chassisCtrlTorque(chassisTq);
+    chassis->legCtrlTorque(legTq);
+#else
     float chassisTorque[2];
     chassisTorque[LEFT] = roboLqr->resultValue[roboLqr->OUT_LEFT_MOTOR];
     chassisTorque[RIGHT] = roboLqr->resultValue[roboLqr->OUT_RIGHT_MOTOR];
@@ -97,6 +127,7 @@ void LqrCtrl::lqrOutput()
     legTorque[LEFT] = roboLqr->resultValue[roboLqr->IN_LEFT_MOTOR];
     legTorque[RIGHT] = roboLqr->resultValue[roboLqr->IN_RIGHT_MOTOR];
     chassis->legCtrlTorque(legTorque);
+#endif
 }
 void LqrCtrl::lqrKset()
 {
@@ -110,36 +141,44 @@ void lqrRunTask()
     if (!lqrTaskInit)
     {
         balance.LqrInit();
-       IFlash.link(laqK_buffer, 7);
-//			IFlash.read();
         lqrTaskInit = true;
     }
-		saveLqrMessage();
+    saveLqrMessage();
+    readLqrMessage();
+    // customMessageTest();
     balance.lqrCalRun();
 }
-bool saveflag = 0;
+#define FLASH_SAVE_ADDR ((u32)0x080E0000)
+#define FLASH_DATA_LEN sizeof(laqK_buffer)
+bool readflag = 1;
 void saveLqrMessage()
 {
-    if (saveflag == 1)
+    if (custom_RecvStruct.lqrKChange == 1)
     {
-//        memcpy(&laqK_buffer, custom_RecvStruct.lqrK, sizeof(laqK_buffer));
-//        // 看门狗复位时间1.5s
-//        IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable); // 使能对IWDG->PR IWDG->RLR的写
-//        auto oldIWDG_P = IWDG->PR;
-//        auto oldIWDG_RL = IWDG->RLR;
-//        IWDG_SetPrescaler(IWDG_Prescaler_64); // 设置IWDG分频系数
-//        IWDG_SetReload(750);                  // 设置IWDG装载值
-           IFlash.save();
-//        // 恢复看门狗时间
-//        IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable); // 使能对IWDG->PR IWDG->RLR的写
-//        IWDG_SetPrescaler(oldIWDG_P);                 // 设置IWDG分频系数
-//        IWDG_SetReload(oldIWDG_RL);                   // 设置IWDG装载值
-//        iwdgFeed();                                   // reload
-//        __set_FAULTMASK(1);                           // 关闭所有中断
-//        NVIC_SystemReset();                           // 复位
-//        while (1)
-//        {
-//        } // 仅等待复位
-			saveflag = 0;
+        u32 temp[FLASH_DATA_LEN / 4];
+        memcpy(&temp, custom_RecvStruct.lqrK, FLASH_DATA_LEN);
+        STMFLASH_Write(FLASH_SAVE_ADDR, temp, FLASH_DATA_LEN / 4);
+        custom_RecvStruct.lqrKChange = 0;
+        readflag = 1;
     }
+}
+
+void readLqrMessage()
+{
+    if (readflag)
+    {
+        u8 datatemp[FLASH_DATA_LEN];
+        STMFLASH_Read(FLASH_SAVE_ADDR, (u32 *)datatemp, FLASH_DATA_LEN / 4);
+        memcpy(&laqK_buffer, datatemp, FLASH_DATA_LEN);
+        memcpy(&balance.roboLqr->lqrK, laqK_buffer, FLASH_DATA_LEN);
+        delayMs(10);
+        readflag = 0;
+    }
+}
+float sinValue;
+float cosValue;
+void customMessageTest()
+{
+    sinValue = mpu6050Cal->Angle.pitch;
+    cosValue = mpu6050Cal->Angle.yaw;
 }

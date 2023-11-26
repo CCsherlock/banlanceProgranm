@@ -22,7 +22,6 @@ History:
 #include "flash_var.h"
 #include "iwdg.h"
 #include "led_task.h"
-#include "usart3.h"
 /**
  * @ingroup TDT_ALG
  * @defgroup IMU_ALG 陀螺仪解算算法
@@ -60,12 +59,16 @@ ImuCalc::ImuCalc() : round({0}), quaternion({1, 0, 0, 0}), err({0}),
 
 void ImuCalc::getOffset()
 {
-	if (!forceGetOffset && IFlash.read() == 0) // 成功读取并且不需要强行矫正
+//	if (!forceGetOffset && IFlash.read() == 0) // 成功读取并且不需要强行矫正
+//	{
+//		initalAngle();
+//		return;
+//	}
+	if (!forceGetOffset) // 成功读取并且不需要强行矫正
 	{
 		initalAngle();
 		return;
 	}
-
 	forceGetOffset = 1;
 	boardLed.setError(0, LedES_BlinkFast);
 	laser.setError(0, LedES_BlinkFast);
@@ -95,7 +98,7 @@ void ImuCalc::getOffset()
 	auto oldIWDG_RL = IWDG->RLR;
 	IWDG_SetPrescaler(IWDG_Prescaler_64); // 设置IWDG分频系数
 	IWDG_SetReload(750);				  // 设置IWDG装载值
-	IFlash.save();
+//	IFlash.save();
 	// 恢复看门狗时间
 	IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable); // 使能对IWDG->PR IWDG->RLR的写
 	IWDG_SetPrescaler(oldIWDG_P);				  // 设置IWDG分频系数
@@ -341,19 +344,17 @@ uint64_t ImuCalc::TDT_IMU_update(bool onlyAngleIntegral)
 	{
 		TDT_gyroFilter();
 	}
-	setKbuf();
+
 	float gx = gyro.radps.data[x];
 	float gy = gyro.radps.data[y];
 	float gz = gyro.radps.data[z];
 	float ax = acc.accValue.data[x];
 	float ay = acc.accValue.data[y];
 	float az = acc.accValue.data[z];
-	float g1x = gyro.dps.data[x];
-	float g1y = gyro.dps.data[y];
-	float g1z = gyro.dps.data[z];
+
 #if USE_AHRS_LIB
 
-	float gyroLibIn[3] = {g1x, g1y, g1z};
+	float gyroLibIn[3] = {gx, gy, gz};
 	float accLibIn[3] = {ax, ay, az};
 	if (onlyAngleIntegral)
 	{
@@ -539,7 +540,7 @@ void ImuCalc::sixCalibration()
 	// 加速度平方和
 	sixCail.powOfacc = powf(acc.origin.data[0], 2) + powf(acc.origin.data[1], 2) + powf(acc.origin.data[2], 2);
 	// 通过当前加速度和角速度判断是否在移动
-	if (sixCail.powOfacc > (sixCail.g * 3) * (sixCail.g * 3) || sixCail.powOfacc < (sixCail.g * 0.1) * (sixCail.g * 0.1) || ABS(gyro.origin.data[0]) > 1000 || ABS(gyro.origin.data[1]) > 1000 || ABS(gyro.origin.data[2]) > 1000) // 运动中
+	if (sixCail.powOfacc > (sixCail.g * 2) * (sixCail.g * 2) || sixCail.powOfacc < (sixCail.g * 0.1) * (sixCail.g * 0.1) || ABS(gyro.origin.data[0]) > 1000 || ABS(gyro.origin.data[1]) > 1000 || ABS(gyro.origin.data[2]) > 1000) // 运动中
 	{
 		sixCail.nowCauculateNum = 0;
 		sixCail.waitNextAxis = true;
@@ -610,7 +611,7 @@ void ImuCalc::sixCalibration()
 				auto oldIWDG_RL = IWDG->RLR;
 				IWDG_SetPrescaler(IWDG_Prescaler_64); // 设置IWDG分频系数
 				IWDG_SetReload(750);				  // 设置IWDG装载值
-				IFlash.save();
+//				IFlash.save();
 				// 恢复看门狗时间
 				IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable); // 使能对IWDG->PR IWDG->RLR的写
 				IWDG_SetPrescaler(oldIWDG_P);				  // 设置IWDG分频系数
@@ -646,29 +647,4 @@ bool ImuCalc::judgeMove()
 			return 1;
 		}
 	}
-}
-void ImuCalc::setKbuf()
-{
-	  if (custom_RecvStruct.lqrKChange == 1)
-    {
-        memcpy(&KTest, custom_RecvStruct.lqrK, sizeof(KTest));
-        // 看门狗复位时间1.5s
-        IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable); // 使能对IWDG->PR IWDG->RLR的写
-        auto oldIWDG_P = IWDG->PR;
-        auto oldIWDG_RL = IWDG->RLR;
-        IWDG_SetPrescaler(IWDG_Prescaler_64); // 设置IWDG分频系数
-        IWDG_SetReload(750);                  // 设置IWDG装载值
-        IFlash.save();
-        // 恢复看门狗时间
-        IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable); // 使能对IWDG->PR IWDG->RLR的写
-        IWDG_SetPrescaler(oldIWDG_P);                 // 设置IWDG分频系数
-        IWDG_SetReload(oldIWDG_RL);                   // 设置IWDG装载值
-        iwdgFeed();                                   // reload
-        __set_FAULTMASK(1);                           // 关闭所有中断
-        NVIC_SystemReset();                           // 复位
-        while (1)
-        {
-        } // 仅等待复位
-			custom_RecvStruct.lqrKChange = 0;
-    }
 }
