@@ -2,7 +2,7 @@
  * @Author: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
  * @Date: 2023-06-22 21:41:57
  * @LastEditors: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
- * @LastEditTime: 2023-11-27 10:21:45
+ * @LastEditTime: 2023-11-27 15:02:06
  * @FilePath: \Projectd:\TDT2023\Programe\TDT-Frame\TDT_Task\src\imu_task.cpp
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -34,7 +34,7 @@ History:
 #include "bmi088.h"
 extern TimeSimultaneity imuTimeMatch;
 
-ImuCalc *mpu6050Cal;
+// ImuCalc *mpu6050Cal;
 ImuCalc *bmi088Cal;
 eulerAngle angleForWatch;
 eulerAngle angleForWatchAHRS;
@@ -60,7 +60,18 @@ void Imu_Task()
 	accForWatch1 = bmi088Cal->acc;
 	gyroForWatch1 = bmi088Cal->gyro;
 }
+/**
+右手坐标系
+逆时针旋转为正
 
+acc z 下﹢ 上﹣
+	x 下﹢ 上﹣
+	y 下﹢ 上﹣
+
+gyro z 逆﹢ 顺﹣
+	 x 逆﹣ 顺﹢
+	 y 逆﹣ 顺﹢
+**/
 #include "flash_var.h"
 void imuInit()
 {
@@ -74,11 +85,11 @@ void imuInit()
 	/*陀螺仪和加速度的方向旋转矩阵*/
 	//	float gyroScaleFactor[3][3] = {{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
 	// mpu6050Cal->setGyroScaleFactor(gyroScaleFactor);
-	float gyroScaleFactor[3][3] = {{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
+	float gyroScaleFactor[3][3] = {{-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
 	bmi088Cal->setGyroScaleFactor(gyroScaleFactor);
 	//	float accScaleFactor[3][3] = {{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
 	// mpu6050Cal->setAccScaleFactor(accScaleFactor);
-	float accScaleFactor[3][3] = {{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
+	float accScaleFactor[3][3] = {{-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
 	bmi088Cal->setAccScaleFactor(accScaleFactor);
 	/*icm20602以及MPU6050初始化*/
 	// mpu6050Cal->init();
@@ -88,7 +99,7 @@ void imuInit()
 	delayMs(50);
 	// mpu6050Cal->initalAngle();
 	/*陀螺仪初始化完成标志位*/
-	mpu6050Cal->imu_OK = 1;
+	bmi088Cal->imu_OK = 1;
 
 	// 视觉发送的值的初始化
 	// visionSendYaw = &mpu6050Cal->Angle.yaw;

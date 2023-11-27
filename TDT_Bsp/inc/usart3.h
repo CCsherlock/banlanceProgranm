@@ -45,7 +45,7 @@ extern "C"
 {
 #endif
 
-	void USART3_IRQHandler(void);
+
 
 #ifdef __cplusplus
 }

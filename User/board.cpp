@@ -127,7 +127,7 @@ void boardALLInit(void)
 //	adcMpuTemp.adcInit();
 //	pwmMpuTemp.pwmInit(1000);
 //	RS485_Init();
-	Custom_Init();
+//	Custom_Init();
 	RC.init();
 	/*看门狗初始化-喂狗在LED*/
 //	iwdgInit(4,50);

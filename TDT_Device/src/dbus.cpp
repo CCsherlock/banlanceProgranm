@@ -14,7 +14,7 @@ function:
 Author: 祖传
 Version: 1.1.1.191112_alpha
 Date: 19.11.12
-History: 
+History:
 	——————————————————————————————————————————————————————————————————————————
 	19.11.18 肖银河-增加切换为原始数据处理的变量
 	——————————————————————————————————————————————————————————————————————————
@@ -37,35 +37,40 @@ _RC RC;
 uint8_t deforceFlag = 0;
 uint8_t dbusOnlineFlag = 0;
 
-unsigned char sbus_rx_buffer[RC_FRAME_LENGTH]; //原始数据
+unsigned char sbus_rx_buffer[RC_FRAME_LENGTH]; // 原始数据
 using namespace RCS;
 
-uint8_t SBUS_rx_buf[2][SBUS_RX_BUF_NUM];//DMA的原始数据
+uint8_t SBUS_rx_buf[2][SBUS_RX_BUF_NUM]; // DMA的原始数据
 
 void _RC::init()
 {
 	deforceFlag = 1;
 	/*DBUS初始化*/
-	Dbus_Config();
+#if defined USE_MAIN_CTRL_RM_CBOARD
+	Dbus_Init_C_board();
+#elif defined USE_MAIN_CTRL_2021_PJ||defined USE_MAIN_CTRL_2021_B	\
+	||defined USE_MAIN_CTRL_2021_A||defined USE_MAIN_CTRL_2020
+		Dbus_Config();
+#endif
+
 }
 
-
-
 /**
-  * @brief 遥控器初始化
-  */
+ * @brief 遥控器初始化
+ */
 void _RC::Dbus_Config(void)
 {
-/* -------------- 初始化时钟资源 ----------------------------*/
+
+	/* -------------- 初始化时钟资源 ----------------------------*/
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_DMA1, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
 
 	RCC_APB1PeriphResetCmd(RCC_APB1Periph_USART2, ENABLE);
 	RCC_APB1PeriphResetCmd(RCC_APB1Periph_USART2, DISABLE);
 
-	GPIO_PinAFConfig(GPIOA, GPIO_PinSource3, GPIO_AF_USART2); //PA3  usart3 rx
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource3, GPIO_AF_USART2); // PA3  usart3 rx
 
-/* -------------- 配置GPIO ---------------------------------------*/
+	/* -------------- 配置GPIO ---------------------------------------*/
 	GPIO_InitTypeDef GPIO_InitStructure;
 	USART_InitTypeDef USART_InitStructure;
 
@@ -93,7 +98,7 @@ void _RC::Dbus_Config(void)
 
 	USART_Cmd(USART2, ENABLE);
 
-/* -------------- 中断配置 ---------------------------------------*/
+	/* -------------- 中断配置 ---------------------------------------*/
 	NVIC_InitTypeDef NVIC_InitStructure;
 
 	NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
@@ -102,7 +107,7 @@ void _RC::Dbus_Config(void)
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 
-/* -------------- 配置 DMA -----------------------------------------*/
+	/* -------------- 配置 DMA -----------------------------------------*/
 	DMA_InitTypeDef DMA_InitStructure;
 
 	DMA_DeInit(DMA1_Stream5);
@@ -126,15 +131,89 @@ void _RC::Dbus_Config(void)
 
 	DMA_DoubleBufferModeConfig(DMA1_Stream5, (uint32_t)SBUS_rx_buf[1], DMA_Memory_0);
 	DMA_DoubleBufferModeCmd(DMA1_Stream5, ENABLE);
-	DMA_Cmd(DMA1_Stream5, DISABLE); //Add a disable
+	DMA_Cmd(DMA1_Stream5, DISABLE); // Add a disable
 	DMA_Cmd(DMA1_Stream5, ENABLE);
 }
 
+void _RC::Dbus_Init_C_board(void)
+{
+	/* -------------- 初始化时钟资源 ----------------------------*/
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_DMA1, ENABLE); // PC11 USART3
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
 
+	RCC_APB1PeriphResetCmd(RCC_APB1Periph_USART3, ENABLE);
+	RCC_APB1PeriphResetCmd(RCC_APB1Periph_USART3, DISABLE);
+
+	GPIO_PinAFConfig(GPIOC, GPIO_PinSource11, GPIO_AF_USART3); // PC11 USART3 rx
+
+	/* -------------- 配置GPIO ---------------------------------------*/
+	GPIO_InitTypeDef GPIO_InitStructure;
+	USART_InitTypeDef USART_InitStructure;
+
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_Init(GPIOC, &GPIO_InitStructure);
+
+	USART_DeInit(USART3);
+
+	USART_InitStructure.USART_BaudRate = 100000;
+	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+	USART_InitStructure.USART_StopBits = USART_StopBits_1;
+	USART_InitStructure.USART_Parity = USART_Parity_Even;
+	USART_InitStructure.USART_Mode = USART_Mode_Rx;
+	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+	USART_Init(USART3, &USART_InitStructure);
+
+	USART_DMACmd(USART3, USART_DMAReq_Rx, ENABLE);
+
+	USART_ClearFlag(USART3, USART_FLAG_IDLE);
+	USART_ITConfig(USART3, USART_IT_IDLE, ENABLE);
+
+	USART_Cmd(USART3, ENABLE);
+
+	/* -------------- 中断配置 ---------------------------------------*/
+	NVIC_InitTypeDef NVIC_InitStructure;
+
+	NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+
+	/* -------------- 配置 DMA -----------------------------------------*/
+	DMA_InitTypeDef DMA_InitStructure;
+
+	DMA_DeInit(DMA1_Stream1);
+
+	DMA_InitStructure.DMA_Channel = DMA_Channel_4;
+	DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t) & (USART3->DR);
+	DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)SBUS_rx_buf[0];
+	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;
+	DMA_InitStructure.DMA_BufferSize = SBUS_RX_BUF_NUM;
+	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
+	DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
+	DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh;
+	DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;
+	DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_1QuarterFull;
+	DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
+	DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
+	DMA_Init(DMA1_Stream1, &DMA_InitStructure);
+
+	DMA_DoubleBufferModeConfig(DMA1_Stream1, (uint32_t)SBUS_rx_buf[1], DMA_Memory_0);
+	DMA_DoubleBufferModeCmd(DMA1_Stream1, ENABLE);
+	DMA_Cmd(DMA1_Stream1, DISABLE); // Add a disable
+	DMA_Cmd(DMA1_Stream1, ENABLE);
+}
 ///@sa VirtualTask
 void _RC::run_1000Hz()
 {
-	if(updated)
+	if (updated)
 	{
 		handleData(sbus_rx_buffer);
 		updated = 0;
@@ -142,23 +221,23 @@ void _RC::run_1000Hz()
 		RC.taskSchedule();
 		return;
 	}
-	if (timeIntervalFrom(updateTime) > 500000) //500ms
+	if (timeIntervalFrom(updateTime) > 500000) // 500ms
 	{
 		deforceFlag = 1;
 		/*离线检测*/
-		if (dbusOnlineFlag == 1)//后面置一代表相当于离线跳变
+		if (dbusOnlineFlag == 1) // 后面置一代表相当于离线跳变
 		{
-			//清除旧数据
+			// 清除旧数据
 			memset(&Key, 0, sizeof(Key));
 			memset(&LastKey, 0, sizeof(LastKey));
 			memset(&KeyPress, 0, sizeof(KeyPress));
 			memset(&KeyTick, 0, sizeof(KeyTick));
 			SW1Tick = UnDefined;
 			SW2Tick = UnDefined;
-			//仍然进行按键处理，不过所有键松开
+			// 仍然进行按键处理，不过所有键松开
 			KeyProcess::keyHandle(0);
 			deforceFlag = 1;
-			//仍然进行任务调度
+			// 仍然进行任务调度
 			taskSchedule();
 		}
 		dbusOnlineFlag = 0;
@@ -167,30 +246,30 @@ void _RC::run_1000Hz()
 
 void _RC::handleData(volatile const uint8_t *SBUS_buf)
 {
-	//▲ 记录当前值
+	// ▲ 记录当前值
 	memcpy(&LastKey, &Key, sizeof(Key));
 
-	//右摇杆横向  范围+-660
-	Key.CH[0] = my_deathzoom(((SBUS_buf[0] | (SBUS_buf[1] << 8)) & 0x07ff)-1024,5); //Channel 0
-	//右摇杆纵向   范围+-660
-	Key.CH[1] = my_deathzoom((((SBUS_buf[1] >> 3) | (SBUS_buf[2] << 5)) & 0x07ff) - 1024, 5); //Channel 1
-	//左摇杆横向   范围+-660
-	Key.CH[2] = my_deathzoom((((SBUS_buf[2] >> 6) | (SBUS_buf[3] << 2) | (SBUS_buf[4] << 10)) & 0x07ff) - 1024, 5); //Channel 2
-	//左摇杆纵向   范围+-660
-	Key.CH[3] = my_deathzoom((((SBUS_buf[4] >> 1) | (SBUS_buf[5] << 7)) & 0x07ff) - 1024, 5); //Channel 3
-	//左边开关  132 上中下
-	Key.CH[4] = ((SBUS_buf[5] >> 4) & 0x000C) >> 2; //Switch left
-	//右边开关  132 上中下
-	Key.CH[5] = ((SBUS_buf[5] >> 4) & 0x0003); //Switch right
-	//左边拨轮   范围+-660
-	Key.CH[11] = -1*my_deathzoom(((SBUS_buf[16] | (SBUS_buf[17] << 8)) & 0x07ff)-1024,5); //Channel 11
+	// 右摇杆横向  范围+-660
+	Key.CH[0] = my_deathzoom(((SBUS_buf[0] | (SBUS_buf[1] << 8)) & 0x07ff) - 1024, 5); // Channel 0
+	// 右摇杆纵向   范围+-660
+	Key.CH[1] = my_deathzoom((((SBUS_buf[1] >> 3) | (SBUS_buf[2] << 5)) & 0x07ff) - 1024, 5); // Channel 1
+	// 左摇杆横向   范围+-660
+	Key.CH[2] = my_deathzoom((((SBUS_buf[2] >> 6) | (SBUS_buf[3] << 2) | (SBUS_buf[4] << 10)) & 0x07ff) - 1024, 5); // Channel 2
+	// 左摇杆纵向   范围+-660
+	Key.CH[3] = my_deathzoom((((SBUS_buf[4] >> 1) | (SBUS_buf[5] << 7)) & 0x07ff) - 1024, 5); // Channel 3
+	// 左边开关  132 上中下
+	Key.CH[4] = ((SBUS_buf[5] >> 4) & 0x000C) >> 2; // Switch left
+	// 右边开关  132 上中下
+	Key.CH[5] = ((SBUS_buf[5] >> 4) & 0x0003); // Switch right
+	// 左边拨轮   范围+-660
+	Key.CH[11] = -1 * my_deathzoom(((SBUS_buf[16] | (SBUS_buf[17] << 8)) & 0x07ff) - 1024, 5); // Channel 11
 
 	/***鼠标X值***/
-	Key.CH[6] = ((SBUS_buf[6]) | (SBUS_buf[7] << 8)); //x
+	Key.CH[6] = ((SBUS_buf[6]) | (SBUS_buf[7] << 8)); // x
 	/***鼠标Y值***/
-	Key.CH[7] = -((SBUS_buf[8]) | (SBUS_buf[9] << 8)); //y
+	Key.CH[7] = -((SBUS_buf[8]) | (SBUS_buf[9] << 8)); // y
 	/***鼠标Z值***/
-	Key.CH[12] = ((SBUS_buf[10]) | (SBUS_buf[11] << 8)); //z
+	Key.CH[12] = ((SBUS_buf[10]) | (SBUS_buf[11] << 8)); // z
 	/***鼠标左键***/
 	Key.CH[8] = SBUS_buf[12];
 	Key.left_jump = Key.CH[8];
@@ -198,7 +277,7 @@ void _RC::handleData(volatile const uint8_t *SBUS_buf)
 	Key.CH[9] = SBUS_buf[13];
 	Key.Right_jump = Key.CH[9];
 	/***鼠标滚轮***/
-	Key.wheelCode += Key.CH[12];//积分得鼠标滚轮位置编码,一般均为10的倍数,会丢值,慎用
+	Key.wheelCode += Key.CH[12]; // 积分得鼠标滚轮位置编码,一般均为10的倍数,会丢值,慎用
 
 	/***键盘值***/
 	Key.CH[10] = SBUS_buf[14] | (SBUS_buf[15] << 8);
@@ -207,19 +286,19 @@ void _RC::handleData(volatile const uint8_t *SBUS_buf)
 	Key.SW2 = (SWPos)Key.CH[5];
 
 	/*▲ 跳变检测*/
-	//拨杆跳变检测,刚连接上，进入此函数时dbusOnlineFlag仍然为0
-	if(dbusOnlineFlag)
+	// 拨杆跳变检测,刚连接上，进入此函数时dbusOnlineFlag仍然为0
+	if (dbusOnlineFlag)
 	{
 		SW1Tick = (SWTick)(Key.SW1 - LastKey.SW1);
 		SW2Tick = (SWTick)(Key.SW2 - LastKey.SW2);
 	}
-	
-	//按键跳变检测-异或操作，相同为零，不同为一，那么跳变的位就为1，再赋值给单独的变量
+
+	// 按键跳变检测-异或操作，相同为零，不同为一，那么跳变的位就为1，再赋值给单独的变量
 	KeyTick.CH[10] = Key.CH[10] ^ LastKey.CH[10];
 	KeyTick.left_jump = Key.left_jump ^ LastKey.left_jump;
 	KeyTick.Right_jump = Key.Right_jump ^ LastKey.Right_jump;
 
-	//按下值检测-跳变值并上上一次值的取反-那么跳变且上一次为0的键为1
+	// 按下值检测-跳变值并上上一次值的取反-那么跳变且上一次为0的键为1
 	KeyPress.CH[10] = KeyTick.CH[10] & (~LastKey.CH[10]);
 	KeyPress.left_jump = KeyTick.left_jump & (~LastKey.left_jump);
 	KeyPress.Right_jump = KeyTick.Right_jump & (~LastKey.Right_jump);
@@ -231,16 +310,16 @@ void _RC::handleData(volatile const uint8_t *SBUS_buf)
 }
 
 /**
-  * @param  Key 键值
-  * @retval True or False
-  */
+ * @param  Key 键值
+ * @retval True or False
+ */
 int _RC::Get_Keypress(uint16_t Key)
 {
-    if(this->Key.CH[10] & Key)
+	if (this->Key.CH[10] & Key)
 	{
 		return 1;
 	}
-    else
+	else
 	{
 		return 0;
 	}
@@ -254,43 +333,43 @@ void _RC::rstCount(void)
 	static u8 HasRST = 1;
 	if (((int)Key.CH[0]) > 600 && ((int)Key.CH[1]) < -600 && ((int)Key.CH[2]) < -600 && ((int)Key.CH[3]) < -600)
 	{
-		//▼ 自检
+		// ▼ 自检
 		if (Key.SW1 == Mid)
 		{
 		}
-		//▼ 重启
+		// ▼ 重启
 		if (Key.SW1 == Down && HasRST == 0)
 		{
 			RST_Delay_Cnt++;
-			if (RST_Delay_Cnt > 150) //150*14ms大约为2s
+			if (RST_Delay_Cnt > 150) // 150*14ms大约为2s
 			{
-				__disable_irq(); //关闭所有中断
-				NVIC_SystemReset(); //复位
+				__disable_irq();	// 关闭所有中断
+				NVIC_SystemReset(); // 复位
 				while (1)
 				{
-				} //仅等待复位
+				} // 仅等待复位
 			}
 		}
 	}
-	//校准陀螺仪
+	// 校准陀螺仪
 	else if (((int)Key.CH[0]) < -600 && ((int)Key.CH[1]) < -600 && ((int)Key.CH[2]) > 600 && ((int)Key.CH[3]) < -600)
 	{
-		//▼ 校准陀螺仪
+		// ▼ 校准陀螺仪
 		if (Key.SW1 == Mid)
 		{
-//			bmi->forceGetOffset = 1;
+			//			bmi->forceGetOffset = 1;
 		}
 	}
 	else
 	{
-		RST_Delay_Cnt = 0; //清空计数器
+		RST_Delay_Cnt = 0; // 清空计数器
 		HasRST = 0;
 	}
 }
 
 void _RC::remoteUpdate()
 {
-	//调用其他任务的遥控器更新函数
+	// 调用其他任务的遥控器更新函数
 	for (int i = 0; i < VirtualTask::taskNum; i++)
 	{
 		VirtualTask::taskList[i]->remoteCtrlUpdate();
@@ -298,53 +377,94 @@ void _RC::remoteUpdate()
 	KeyProcess::keyHandle(Key.keyValue);
 }
 
-
 /**
-  * @brief 任务调度
-  * @note 通过遥控器指令执行相关任务的挂起和恢复
-  * @warning 脱力控制也在这边，注意一下
-  */
+ * @brief 任务调度
+ * @note 通过遥控器指令执行相关任务的挂起和恢复
+ * @warning 脱力控制也在这边，注意一下
+ */
 void _RC::taskSchedule()
 {
 	remoteUpdate();
-	//▲ 如果到脱力键，发送通知到紧急停止任务，不带通知值，且不保留接受任务的通知值，接受任务的通知值加一
+	// ▲ 如果到脱力键，发送通知到紧急停止任务，不带通知值，且不保留接受任务的通知值，接受任务的通知值加一
 	if (Key.SW2 == RCS::Down || Key.SW2 == RCS::Lost)
 	{
 		if (!deforceFlag)
-		{ //调用其他任务的脱力回调函数
+		{ // 调用其他任务的脱力回调函数
 			for (int i = 0; i < VirtualTask::taskNum; i++)
 			{
 				VirtualTask::taskList[i]->deforceCallBack();
 			}
 		}
 		deforceFlag = 1;
-		//执行重启计数函数，等待特定的重启操作后将重启
+		// 执行重启计数函数，等待特定的重启操作后将重启
 		rstCount();
 	}
 
-	//脱力状态解除，恢复挂起的任务，执行一些初始化
+	// 脱力状态解除，恢复挂起的任务，执行一些初始化
 	else
 	{
 		if (deforceFlag)
 		{
-//			bmi->forceGetOffset = 0;
-			//调用其他任务的脱力回调函数
+			//			bmi->forceGetOffset = 0;
+			// 调用其他任务的脱力回调函数
 			for (int i = 0; i < VirtualTask::taskNum; i++)
 			{
 				VirtualTask::taskList[i]->deforceCancelCallBack();
 			}
 		}
 		deforceFlag = 0;
-		//清除相关隐患变量
-		//轮询所有使能电机
+		// 清除相关隐患变量
+		// 轮询所有使能电机
 	}
 }
 
 /**
-  * @brief 遥控器串口接收中断
-  */
-void USART2_IRQHandler(void)
+ * @brief 遥控器串口接收中断
+ */
+
+void USART3_IRQHandler(void)
 {
+#if defined USE_MAIN_CTRL_RM_CBOARD
+	if (USART_GetITStatus(USART3, USART_IT_IDLE) != RESET)
+	{
+		static uint16_t this_time_rx_len = 0;
+		USART_ReceiveData(USART3);
+
+		if (DMA_GetCurrentMemoryTarget(DMA1_Stream1) == 0)
+		{
+			// 重新设置DMA
+			DMA_Cmd(DMA1_Stream1, DISABLE);
+			this_time_rx_len = SBUS_RX_BUF_NUM - DMA_GetCurrDataCounter(DMA1_Stream1);
+			DMA_SetCurrDataCounter(DMA1_Stream1, SBUS_RX_BUF_NUM);
+			DMA1_Stream1->CR |= DMA_SxCR_CT;
+			// 清DMA中断标志
+			DMA_ClearFlag(DMA1_Stream1, DMA_FLAG_TCIF5 | DMA_FLAG_HTIF5);
+			DMA_Cmd(DMA1_Stream1, ENABLE);
+			if (this_time_rx_len == RC_FRAME_LENGTH)
+			{
+				memcpy(sbus_rx_buffer, SBUS_rx_buf[0], RC_FRAME_LENGTH);
+			}
+		}
+		else
+		{
+			// 重新设置DMA
+			DMA_Cmd(DMA1_Stream1, DISABLE);
+			this_time_rx_len = SBUS_RX_BUF_NUM - DMA_GetCurrDataCounter(DMA1_Stream1);
+			DMA_SetCurrDataCounter(DMA1_Stream1, SBUS_RX_BUF_NUM);
+			DMA1_Stream1->CR &= ~(DMA_SxCR_CT);
+			// 清DMA中断标志
+			DMA_ClearFlag(DMA1_Stream1, DMA_FLAG_TCIF5 | DMA_FLAG_HTIF5);
+			DMA_Cmd(DMA1_Stream1, ENABLE);
+			if (this_time_rx_len == RC_FRAME_LENGTH)
+			{
+				memcpy(sbus_rx_buffer, SBUS_rx_buf[1], RC_FRAME_LENGTH);
+			}
+		}
+		RC.updateTime = getSysTimeUs();
+		RC.updated = 1;
+	}
+#elif defined USE_MAIN_CTRL_2021_PJ||defined USE_MAIN_CTRL_2021_B	\
+	||defined USE_MAIN_CTRL_2021_A||defined USE_MAIN_CTRL_2020
 	if (USART_GetITStatus(USART2, USART_IT_IDLE) != RESET)
 	{
 		static uint16_t this_time_rx_len = 0;
@@ -352,12 +472,12 @@ void USART2_IRQHandler(void)
 
 		if (DMA_GetCurrentMemoryTarget(DMA1_Stream5) == 0)
 		{
-			//重新设置DMA
+			// 重新设置DMA
 			DMA_Cmd(DMA1_Stream5, DISABLE);
 			this_time_rx_len = SBUS_RX_BUF_NUM - DMA_GetCurrDataCounter(DMA1_Stream5);
 			DMA_SetCurrDataCounter(DMA1_Stream5, SBUS_RX_BUF_NUM);
 			DMA1_Stream5->CR |= DMA_SxCR_CT;
-			//清DMA中断标志
+			// 清DMA中断标志
 			DMA_ClearFlag(DMA1_Stream5, DMA_FLAG_TCIF5 | DMA_FLAG_HTIF5);
 			DMA_Cmd(DMA1_Stream5, ENABLE);
 			if (this_time_rx_len == RC_FRAME_LENGTH)
@@ -367,12 +487,12 @@ void USART2_IRQHandler(void)
 		}
 		else
 		{
-			//重新设置DMA
+			// 重新设置DMA
 			DMA_Cmd(DMA1_Stream5, DISABLE);
 			this_time_rx_len = SBUS_RX_BUF_NUM - DMA_GetCurrDataCounter(DMA1_Stream5);
 			DMA_SetCurrDataCounter(DMA1_Stream5, SBUS_RX_BUF_NUM);
 			DMA1_Stream5->CR &= ~(DMA_SxCR_CT);
-			//清DMA中断标志
+			// 清DMA中断标志
 			DMA_ClearFlag(DMA1_Stream5, DMA_FLAG_TCIF5 | DMA_FLAG_HTIF5);
 			DMA_Cmd(DMA1_Stream5, ENABLE);
 			if (this_time_rx_len == RC_FRAME_LENGTH)
@@ -383,4 +503,6 @@ void USART2_IRQHandler(void)
 		RC.updateTime = getSysTimeUs();
 		RC.updated = 1;
 	}
+#endif
+
 }

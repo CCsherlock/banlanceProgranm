@@ -179,6 +179,6 @@ float sinValue;
 float cosValue;
 void customMessageTest()
 {
-    sinValue = mpu6050Cal->Angle.pitch;
-    cosValue = mpu6050Cal->Angle.yaw;
+    sinValue = bmi088Cal->Angle.pitch;
+    cosValue = bmi088Cal->Angle.yaw;
 }

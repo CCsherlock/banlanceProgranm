@@ -88,28 +88,28 @@ void Custom_Init(void)
     DMA_Init(DMA1_Stream3, &custom_Tx_DMA_InitStructure);
 }
 // 串口中断
-void USART3_IRQHandler(void)
-{
-    float recvTime = getSysTimeUs();
-    u8 tmp;
-    if (USART_GetITStatus(USART3, USART_IT_IDLE) != RESET)
-    {
-        tmp = USART3->SR;
-        tmp = USART3->DR;
-        DMA_Cmd(DMA1_Stream1, DISABLE);
-        USART_ClearITPendingBit(USART3, USART_IT_IDLE);
-        if (tmp_RecvBuff1[0] == 0xA5 && Verify_CRC16_Check_Sum((u8 *)&tmp_RecvBuff1, sizeof(custom_RecvStruct)))
-        {
-            memcpy((u8 *)(&custom_RecvStruct), tmp_RecvBuff1, sizeof(custom_RecvStruct));
-        }
-        while (DMA_GetCmdStatus(DMA1_Stream1) != DISABLE)
-            ;
-        DMA_DeInit(DMA1_Stream1);
-        DMA_Init(DMA1_Stream1, &custom_Rx_DMA_InitStructure);
-        DMA_SetCurrDataCounter(DMA1_Stream1, sizeof(tmp_RecvBuff1));
-        DMA_Cmd(DMA1_Stream1, ENABLE);
-    }
-}  
+//void USART3_IRQHandler(void)
+//{
+//    float recvTime = getSysTimeUs();
+//    u8 tmp;
+//    if (USART_GetITStatus(USART3, USART_IT_IDLE) != RESET)
+//    {
+//        tmp = USART3->SR;
+//        tmp = USART3->DR;
+//        DMA_Cmd(DMA1_Stream1, DISABLE);
+//        USART_ClearITPendingBit(USART3, USART_IT_IDLE);
+//        if (tmp_RecvBuff1[0] == 0xA5 && Verify_CRC16_Check_Sum((u8 *)&tmp_RecvBuff1, sizeof(custom_RecvStruct)))
+//        {
+//            memcpy((u8 *)(&custom_RecvStruct), tmp_RecvBuff1, sizeof(custom_RecvStruct));
+//        }
+//        while (DMA_GetCmdStatus(DMA1_Stream1) != DISABLE)
+//            ;
+//        DMA_DeInit(DMA1_Stream1);
+//        DMA_Init(DMA1_Stream1, &custom_Rx_DMA_InitStructure);
+//        DMA_SetCurrDataCounter(DMA1_Stream1, sizeof(tmp_RecvBuff1));
+//        DMA_Cmd(DMA1_Stream1, ENABLE);
+//    }
+//}  
 
 void custom_Send_Data(void)
 {

@@ -125,6 +125,7 @@ public:
 	RCS::SWTick SW2Tick; //右上角拨杆跳变值
 private:
 	void Dbus_Config(void);
+	void Dbus_Init_C_board(void);
 	void remoteUpdate();
 	void taskSchedule();
 public:
@@ -146,7 +147,7 @@ extern "C"
 #endif /*__cplusplus*/
 
 	void USART2_IRQHandler(void);
-
+	void USART3_IRQHandler(void);
 #ifdef __cplusplus
 }
 #endif /*__cplusplus*/

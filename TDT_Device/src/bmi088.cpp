@@ -65,11 +65,12 @@ static uint8_t write_BMI088_gyro_reg_data_error[BMI088_WRITE_GYRO_REG_NUM][3] =
 };
 fp32 BMI088_ACCEL_SEN = BMI088_ACCEL_3G_SEN;
 fp32 BMI088_GYRO_SEN = BMI088_GYRO_2000_SEN;
+#define RAD_TO_DEGREE 57.29577951308232087f
 Bmi088::Bmi088(SPI_TypeDef *spix, int baud) : Spi(spix, baud)
 {
 	imuView = this;
 	accValueFector = BMI088_ACCEL_3G_SEN;
-	gyroDpsFector = BMI088_GYRO_2000_SEN;
+	gyroDpsFector = BMI088_GYRO_2000_SEN * RAD_TO_DEGREE;
 }
 
 void Bmi088::init()
