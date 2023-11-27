@@ -2,7 +2,7 @@
  * @Author: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
  * @Date: 2023-06-22 21:41:57
  * @LastEditors: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
- * @LastEditTime: 2023-07-02 16:59:24
+ * @LastEditTime: 2023-11-27 10:21:45
  * @FilePath: \Projectd:\TDT2023\Programe\TDT-Frame\TDT_Task\src\imu_task.cpp
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -31,106 +31,66 @@ History:
 #include "cycle.h"
 #include "parameter.h"
 #include "flash_var.h"
-
+#include "bmi088.h"
 extern TimeSimultaneity imuTimeMatch;
 
 ImuCalc *mpu6050Cal;
-//ImuCalc *mpu6050Out;
+ImuCalc *bmi088Cal;
 eulerAngle angleForWatch;
 eulerAngle angleForWatchAHRS;
 accdata accForWatch1;
 gyrodata gyroForWatch1;
 
 float *visionSendYaw, *visionSendPitch;
-void startControlTasks(); //等待imu初始化后开启控制任务
 /**
-  * @brief 陀螺仪任务
-  * @note 负责数据读取和解算
-  */
+ * @brief 陀螺仪任务
+ * @note 负责数据读取和解算
+ */
 void Imu_Task()
-{	
-	if (mpu6050Cal->forceGetOffset)
+{
+	if (bmi088Cal->forceGetOffset)
 	{
-		mpu6050Cal->getOffset();
+		bmi088Cal->getOffset();
 	}
 	/*MPU6050读取*/
-	uint64_t readImuTime = mpu6050Cal->TDT_IMU_update();
-//	mpu6050Out->TDT_IMU_update();
-//	if (visionSendYaw != NULL && visionSendPitch != NULL)
-//		imuTimeMatch.top(float(readImuTime) / 1e6f) << (vec2f({*visionSendYaw, *visionSendPitch}));
+	uint64_t readImuTime = bmi088Cal->TDT_IMU_update();
 
-#if !ANSWER_MODE /*应答模式，在有时间同步算法的情况下不使用，时间同步的下位替代*/
-//	void vision_Send_Data();
-//	vision_Send_Data();
-#endif
-	angleForWatch = mpu6050Cal->Angle;
-	angleForWatchAHRS = mpu6050Cal->AHRS_data.Angle;
-	accForWatch1 = mpu6050Cal->acc;
-	gyroForWatch1 = mpu6050Cal->gyro;
+	angleForWatch = bmi088Cal->Angle;
+	angleForWatchAHRS = bmi088Cal->AHRS_data.Angle;
+	accForWatch1 = bmi088Cal->acc;
+	gyroForWatch1 = bmi088Cal->gyro;
 }
 
 #include "flash_var.h"
 void imuInit()
 {
-	mpu6050Cal = new ImuCalc;
+	// mpu6050Cal = new ImuCalc;
+	bmi088Cal = new ImuCalc;
 	/*当前主控陀螺仪的引脚号*/
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC,ENABLE);
-	mpu6050Cal = new Mpu6050(GPIOC, GPIO_Pin_2, GPIO_Pin_1);
-	
-//	mpu6050Out = new ImuCalc;
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA,ENABLE);
-//	mpu6050Out = new Mpu6050(GPIOA, GPIO_Pin_10, GPIO_Pin_9);
-	/*陀螺仪和加速度的方向旋转矩阵*/
-	float gyroScaleFactor[3][3] =  {{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
-	mpu6050Cal->setGyroScaleFactor(gyroScaleFactor);
-//	mpu6050Out->setGyroScaleFactor(gyroScaleFactor);
-	float accScaleFactor[3][3] = {{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
-	mpu6050Cal->setAccScaleFactor(accScaleFactor);
-//	mpu6050Out->setAccScaleFactor(accScaleFactor);
-	#if FROM_FLASH
-	/*从Flash获取校准数据*/
-	//IFlash.link(mpu6050Cal->gyro.offset, 2);
-	//IFlash.link(mpu6050Cal->acc.offset, 3);
-//	IFlash.link(mpu6050Cal->sixCaliFector, 4);
-//	IFlash.link(mpu6050Cal->sixCaliOffset, 5);
-//	IFlash.link(mpu6050Cal->gyroCaliOffset, 6);
-	vec3f gyroOffset;
-	gyroOffset.data[0] = -50.7874125874126;
-	gyroOffset.data[1] = 29.6986790986791;
-	gyroOffset.data[2] = -0.903574203574204;
-	memcpy(&mpu6050Cal->gyro.offset,&gyroOffset,sizeof(gyroOffset));
-	#endif
-	#if FROM_MANUL
-	float accCaliFector[3] = {0.991165494425534,0.996649691628215,0.983589087624697};
-	float accCalioffset[3] = {62.921329919064135,25.342098693041486,765.678807961455};
-	vec3f gyroOffset;
-	gyroOffset.data[0] = -50.7874125874126;
-	gyroOffset.data[1] = 29.6986790986791;
-	gyroOffset.data[2] = -0.903574203574204;
+	// RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC,ENABLE);
+	// mpu6050Cal = new Mpu6050(GPIOC, GPIO_Pin_2, GPIO_Pin_1);
+	bmi088Cal = new Bmi088(SPI1, SPI_BaudRatePrescaler_256);
 
-	memcpy(mpu6050Cal->sixCaliFector,accCaliFector,sizeof(accCaliFector));
-	memcpy(mpu6050Cal->sixCaliOffset,accCalioffset,sizeof(accCalioffset));
-	memcpy(&mpu6050Cal->gyro.offset,&gyroOffset,sizeof(gyroOffset));
-	#endif 
+	/*陀螺仪和加速度的方向旋转矩阵*/
+	//	float gyroScaleFactor[3][3] = {{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
+	// mpu6050Cal->setGyroScaleFactor(gyroScaleFactor);
+	float gyroScaleFactor[3][3] = {{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
+	bmi088Cal->setGyroScaleFactor(gyroScaleFactor);
+	//	float accScaleFactor[3][3] = {{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
+	// mpu6050Cal->setAccScaleFactor(accScaleFactor);
+	float accScaleFactor[3][3] = {{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
+	bmi088Cal->setAccScaleFactor(accScaleFactor);
 	/*icm20602以及MPU6050初始化*/
-	mpu6050Cal->init();
-	mpu6050Cal->getOffset();
+	// mpu6050Cal->init();
+	// mpu6050Cal->getOffset();
+	bmi088Cal->init();
+	bmi088Cal->getOffset();
 	delayMs(50);
-	mpu6050Cal->initalAngle();
+	// mpu6050Cal->initalAngle();
 	/*陀螺仪初始化完成标志位*/
 	mpu6050Cal->imu_OK = 1;
-	
-	
-	/*icm20602以及MPU6050初始化*/
-//	mpu6050Out->init();
-//	mpu6050Out->getOffset();
-//	delayMs(50);
-//	mpu6050Out->initalAngle();
-//	/*陀螺仪初始化完成标志位*/
-//	mpu6050Out->imu_OK = 1;
 
-	//视觉发送的值的初始化
-	visionSendYaw = &mpu6050Cal->Angle.yaw;
-	visionSendPitch = &mpu6050Cal->Angle.pitch;
+	// 视觉发送的值的初始化
+	// visionSendYaw = &mpu6050Cal->Angle.yaw;
+	// visionSendPitch = &mpu6050Cal->Angle.pitch;
 }
-

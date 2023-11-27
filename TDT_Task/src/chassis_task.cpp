@@ -33,7 +33,7 @@ uint32_t torqueChange(float _t)
 }
 float temp;
 void Chassis::chassisCtrlTorque(float torque[2])
-
+{
     for (u8 i = 0; i < 2; i++)
     {
         /* code */
