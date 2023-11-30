@@ -12,6 +12,14 @@ LqrCtrl::LqrCtrl(/* args */)
 /**
  * @brief 初始化lqr所需数据来源
  *  初始LQR算法矩阵 电机 陀螺仪参数
+ *  规定两侧电机反馈值同向同号
+ *                        ---> + 内圈正方向                       --->+车体方向
+ *  外圈正方向 + <--- |||---------------|||   L 左侧            |----------|
+ *                     |                 |                      |		  		 |
+ *                     |     R       000 |   --->+车体方向      |	  |==|\	 |
+ *                     |                 |                      |   |==| \ |  俯﹢仰﹣
+ *  外圈正方向 + <--- |||---------------|||   R 右侧						|----------|
+ *                        ---> + 内圈正方向
  */
 void LqrCtrl::LqrInit()
 {
@@ -102,16 +110,11 @@ void LqrCtrl::getThetaFb()
 }
 void LqrCtrl::getFiFb()
 {
-    static uint64_t fiTime, fiTimeLast, fiTimeErr;
-    fiTime = getSysTimeUs();
-    fiTimeErr = timeIntervalFrom(fiTimeLast);
-    fiTimeLast = fiTime;
-    fiFb = 0; // TODO feedbackSource
-    fiSpeedFb = (fiFb - fiFb_last) / (float)(fiTimeErr / 1e6f);
-    fiFb_last = fiFb;
+    fiFb = bmi088Cal->Angle.pitch;                   // 单位 °
+    fiSpeedFb = bmi088Cal->gyro.calibration.data[0]; // 单位 °/s
 }
-#define OUTPUT_TEST
-float chassisTq[2] = {1, 0};
+// #define OUTPUT_TEST
+float chassisTq[2] = {0, 0};
 float legTq[2] = {0, 0};
 void LqrCtrl::lqrOutput()
 {
@@ -119,13 +122,13 @@ void LqrCtrl::lqrOutput()
     chassis->chassisCtrlTorque(chassisTq);
     chassis->legCtrlTorque(legTq);
 #else
-    float chassisTorque[2];
-    chassisTorque[LEFT] = roboLqr->resultValue[roboLqr->OUT_LEFT_MOTOR];
-    chassisTorque[RIGHT] = roboLqr->resultValue[roboLqr->OUT_RIGHT_MOTOR];
+    chassisTorque[LEFT] = LIMIT(roboLqr->resultValue[roboLqr->OUT_LEFT_MOTOR], -MAX_CHASSIS_T, MAX_CHASSIS_T);
+    chassisTorque[RIGHT] = LIMIT(roboLqr->resultValue[roboLqr->OUT_RIGHT_MOTOR], -MAX_CHASSIS_T, MAX_CHASSIS_T);
     chassis->chassisCtrlTorque(chassisTorque);
-    float legTorque[2];
-    legTorque[LEFT] = roboLqr->resultValue[roboLqr->IN_LEFT_MOTOR];
-    legTorque[RIGHT] = roboLqr->resultValue[roboLqr->IN_RIGHT_MOTOR];
+
+    legTorque[LEFT] = LIMIT(roboLqr->resultValue[roboLqr->IN_LEFT_MOTOR], -MAX_LEG_T, MAX_LEG_T);
+    legTorque[RIGHT] = LIMIT(roboLqr->resultValue[roboLqr->IN_RIGHT_MOTOR], -MAX_LEG_T, MAX_LEG_T);
+
     chassis->legCtrlTorque(legTorque);
 #endif
 }
@@ -174,11 +177,4 @@ void readLqrMessage()
         delayMs(10);
         readflag = 0;
     }
-}
-float sinValue;
-float cosValue;
-void customMessageTest()
-{
-    sinValue = bmi088Cal->Angle.pitch;
-    cosValue = bmi088Cal->Angle.yaw;
 }

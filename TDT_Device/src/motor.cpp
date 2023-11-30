@@ -8,7 +8,7 @@ Class:
 Author: 郑竣元
 Version: 1.3.1.191119_alpha
 Date: 19.10.15
-History: 
+History:
 	——————————————————————————————————————————————————————————————————————————
 	19.11.24 肖银河-改写数据合帧的方法，修复数据合帧时的BUG
 	——————————————————————————————————————————————————————————————————————————
@@ -45,7 +45,7 @@ History:
  * 	djiMotor.motorInit();
  * 	// ...
  * }
- * 
+ *
  * float motorPositionSet;
  * void loop()
  * {
@@ -69,25 +69,25 @@ History:
  * void init()
  * {
  * 	// ...
- * 
+ *
  * 	djiMotorPidOuter[0].kp = 10;
  * 	djiMotorPidOuter[0].resultMax = djiMotor.getMotorSpeedLimit();
  * 	//...
  * 	djiMotorPidOuter[2].resultMax = djiMotor.getMotorSpeedLimit();
  * 	djiMotor.pidInner.paramPtr = djiMotorPidInner; //设定参数指针
  * 	djiMotor.pidOuter.paramPtr = djiMotorPidOuter; //设定参数指针
- * 
+ *
  * 	djiMotor.pidInner.fbValuePtr[0] = &djiMotor.canInfo.dps;//默认反馈值，只有一个方案或者该方案的反馈值一样可以省略
  * 	djiMotor.pidInner.fbValuePtr[1] = &boardImu->gyro.radps.data[2];
  * 	djiMotor.pidInner.fbValuePtr[1] *= -1;//反馈值方向反了，为防止正反馈，可通过反馈值指针的*=操作符设置正反转
  * 	djiMotor.pidInner.fbValuePtr[1] *= RAD_TO_ANGLE; //还可以放大，使得方案号1和方案号2的反馈值的单位相同
- * 
+ *
  * 	djiMotor.pidInner.fbValuePtr[2] = &customFbValue;
- * 
+ *
  * 	djiMotor.motorInit();
  * 	// ...
  * }
- * 
+ *
  * float motorPositionSet;
  * void loop()
  * {
@@ -99,24 +99,24 @@ History:
  * @{
  */
 
-///电机电流输出限制表
+/// 电机电流输出限制表
 ///@note 顺序对应枚举变量MotorType里的电机类型排列-M2006,M3508,M3510,GM3510,GM6020
 uint16_t motorCurrentLimitList[5] = {10000, 16384, 32760, 29000, 30000};
-//电机速度输出限制表-取决于各类电机的最高转速
+// 电机速度输出限制表-取决于各类电机的最高转速
 ///@note 顺序对应枚举变量MotorType里的电机类型排列-M2006,M3508,M3510,GM3510,GM6020
 uint16_t motorSpeedLimitList[5] = {9500, 9158, 9600, 1200, 320};
-//电机绕组最高允许温度列表
+// 电机绕组最高允许温度列表
 ///@note 顺序对应枚举变量MotorType里的电机类型排列-M2006,M3508,M3510,GM3510,GM6020
 uint16_t motorMaxTempList[5] = {0, 125, 0, 100, 125};
 
 extern uint8_t deforceFlag;
 /** @} */
 
-///大疆电机对象列表
+/// 大疆电机对象列表
 MotorList motorList[2][8];
-///电机类大疆电机标志位初始化
+/// 电机类大疆电机标志位初始化
 u8 Motor::DJI_MotorFlag[2][8] = {0};
-///大疆电机CAN发送缓冲区
+/// 大疆电机CAN发送缓冲区
 float Motor::canBuff[2][8] = {0};
 
 /**
@@ -132,31 +132,31 @@ float Motor::canBuff[2][8] = {0};
  */
 Motor::Motor(MotorType motorType, CAN_TypeDef *_Canx, uint32_t _Std_ID) : pidInner(Pid(1)), pidOuter(Pid(1))
 {
-	//电机基本信息填充
+	// 电机基本信息填充
 	motorInfo.type = motorType;
 	motorInfo.std_ID = _Std_ID;
 	motorInfo.can_x = _Canx == CAN1 ? Can_1 : Can_2;
 	canInfo.offsetEncoder = 0;
 
-	//电机额外信息填充
-	otherInfo.currentLimit = motorCurrentLimitList[motorType]; //输出限幅（内环输出限幅）
-	otherInfo.speedLimit = motorSpeedLimitList[motorType];	   //速度限幅（外环输出限幅）
-	otherInfo.tempLimit = motorMaxTempList[motorType];		   //绕组最高允许温度
-	otherInfo.offSetLimit = otherInfo.currentLimit / 3;		   //默认位置校零时以三分之一输出开始
-	otherInfo.criticalTemp = 0.7f * otherInfo.tempLimit;	   //过热保护临界温度
-	otherInfo.maxOverTemp = 0.8f * otherInfo.tempLimit;		   //过热保护截止温度，高于此温度电机输出为0
+	// 电机额外信息填充
+	otherInfo.currentLimit = motorCurrentLimitList[motorType]; // 输出限幅（内环输出限幅）
+	otherInfo.speedLimit = motorSpeedLimitList[motorType];	   // 速度限幅（外环输出限幅）
+	otherInfo.tempLimit = motorMaxTempList[motorType];		   // 绕组最高允许温度
+	otherInfo.offSetLimit = otherInfo.currentLimit / 3;		   // 默认位置校零时以三分之一输出开始
+	otherInfo.criticalTemp = 0.7f * otherInfo.tempLimit;	   // 过热保护临界温度
+	otherInfo.maxOverTemp = 0.8f * otherInfo.tempLimit;		   // 过热保护截止温度，高于此温度电机输出为0
 
-	//对于有最高绕组温度的电机开启过热保护
+	// 对于有最高绕组温度的电机开启过热保护
 	if (motorMaxTempList[motorType] != 0)
 	{
-		this->enableFlag.overTempProtect = 1; //过热保护使能
+		this->enableFlag.overTempProtect = 1; // 过热保护使能
 	}
 
-	//pid默认反馈值填充
+	// pid默认反馈值填充
 	pidInner.fbValuePtr[0] = &canInfo.speed;
 	pidOuter.fbValuePtr[0] = &canInfo.totalEncoder;
 
-	//进行初始化
+	// 进行初始化
 	motorInit();
 	canInfo.lostFlag = 1;
 }
@@ -168,17 +168,17 @@ Motor::Motor(MotorType motorType, CAN_TypeDef *_Canx, uint32_t _Std_ID) : pidInn
  */
 void Motor::motorInit(void)
 {
-	//检测重复定义
-	if (isDJIMotor(motorInfo.can_x == Can_1 ? CAN1 : CAN2, motorInfo.std_ID)) //是大疆电机
+	// 检测重复定义
+	if (isDJIMotor(motorInfo.can_x == Can_1 ? CAN1 : CAN2, motorInfo.std_ID)) // 是大疆电机
 	{
 		otherInfo.isDjiMotorFlag = 1;
-		if (DJI_MotorFlag[motorInfo.can_x][motorInfo.std_ID - 0x201] == 0 || (DJI_MotorFlag[motorInfo.can_x][motorInfo.std_ID - 0x201] == 1 && motorList[motorInfo.can_x][motorInfo.std_ID - 0x201].motorPoint == this)) //此前该id未定义
+		if (DJI_MotorFlag[motorInfo.can_x][motorInfo.std_ID - 0x201] == 0 || (DJI_MotorFlag[motorInfo.can_x][motorInfo.std_ID - 0x201] == 1 && motorList[motorInfo.can_x][motorInfo.std_ID - 0x201].motorPoint == this)) // 此前该id未定义
 		{
-			canBeEnable = 1; //能够被初始化
+			canBeEnable = 1; // 能够被初始化
 		}
 		else
 		{
-			canBeEnable = 0; //无法被使能
+			canBeEnable = 0; // 无法被使能
 		}
 	}
 	else
@@ -187,14 +187,14 @@ void Motor::motorInit(void)
 		canBeEnable = 1;
 	}
 
-	//电机功能使能位
-	enableFlag.canSendMsg = canBeEnable; //发送使能
+	// 电机功能使能位
+	enableFlag.canSendMsg = canBeEnable; // 发送使能
 	enableMotor = canBeEnable;
 
-	if (otherInfo.isDjiMotorFlag) //大疆电机
+	if (otherInfo.isDjiMotorFlag) // 大疆电机
 	{
 		DJI_MotorFlag[motorInfo.can_x][motorInfo.std_ID - 0x201] = canBeEnable;
-		//更新电机列表
+		// 更新电机列表
 		motorList[(u8)motorInfo.can_x][motorInfo.std_ID - 0x201].motorPoint = this;
 		motorList[(u8)motorInfo.can_x][motorInfo.std_ID - 0x201].enableFlag = canBeEnable;
 		motorList[(u8)motorInfo.can_x][motorInfo.std_ID - 0x201].sendEnableFlag = canBeEnable;
@@ -209,12 +209,12 @@ void Motor::motorInit(void)
  */
 float Motor::ctrlCurrent(float current, u8 sendFlag)
 {
-	//输出限幅
+	// 输出限幅
 	if (this->otherInfo.isDjiMotorFlag)
 	{
 		current = LIMIT(current, -motorCurrentLimitList[motorInfo.type], motorCurrentLimitList[motorInfo.type]);
 	}
-	//过热保护
+	// 过热保护
 	if (enableFlag.overTempProtect == 1)
 	{
 		this->overHeatProtect(canInfo.temperature);
@@ -226,22 +226,22 @@ float Motor::ctrlCurrent(float current, u8 sendFlag)
 		current *= *otherInfo.powerOutKp;
 	}
 
-	//如果can发送使能且电机在线
+	// 如果can发送使能且电机在线
 	if (sendFlag && enableFlag.canSendMsg)
 	{
-		//非大疆电机调用自定义发送函数
+		// 非大疆电机调用自定义发送函数
 		if (this->otherInfo.isDjiMotorFlag == 0)
 		{
-			//参数检查
+			// 参数检查
 			if (this->otherMotorFunction != 0)
 			{
 				otherMotorFunction(current, this);
 			}
 		}
-		else if (otherInfo.isDjiMotorFlag && canInfo.lostFlag || deforceFlag) //电机未丢失并且未脱力
+		else if (otherInfo.isDjiMotorFlag && canInfo.lostFlag || deforceFlag) // 电机未丢失并且未脱力
 		{
 			/*结果发送到缓存区*/
-			motorPowerOut(0); //电机丢失或脱力 发0
+			motorPowerOut(0); // 电机丢失或脱力 发0
 			return 0;
 		}
 		else
@@ -251,18 +251,33 @@ float Motor::ctrlCurrent(float current, u8 sendFlag)
 	}
 	return current;
 }
-
+/**
+ * @details 将设定的力矩值乘以力矩系数后，将值传入ctrlCurrent
+ * @param  torque            力矩设定值
+ * @param  sendFlag         是否自动调用发送函数（传入sendFlag中）
+ * @return float 输出的电流值
+ */
+float Motor::ctrlTorque(float torque, u8 sendflag = 1)
+{
+	/*电流输出*/
+	// DJI电机丢失发0
+	if ((otherInfo.isDjiMotorFlag && canInfo.lostFlag))
+	{
+		return ctrlCurrent(0, sendFlag);
+	}
+	return ctrlCurrent(torque * otherInfo.motorTorqueCoff, sendFlag);
+}
 /**
  * @details 将设定的速度值通过pid计算后，将pid输出值传入ctrlCurrent
  * @param  speed            速度设定值
  * @param  planIndex        方案号
  * @param  sendFlag         是否自动调用发送函数（传入sendFlag中）
- * @return float 经过内环pid控制，以及温度限幅、功率限幅、最大值限幅的 \b 电流值
+ * @return float 经过内环pid控制，以及温度限幅、功率限幅、最大值限幅的电流值
  */
 float Motor::ctrlSpeed(float speed, int8_t planIndex, u8 sendFlag)
 {
 	/*电流输出*/
-	//DJI电机丢失发0
+	// DJI电机丢失发0
 	if ((otherInfo.isDjiMotorFlag && canInfo.lostFlag))
 	{
 		pidInner.Clear();
@@ -283,8 +298,8 @@ float Motor::ctrlSpeed(float speed, int8_t planIndex, u8 sendFlag)
 float Motor::ctrlPosition(double position, int8_t planIndex, u8 sendFlag)
 {
 	/*内环*/
-	//todo PositiveFeedback
-	//DJI电机丢失发0
+	// todo PositiveFeedback
+	// DJI电机丢失发0
 	if ((otherInfo.isDjiMotorFlag && canInfo.lostFlag))
 	{
 		pidOuter.Clear();
@@ -306,17 +321,17 @@ float Motor::ctrlPosition(double position, int8_t planIndex, u8 sendFlag)
  */
 void Motor::motorPowerOut(float canResult)
 {
-	//根据can口和id填充缓冲区并清空计数器和标志位
-	canBuff[motorInfo.can_x][motorInfo.std_ID - 0x201] = canResult;				//填充缓冲区
-	motorList[motorInfo.can_x][motorInfo.std_ID - 0x201].updateOfflineCnt = 0;	//清空计数器
-	motorList[motorInfo.can_x][motorInfo.std_ID - 0x201].updateOfflineFlag = 0; //清空标志位
+	// 根据can口和id填充缓冲区并清空计数器和标志位
+	canBuff[motorInfo.can_x][motorInfo.std_ID - 0x201] = canResult;				// 填充缓冲区
+	motorList[motorInfo.can_x][motorInfo.std_ID - 0x201].updateOfflineCnt = 0;	// 清空计数器
+	motorList[motorInfo.can_x][motorInfo.std_ID - 0x201].updateOfflineFlag = 0; // 清空标志位
 }
 
 /**
-  * @param[in] outFun 结果输出,电机编号
-  * @note 电机编号用于提供多个电机共用一个发送函数时区分不同电机用
-  * @warning 未对此函数进行测试
-  */
+ * @param[in] outFun 结果输出,电机编号
+ * @note 电机编号用于提供多个电机共用一个发送函数时区分不同电机用
+ * @warning 未对此函数进行测试
+ */
 void Motor::setOutFunction(OutFunction outFun)
 {
 	otherMotorFunction = outFun;
@@ -346,7 +361,7 @@ u8 Motor::isDJIMotor(CAN_TypeDef *_CANx, uint32_t _Std_ID)
 	}
 }
 
-///交换两个变量的值，仅限于整形相同变量类型
+/// 交换两个变量的值，仅限于整形相同变量类型
 #define Change_Value(a, b) \
 	a ^= b;                \
 	b ^= a, a ^= b;
@@ -363,26 +378,26 @@ u8 Motor::ctrlMotorOffset(float reSetSpeed, float maxErr, float outLimit)
 {
 	if (outLimit != 0)
 	{
-		//更新输出限幅
+		// 更新输出限幅
 		this->otherInfo.offSetLimit = outLimit;
 	}
 
 	/*校零开始*/
-	if (otherInfo.posOffSetFlag == 0) //获取初始角
+	if (otherInfo.posOffSetFlag == 0) // 获取初始角
 	{
-		//更改PID输出限幅为校零模式
+		// 更改PID输出限幅为校零模式
 		pidOuter.paramPtr[0].resultMax = otherInfo.offSetLimit;
-		//获取外环信息
+		// 获取外环信息
 		otherInfo.offSetPos = *pidOuter.fbValuePtr[0];
 		otherInfo.posOffSetFlag = 1;
 	}
-	else if (otherInfo.posOffSetFlag == 1) //开始反转
+	else if (otherInfo.posOffSetFlag == 1) // 开始反转
 	{
 		otherInfo.offSetPos += reSetSpeed;
 	}
 
 	/*校零结束*/
-	if (pidOuter.Is_LockTurn(maxErr) == 1) //当堵转时
+	if (pidOuter.Is_LockTurn(maxErr) == 1) // 当堵转时
 	{
 		int16_t offsetEncoderBuf = canInfo.offsetEncoder;
 		memset(&canInfo, 0, sizeof(CanInfo));
@@ -391,7 +406,7 @@ u8 Motor::ctrlMotorOffset(float reSetSpeed, float maxErr, float outLimit)
 		pidOuter.Clear();
 		pidOuter.Clear();
 		otherInfo.posOffSetFlag = 0;
-		//恢复PID输出限幅为正常模式
+		// 恢复PID输出限幅为正常模式
 		pidOuter.paramPtr[0].resultMax = otherInfo.currentLimit;
 		return 1;
 	}
@@ -470,7 +485,15 @@ void Motor::setMotorState(FunctionalState state)
 		motorList[(u8)motorInfo.can_x][motorInfo.std_ID - 0x201].enableFlag = 0;
 	}
 }
-
+/**
+ * @brief 设置电机力矩系数
+ * 
+ * @param _motorCoff 力矩系数
+ */
+void Motor::setMotorTorqueCoff(float _motorCoff)
+{
+	otherInfo.motorTorqueCoff = _motorCoff;
+}
 /**
  * @return MotorType 电机类型
  */
@@ -555,50 +578,49 @@ uint16_t Motor::getMotorMaxTemp(MotorType motorType)
  */
 void Motor::sendCanMsg()
 {
-	//can1 or can2
+	// can1 or can2
 	for (int can_i = 0; can_i < 2; can_i++)
 	{
-		//0~3 OR 4~7
+		// 0~3 OR 4~7
 		for (int idIndex = 0; idIndex < 2; idIndex++)
 		{
 			bool containMotor = false;
-			//遍历4个电机
+			// 遍历4个电机
 			for (int idOffset = 0; idOffset < 4; idOffset++)
 			{
-				//未定义
-				if(motorList[can_i][idIndex * 4 + idOffset].motorPoint  == 0)
+				// 未定义
+				if (motorList[can_i][idIndex * 4 + idOffset].motorPoint == 0)
 					continue;
-				if(motorList[can_i][idIndex * 4 + idOffset].motorPoint->enableMotor == 0)
+				if (motorList[can_i][idIndex * 4 + idOffset].motorPoint->enableMotor == 0)
 					continue;
 
 				containMotor = true;
 				/*电机离线检测部分*/
-				if(motorList[can_i][idIndex * 4 + idOffset].motorPoint->canInfo.lostCnt > 5)//两百个周期都没有接收到
+				if (motorList[can_i][idIndex * 4 + idOffset].motorPoint->canInfo.lostCnt > 5) // 两百个周期都没有接收到
 				{
-					motorList[can_i][idIndex * 4 + idOffset].motorPoint->canInfo.lostFlag = 1;//离线
-					canBuff[can_i][idIndex * 4 + idOffset] = 0; //自动脱力该电机
+					motorList[can_i][idIndex * 4 + idOffset].motorPoint->canInfo.lostFlag = 1; // 离线
+					canBuff[can_i][idIndex * 4 + idOffset] = 0;								   // 自动脱力该电机
 					continue;
 				}
 				motorList[can_i][idIndex * 4 + idOffset].motorPoint->canInfo.lostCnt++;
 
-				//超过100ms没有刷新计数器，认为没有调用控制/发送函数，自动脱力该电机
-				if (motorList[can_i][idIndex * 4 + idOffset].updateOfflineCnt > 100) //100ms
+				// 超过100ms没有刷新计数器，认为没有调用控制/发送函数，自动脱力该电机
+				if (motorList[can_i][idIndex * 4 + idOffset].updateOfflineCnt > 100) // 100ms
 				{
 					motorList[can_i][idIndex * 4 + idOffset].updateOfflineFlag = 1;
-					canBuff[can_i][idIndex * 4 + idOffset] = 0; //自动脱力该电机
+					canBuff[can_i][idIndex * 4 + idOffset] = 0; // 自动脱力该电机
 					continue;
 				}
-				if(deforceFlag)
+				if (deforceFlag)
 				{
-					canBuff[can_i][idIndex * 4 + idOffset] = 0; //自动脱力该电机
+					canBuff[can_i][idIndex * 4 + idOffset] = 0; // 自动脱力该电机
 				}
 				else
 				{
 					motorList[can_i][idIndex * 4 + idOffset].updateOfflineCnt++;
 				}
-
 			}
-			if (!containMotor) //不包含电机，跳过
+			if (!containMotor) // 不包含电机，跳过
 				continue;
 
 			canTx(&canBuff[can_i][idIndex * 4], can_i == 0 ? CAN1 : CAN2, idIndex == 0 ? 0x200 : 0x1ff);

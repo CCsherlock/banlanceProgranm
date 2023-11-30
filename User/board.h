@@ -27,6 +27,11 @@ History:
 #include "arm_const_structs.h"
 #include "TDT_USER.h"
 
+#ifdef SMALL_MODEL
+#define ROBOT_VER_1
+#else 
+#define ROBOT_VER_2
+#endif
 #ifdef USE_MAIN_CTRL_2019
 #define DEF_MAIN_CTRL_VER
 #endif

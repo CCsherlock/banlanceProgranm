@@ -1,6 +1,5 @@
 #include "chassis_task.h"
-Motor *legMotor[2];
-CyberGear *motorMi[2];
+
 Chassis::Chassis(/* args */)
 {
 }
@@ -8,18 +7,29 @@ Chassis::Chassis(/* args */)
  * @brief 底盘电机初始化
  *
  */
+#if defined SMALL_MODEL
+int legZero[2] = {0, 0};
+#elif defined BIG_MODEL
+int legZero[2] = {0, 0};
+#endif
+
 void Chassis::chassisInit()
 {
-
     for (u8 i = 0; i < 2; i++)
     {
-        /* code */
-        // chssisMotor[i] = new Motor(M3508, CAN1, 0x201 + i);
-
-        // legMotor[i] = new UT_Motor(i,i,1);
-        // legMotor[i] = new Motor(GM6020, CAN1, 0X205 + i);
-        motorMi[i] = new CyberGear(CAN1, 0x7F + i, i + 1, Motion_mode);
-        motorMi[i]->initMotor();
+/* code */
+#if defined SMALL_MODEL
+        chssisMotor[i] = new Motor(M3508, CAN1, 0x201 + i);
+        chssisMotor[i]->setMotorTorqueCoff(12970);
+        legMotor[i] = new Motor(GM6020, CAN1, 0X205 + i);
+        legMotor[i]->setZeroValue(legZero[i]);
+        legMotor[i]->setMotorTorqueCoff(25000);
+#elif defined BIG_MODEL
+        chssisMotor[i] = new CyberGear(CAN1, 0x7F + i, i + 1, Motion_mode);
+        chssisMotor[i]->initMotor();
+        legMotor[i] = new CyberGear(CAN1, 0x81 + i, i + 1, Motion_mode);
+        legMotor[i]->initMotor();
+#endif
     }
 }
 /**
@@ -27,27 +37,31 @@ void Chassis::chassisInit()
  *
  * @param torque
  */
-uint32_t torqueChange(float _t)
-{
-    return (uint32_t)((_t + 12) / 24.0f * 65536);
-}
 float temp;
 void Chassis::chassisCtrlTorque(float torque[2])
 {
     for (u8 i = 0; i < 2; i++)
     {
         /* code */
-        // chssisMotor[i]->ctrlCurrent(torque[i] * chaMotorTq2Cu * chassisOutputDir[i]);
-        switch (chassisMode)
+        switch (motorMode)
         {
         case DEFORCE:
-            motorMi[i]->stopMotor(0);
-            break;
-        case ENABLE:
-            motorMi[i]->enableMotor();
+#if defined SMALL_MODEL
+            chssisMotor[i]->ctrlCurrent(0);
+#elif defined BIG_MODEL
+            chssisMotor[i]->stopMotor(0);
+#endif
             break;
         case RUNNING:
-            motorMi[i]->motorCtrlMode(temp, 0, 0, 0, 0);
+#if defined SMALL_MODEL
+            chssisMotor[i]->ctrlCurrent(torque[i]);
+#elif defined BIG_MODEL
+            if (chssisMotor[i]->motorInfo.motor_mode != RUN_MODE)
+            {
+                chssisMotor[i]->enableMotor();
+            }
+            chssisMotor[i]->motorCtrlMode(torque[i], 0, 0, 0, 0);
+#endif
             break;
         default:
             break;
@@ -64,8 +78,29 @@ void Chassis::legCtrlTorque(float torque[2])
     for (u8 i = 0; i < 2; i++)
     {
         /* code */
-        // legMotor[i]->motorCtrl(torque[i], 0, 0, 0, 0);
-        legMotor[i]->ctrlCurrent(torque[i] * legMotorTq2Cu * legOutputDir[i]);
+        switch (motorMode)
+        {
+        case DEFORCE:
+#if defined SMALL_MODEL
+            legMotor[i]->ctrlCurrent(0);
+#elif defined BIG_MODEL
+            legMotor[i]->stopMotor(0);
+#endif
+            break;
+        case RUNNING:
+#if defined SMALL_MODEL
+            legMotor[i]->ctrlCurrent(torque[i]);
+#elif defined BIG_MODEL
+            if (legMotor[i]->motorInfo.motor_mode != RUN_MODE)
+            {
+                legMotor[i]->enableMotor();
+            }
+            legMotor[i]->motorCtrlMode(torque[i], 0, 0, 0, 0);
+#endif
+            break;
+        default:
+            break;
+        }
     }
 }
 /**
@@ -75,10 +110,13 @@ void Chassis::legCtrlTorque(float torque[2])
  */
 float *Chassis::getChassisSpeed()
 {
-    // chassisSpeed[LEFT] = chssisMotor[LEFT]->canInfo.speed * chassisFbDir[LEFT];
-    // chassisSpeed[RIGHT] = chssisMotor[RIGHT]->canInfo.speed * chassisFbDir[RIGHT];
-    chassisSpeed[LEFT] = motorMi[LEFT]->motorInfo.motor_fdb.speed * chassisFbDir[LEFT];
-    chassisSpeed[RIGHT] = motorMi[RIGHT]->motorInfo.motor_fdb.speed * chassisFbDir[RIGHT];
+#if defined SMALL_MODEL
+    chassisSpeed[LEFT] = chssisMotor[LEFT]->canInfo.speed * chassisFbDir[LEFT];
+    chassisSpeed[RIGHT] = chssisMotor[RIGHT]->canInfo.speed * chassisFbDir[RIGHT];
+#elif defined BIG_MODEL
+    chassisSpeed[LEFT] = chssisMotor[LEFT]->motorInfo.motor_fdb.speed * chassisFbDir[LEFT];
+    chassisSpeed[RIGHT] = chssisMotor[RIGHT]->motorInfo.motor_fdb.speed * chassisFbDir[RIGHT];
+#endif
     return chassisSpeed;
 }
 /**
@@ -88,32 +126,45 @@ float *Chassis::getChassisSpeed()
  */
 float *Chassis::getChassisAngel()
 {
-    // chassisAngel[LEFT] = chssisMotor[LEFT]->canInfo.totalAngle_f * chassisFbDir[LEFT];
-    // chassisAngel[RIGHT] = chssisMotor[RIGHT]->canInfo.totalAngle_f * chassisFbDir[RIGHT];
-    chassisAngel[LEFT] = motorMi[LEFT]->motorInfo.motor_fdb.angle * chassisFbDir[LEFT];
-    chassisAngel[RIGHT] = motorMi[RIGHT]->motorInfo.motor_fdb.angle * chassisFbDir[RIGHT];
+#if defined SMALL_MODEL
+    chassisAngel[LEFT] = chssisMotor[LEFT]->canInfo.totalAngle_f * chassisFbDir[LEFT];
+    chassisAngel[RIGHT] = chssisMotor[RIGHT]->canInfo.totalAngle_f * chassisFbDir[RIGHT];
+#elif defined BIG_MODEL
+    chassisAngel[LEFT] = chssisMotor[LEFT]->motorInfo.motor_fdb.angle * chassisFbDir[LEFT];
+    chassisAngel[RIGHT] = chssisMotor[RIGHT]->motorInfo.motor_fdb.angle * chassisFbDir[RIGHT];
+#endif
     return chassisAngel;
 }
 /**
  * @brief 关节电机速度反馈
  *
- * @return float* 速度结构体
+ * @return float* 速度结构体 单位 °/s
  */
 float *Chassis::getLegSpeed()
 {
-    legSpeed[LEFT] = legMotor[LEFT]->canInfo.speed * legFbDir[LEFT];
-    legSpeed[RIGHT] = legMotor[RIGHT]->canInfo.speed * legFbDir[RIGHT];
+#if defined SMALL_MODEL
+    legSpeed[LEFT] = legMotor[LEFT]->canInfo.speed * legFbDir[LEFT];    // 单位 °/s
+    legSpeed[RIGHT] = legMotor[RIGHT]->canInfo.speed * legFbDir[RIGHT]; // 单位 °/s
+#elif defined BIG_MODEL
+    chassisAngel[LEFT] = legMotor[LEFT]->motorInfo.motor_fdb.speed * chassisFbDir[LEFT];
+    chassisAngel[RIGHT] = legMotor[RIGHT]->motorInfo.motor_fdb.speed * chassisFbDir[RIGHT];
+#endif
     return legSpeed;
 }
 /**
  * @brief 关节电机位置反馈
  *
- * @return float* 位置结构体
+ * @return float* 位置结构体 单位 °
  */
 float *Chassis::getLegAngel()
 {
-    legAngel[LEFT] = legMotor[LEFT]->canInfo.totalAngle_f * legFbDir[LEFT];
-    legAngel[RIGHT] = legMotor[RIGHT]->canInfo.totalAngle_f * legFbDir[RIGHT];
+#if defined SMALL_MODEL
+    legAngel[LEFT] = legMotor[LEFT]->canInfo.totalAngle_f * legFbDir[LEFT];    // 单位 °
+    legAngel[RIGHT] = legMotor[RIGHT]->canInfo.totalAngle_f * legFbDir[RIGHT]; // 单位 °
+#elif defined BIG_MODEL
+    chassisAngel[LEFT] = legMotor[LEFT]->motorInfo.motor_fdb.angle * chassisFbDir[LEFT];
+    chassisAngel[RIGHT] = legMotor[RIGHT]->motorInfo.motor_fdb.angle * chassisFbDir[RIGHT];
+#endif
     return legAngel;
 }
 /**

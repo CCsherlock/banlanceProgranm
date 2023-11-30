@@ -4,6 +4,9 @@
 #include "board.h"
 #include "lqr.h"
 #include "chassis_task.h"
+#define MAX_CHASSIS_T 1.3
+#define MAX_LEG_T 1.2
+
 class LqrCtrl
 {
 private:
@@ -14,8 +17,8 @@ public:
     Chassis *chassis;
     void LqrInit();
     bool lqrInitflag = false;
-    float setValue[10];
-    float fbValue[10];
+    float setValue[10]; // 设定值LQR传参数组
+    float fbValue[10];  // 反馈值LQR传参数组
     void getAllFbValue();
     void getAllSetValue();
     void lqrCalRun();
@@ -26,26 +29,25 @@ public:
     void getXfb();
     void lqrKset();
     bool lqrKsetFlag = false;
-    float xSet[2] = {0, 0};
-    float xFb[2] = {0, 0};
-    float speedSet[2] = {0, 0};
-    float speedFb[2] = {0, 0};
-    float angleSet[2] = {0, 0};
-    float angleFb[2] = {0, 0};
-    float angleFb_last[2] = {0,0};
-    float angleSpeedSet[2] = {0, 0};
-    float angleSpeedFb[2] = {0, 0};
-    float fiSet;
-    float fiSpeedSet;
-    float fiFb,fiFb_last;
-    float fiSpeedFb;
+    float xSet[2] = {0, 0};          // 底盘位置设定值
+    float xFb[2] = {0, 0};           // 底盘位置反馈值
+    float speedSet[2] = {0, 0};      // 底盘速度设定值
+    float speedFb[2] = {0, 0};       // 底盘速度反馈值
+    float angleSet[2] = {0, 0};      // 关节角度设定值
+    float angleFb[2] = {0, 0};       // 关节角度反馈值
+    float angleSpeedSet[2] = {0, 0}; // 关节角速度设定值
+    float angleSpeedFb[2] = {0, 0};  // 关节角速度反馈值
+    float fiSet;                     // 机体角度设定值
+    float fiSpeedSet;                // 机体角速度设定值
+    float fiFb;                      // 机体角度反馈值
+    float fiSpeedFb;                 // 机体角速度反馈值
+    float chassisTorque[2] = {0,0};
+    float legTorque[2] = {0,0};
 };
 extern float laqK_buffer[40];
 void linkLqrFlash();
 void saveLqrMessage();
 void lqrRunTask();
 void readLqrMessage();
-void customMessageTest();
 extern LqrCtrl balance;
-extern float sinValue,cosValue;
 #endif

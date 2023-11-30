@@ -310,16 +310,18 @@ void CAN1_RX0_IRQHandler(void)
 		CAN_Receive(CAN1, CAN_FIFO0, &Can1RxMsg);
 		// CAN信息处理
 		Can1.Motor_Information_Calculate(Can_1, &Can1RxMsg);
-		if((Can1RxMsg.ExtId&0x0000FF00) == 0x007F00)
+#if defined BIG_MODEL
+		if ((Can1RxMsg.ExtId & 0x0000FF00) == 0x007F00)
 		{
 			motorMi[0]->motorDataHandler(&Can1RxMsg);
 		}
-//		memset(&Can1RxMsg,0,sizeof(Can1RxMsg));
-		switch (Can1RxMsg.StdId)
-		{
-		default:
-			break;
-		}
+		memset(&Can1RxMsg, 0, sizeof(Can1RxMsg));
+#endif
+		// switch (Can1RxMsg.StdId)
+		// {
+		// default:
+		// 	break;
+		// }
 		CAN_ClearITPendingBit(CAN1, CAN_IT_FMP0);
 	}
 }
@@ -331,13 +333,13 @@ void CAN2_RX0_IRQHandler(void)
 		CAN_Receive(CAN2, CAN_FIFO0, &Can2RxMsg);
 		// CAN信息处理
 		Can2.Motor_Information_Calculate(Can_2, &Can2RxMsg);
-		memset(&Can2RxMsg,0,sizeof(Can2RxMsg));
+		memset(&Can2RxMsg, 0, sizeof(Can2RxMsg));
 		CAN_ClearITPendingBit(CAN2, CAN_IT_FMP0);
-		//		switch (Can2RxMsg.StdId)
-		//		{
-		//		default:
-		//			break;
-		//		}
+		// switch (Can2RxMsg.StdId)
+		// {
+		// default:
+		// 	break;
+		// }
 	}
 }
 
@@ -350,18 +352,18 @@ void CAN2_RX0_IRQHandler(void)
 void canTx(vec4f *value, CAN_TypeDef *can_x, uint32_t id)
 {
 	CanTxMsg Can1TxMsg;
-	if(id != 0x200|| id != 0x1FF)
+	if (id != 0x200 || id != 0x1FF)
 	{
 		Can1TxMsg.IDE = CAN_Id_Extended; // 标准帧 CAN_Id_Standard 使用标准标识符 CAN_Id_Extended 使用标准标识符 + 扩展标识符
-		Can1TxMsg.ExtId = id; // 范围为 0 到 0x7FF
+		Can1TxMsg.ExtId = id;			 // 范围为 0 到 0x7FF
 	}
 	else
 	{
 		Can1TxMsg.IDE = CAN_Id_Standard; // 标准帧 CAN_Id_Standard 使用标准标识符 CAN_Id_Extended 使用标准标识符 + 扩展标识符
-		Can1TxMsg.StdId = id; // 范围为 0 到 0x7FF
+		Can1TxMsg.StdId = id;			 // 范围为 0 到 0x7FF
 	}
-	Can1TxMsg.RTR = CAN_RTR_Data;	 // 数据帧 CAN_RTR_Data 数据帧 CAN_RTR_Remote 远程帧
-	Can1TxMsg.DLC = 8;				 // 帧长度 范围是 0 到 0x8
+	Can1TxMsg.RTR = CAN_RTR_Data; // 数据帧 CAN_RTR_Data 数据帧 CAN_RTR_Remote 远程帧
+	Can1TxMsg.DLC = 8;			  // 帧长度 范围是 0 到 0x8
 
 	Can1TxMsg.StdId = id; // 范围为 0 到 0x7FF
 
@@ -380,18 +382,18 @@ void canTx(vec4f *value, CAN_TypeDef *can_x, uint32_t id)
 void canTx(float *data, CAN_TypeDef *can_x, uint32_t id)
 {
 	CanTxMsg Can1TxMsg;
-	if(id != 0x200|| id != 0x1FF)
+	if (id != 0x200 || id != 0x1FF)
 	{
 		Can1TxMsg.IDE = CAN_Id_Extended; // 标准帧 CAN_Id_Standard 使用标准标识符 CAN_Id_Extended 使用标准标识符 + 扩展标识符
-		Can1TxMsg.ExtId = id; // 范围为 0 到 0x7FF
+		Can1TxMsg.ExtId = id;			 // 范围为 0 到 0x7FF
 	}
 	else
 	{
 		Can1TxMsg.IDE = CAN_Id_Standard; // 标准帧 CAN_Id_Standard 使用标准标识符 CAN_Id_Extended 使用标准标识符 + 扩展标识符
-		Can1TxMsg.StdId = id; // 范围为 0 到 0x7FF
+		Can1TxMsg.StdId = id;			 // 范围为 0 到 0x7FF
 	}
-	Can1TxMsg.RTR = CAN_RTR_Data;	 // 数据帧 CAN_RTR_Data 数据帧 CAN_RTR_Remote 远程帧
-	Can1TxMsg.DLC = 8;				 // 帧长度 范围是 0 到 0x8
+	Can1TxMsg.RTR = CAN_RTR_Data; // 数据帧 CAN_RTR_Data 数据帧 CAN_RTR_Remote 远程帧
+	Can1TxMsg.DLC = 8;			  // 帧长度 范围是 0 到 0x8
 
 	Can1TxMsg.StdId = id; // 范围为 0 到 0x7FF
 
@@ -410,20 +412,18 @@ void canTx(float *data, CAN_TypeDef *can_x, uint32_t id)
 void canTx(u8 data[8], CAN_TypeDef *can_x, uint32_t id)
 {
 	CanTxMsg Can1TxMsg;
-	if(id != 0x200|| id != 0x1FF)
+	if (id != 0x200 || id != 0x1FF)
 	{
 		Can1TxMsg.IDE = CAN_Id_Extended; // 标准帧 CAN_Id_Standard 使用标准标识符 CAN_Id_Extended 使用标准标识符 + 扩展标识符
-		Can1TxMsg.ExtId = id; // 范围为 0 到 0x7FF
+		Can1TxMsg.ExtId = id;			 // 范围为 0 到 0x7FF
 	}
 	else
 	{
 		Can1TxMsg.IDE = CAN_Id_Standard; // 标准帧 CAN_Id_Standard 使用标准标识符 CAN_Id_Extended 使用标准标识符 + 扩展标识符
-		Can1TxMsg.StdId = id; // 范围为 0 到 0x7FF
+		Can1TxMsg.StdId = id;			 // 范围为 0 到 0x7FF
 	}
-	Can1TxMsg.RTR = CAN_RTR_Data;	 // 数据帧 CAN_RTR_Data 数据帧 CAN_RTR_Remote 远程帧
-	Can1TxMsg.DLC = 8;				 // 帧长度 范围是 0 到 0x8
-
-	
+	Can1TxMsg.RTR = CAN_RTR_Data; // 数据帧 CAN_RTR_Data 数据帧 CAN_RTR_Remote 远程帧
+	Can1TxMsg.DLC = 8;			  // 帧长度 范围是 0 到 0x8
 
 	memcpy(Can1TxMsg.Data, data, 8);
 

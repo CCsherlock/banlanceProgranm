@@ -38,7 +38,8 @@ extern Custom_Recv_Struct_t custom_RecvStruct;
 extern Custom_Send_Struct_t custom_SendStruct;
 
 ///串口初始化
-void Custom_Init(void);
+void Custom_Init_V5(void);
+void Custom_Init_Cboard(void);
 void custom_Send_Data(void);
 #ifdef __cplusplus
 extern "C"

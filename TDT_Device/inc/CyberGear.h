@@ -139,8 +139,6 @@ public:
     void stopMotor(uint8_t clear_error);
     void motorDataHandler(CanRxMsg *canRxData);
     uint32_t getMotorID(uint32_t CAN_ID_Frame);
-    void setMode(float Mode);
-    void setCurrent(float Current);
     void setMotorParameter(uint16_t index ,uint8_t data[4]);
     void motorCtrlMode(float torque, float MechPosition , float speed , float kp , float kd);
     void setZeroPos();
