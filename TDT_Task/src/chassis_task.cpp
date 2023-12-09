@@ -1,4 +1,5 @@
 #include "chassis_task.h"
+#include "dbus.h"
 #if defined SMALL_MODEL
 Motor *chssisMotor[2];
 Motor *legMotor[2];
@@ -14,7 +15,7 @@ Chassis::Chassis(/* args */)
  *
  */
 #if defined SMALL_MODEL
-int legZero[2] = {1449, 1307};
+int legZero[2] = {1429, 1362};
 #elif defined BIG_MODEL
 int legZero[2] = {0, 0};
 #endif
@@ -56,6 +57,14 @@ void Chassis::chassisInit()
 float temp;
 void Chassis::chassisCtrlTorque(float torque[2])
 {
+	if(deforceFlag)
+	{
+		motorMode = DEFORCE;
+	}
+	else
+	{
+		motorMode = RUNNING;
+	}
     for (u8 i = 0; i < 2; i++)
     {
         /* code */
@@ -70,7 +79,7 @@ void Chassis::chassisCtrlTorque(float torque[2])
             break;
         case RUNNING:
 #if defined SMALL_MODEL
-            chssisMotor[i]->ctrlTorque(torque[i]);
+            chssisMotor[i]->ctrlTorque(torque[i]*chassisOutputDir[i]);
 #elif defined BIG_MODEL
             if (chssisMotor[i]->motorInfo.motor_mode != RUN_MODE)
             {
@@ -91,6 +100,14 @@ void Chassis::chassisCtrlTorque(float torque[2])
  */
 void Chassis::legCtrlTorque(float torque[2])
 {
+	if(deforceFlag)
+	{
+		motorMode = DEFORCE;
+	}
+	else
+	{
+		motorMode = RUNNING;
+	}
     for (u8 i = 0; i < 2; i++)
     {
         /* code */
@@ -105,7 +122,7 @@ void Chassis::legCtrlTorque(float torque[2])
             break;
         case RUNNING:
 #if defined SMALL_MODEL
-            legMotor[i]->ctrlTorque(torque[i]);
+            legMotor[i]->ctrlTorque(torque[i]* legOutputDir[i]);
 #elif defined BIG_MODEL
             if (legMotor[i]->motorInfo.motor_mode != RUN_MODE)
             {

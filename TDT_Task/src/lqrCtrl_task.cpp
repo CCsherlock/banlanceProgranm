@@ -28,8 +28,8 @@ void LqrCtrl::LqrInit()
     chassis = new Chassis;
     roboLqr->lqrInit();
     chassis->chassisInit();
-    chassis->setChassisOutPutDir(-1*chassisSetPossitive, 1*chassisSetPossitive);
-    chassis->setlegOutPutDir(1*legSetPossitive, -1*legSetPossitive);
+    chassis->setChassisOutPutDir(-1, 1);
+    chassis->setlegOutPutDir(1, -1);
     chassis->setChassisFbDir(-1*chassisFbPossitive, 1*chassisFbPossitive);
     chassis->setLegFbDir(1*legFbPossitive, -1*legFbPossitive);
 }
@@ -96,7 +96,7 @@ void LqrCtrl::getSpeedFb()
     for (u8 i = 0; i < 2; i++)
     {
         /* code */
-        speedFb[i] = chassis->getChassisSpeed()[i]/60.0f*360.0f*RAD_PER_DEG;// 单位 rad/s
+        speedFb[i] = chassis->getChassisSpeed()[i]/60.0f*360.0f*RAD_PER_DEG*0.125;// 单位 m/s
     }
 }
 void LqrCtrl::getThetaFb()
@@ -125,11 +125,14 @@ void LqrCtrl::lqrOutput()
 #else
     chassisTorque[LEFT] = LIMIT(roboLqr->resultValue[roboLqr->OUT_LEFT_MOTOR], -MAX_CHASSIS_T, MAX_CHASSIS_T);
     chassisTorque[RIGHT] = LIMIT(roboLqr->resultValue[roboLqr->OUT_RIGHT_MOTOR], -MAX_CHASSIS_T, MAX_CHASSIS_T);
+		chassisTorque[LEFT] = chassisTorque[LEFT]*chassisSetPossitive;
+	  chassisTorque[RIGHT] = chassisTorque[RIGHT]*chassisSetPossitive;
     chassis->chassisCtrlTorque(chassisTorque);
 
     legTorque[LEFT] = LIMIT(roboLqr->resultValue[roboLqr->IN_LEFT_MOTOR], -MAX_LEG_T, MAX_LEG_T);
     legTorque[RIGHT] = LIMIT(roboLqr->resultValue[roboLqr->IN_RIGHT_MOTOR], -MAX_LEG_T, MAX_LEG_T);
-
+		legTorque[LEFT] = legTorque[LEFT]*legSetPossitive;
+	  legTorque[RIGHT] = legTorque[RIGHT]*legSetPossitive;
     chassis->legCtrlTorque(legTorque);
 #endif
 }
