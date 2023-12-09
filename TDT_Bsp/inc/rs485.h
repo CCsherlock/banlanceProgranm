@@ -99,7 +99,6 @@ void RS485_Send_Data(uint8_t CHANNEL_X);
 extern "C"
 {
 #endif
-	void USART1_IRQHandler(void);
 	void DMA2_Stream7_IRQHandler(void);
 	void USART6_IRQHandler(void);
 	void DMA2_Stream6_IRQHandler(void);

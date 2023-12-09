@@ -43,6 +43,14 @@ public:
     float fiSpeedFb;                 // 机体角速度反馈值
     float chassisTorque[2] = {0,0};
     float legTorque[2] = {0,0};
+		int8_t chassisFbPossitive =-1;
+		int8_t legFbPossitive =1;
+//		int8_t chassisSetPossitive =1;
+//		int8_t legSetPossitive =-1;
+
+		int8_t chassisSetPossitive =0;
+		
+		int8_t legSetPossitive =0;
 };
 extern float laqK_buffer[40];
 void linkLqrFlash();

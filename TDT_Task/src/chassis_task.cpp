@@ -1,5 +1,11 @@
 #include "chassis_task.h"
-
+#if defined SMALL_MODEL
+Motor *chssisMotor[2];
+Motor *legMotor[2];
+#elif defined BIG_MODEL
+CyberGear *chssisMotor[2];
+CyberGear *legMotor[2];
+#endif
 Chassis::Chassis(/* args */)
 {
 }
@@ -8,29 +14,39 @@ Chassis::Chassis(/* args */)
  *
  */
 #if defined SMALL_MODEL
-int legZero[2] = {0, 0};
+int legZero[2] = {1449, 1307};
 #elif defined BIG_MODEL
 int legZero[2] = {0, 0};
 #endif
 
 void Chassis::chassisInit()
 {
-    for (u8 i = 0; i < 2; i++)
-    {
-/* code */
-#if defined SMALL_MODEL
-        chssisMotor[i] = new Motor(M3508, CAN1, 0x201 + i);
-        chssisMotor[i]->setMotorTorqueCoff(12970);
-        legMotor[i] = new Motor(GM6020, CAN1, 0X205 + i);
-        legMotor[i]->setZeroValue(legZero[i]);
-        legMotor[i]->setMotorTorqueCoff(25000);
-#elif defined BIG_MODEL
-        chssisMotor[i] = new CyberGear(CAN1, 0x7F + i, i + 1, Motion_mode);
-        chssisMotor[i]->initMotor();
-        legMotor[i] = new CyberGear(CAN1, 0x81 + i, i + 1, Motion_mode);
-        legMotor[i]->initMotor();
-#endif
-    }
+    chssisMotor[LEFT] = new Motor(M3508, CAN1, 0x201);
+    chssisMotor[LEFT]->setMotorTorqueCoff(12970);
+    legMotor[LEFT] = new Motor(GM6020, CAN1, 0X206);
+    legMotor[LEFT]->setZeroValue(legZero[LEFT]);
+    legMotor[LEFT]->setMotorTorqueCoff(25000);
+    chssisMotor[RIGHT] = new Motor(M3508, CAN1, 0x202);
+    chssisMotor[RIGHT]->setMotorTorqueCoff(12970);
+    legMotor[RIGHT] = new Motor(GM6020, CAN1, 0X205);
+    legMotor[RIGHT]->setZeroValue(legZero[RIGHT]);
+    legMotor[RIGHT]->setMotorTorqueCoff(25000);
+    //    for (u8 i = 0; i < 2; i++)
+    //    {
+    ///* code */
+    // #if defined SMALL_MODEL
+    //         chssisMotor[i] = new Motor(M3508, CAN1, 0x201 + i);
+    //         chssisMotor[i]->setMotorTorqueCoff(12970);
+    //         legMotor[i] = new Motor(GM6020, CAN1, 0X205 + i);
+    //         legMotor[i]->setZeroValue(legZero[i]);
+    //         legMotor[i]->setMotorTorqueCoff(25000);
+    // #elif defined BIG_MODEL
+    //         chssisMotor[i] = new CyberGear(CAN1, 0x7F + i, i + 1, Motion_mode);
+    //         chssisMotor[i]->initMotor();
+    //         legMotor[i] = new CyberGear(CAN1, 0x81 + i, i + 1, Motion_mode);
+    //         legMotor[i]->initMotor();
+    // #endif
+    //     }
 }
 /**
  * @brief 底盘动力电机力矩输出
@@ -47,14 +63,14 @@ void Chassis::chassisCtrlTorque(float torque[2])
         {
         case DEFORCE:
 #if defined SMALL_MODEL
-            chssisMotor[i]->ctrlCurrent(0);
+            chssisMotor[i]->ctrlTorque(0);
 #elif defined BIG_MODEL
             chssisMotor[i]->stopMotor(0);
 #endif
             break;
         case RUNNING:
 #if defined SMALL_MODEL
-            chssisMotor[i]->ctrlCurrent(torque[i]);
+            chssisMotor[i]->ctrlTorque(torque[i]);
 #elif defined BIG_MODEL
             if (chssisMotor[i]->motorInfo.motor_mode != RUN_MODE)
             {
@@ -82,14 +98,14 @@ void Chassis::legCtrlTorque(float torque[2])
         {
         case DEFORCE:
 #if defined SMALL_MODEL
-            legMotor[i]->ctrlCurrent(0);
+            legMotor[i]->ctrlTorque(0);
 #elif defined BIG_MODEL
             legMotor[i]->stopMotor(0);
 #endif
             break;
         case RUNNING:
 #if defined SMALL_MODEL
-            legMotor[i]->ctrlCurrent(torque[i]);
+            legMotor[i]->ctrlTorque(torque[i]);
 #elif defined BIG_MODEL
             if (legMotor[i]->motorInfo.motor_mode != RUN_MODE)
             {
@@ -111,8 +127,8 @@ void Chassis::legCtrlTorque(float torque[2])
 float *Chassis::getChassisSpeed()
 {
 #if defined SMALL_MODEL
-    chassisSpeed[LEFT] = chssisMotor[LEFT]->canInfo.speed * chassisFbDir[LEFT];
-    chassisSpeed[RIGHT] = chssisMotor[RIGHT]->canInfo.speed * chassisFbDir[RIGHT];
+    chassisSpeed[LEFT] = chssisMotor[LEFT]->canInfo.speed * chassisFbDir[LEFT];    // 单位  RPM
+    chassisSpeed[RIGHT] = chssisMotor[RIGHT]->canInfo.speed * chassisFbDir[RIGHT]; // 单位  RPM
 #elif defined BIG_MODEL
     chassisSpeed[LEFT] = chssisMotor[LEFT]->motorInfo.motor_fdb.speed * chassisFbDir[LEFT];
     chassisSpeed[RIGHT] = chssisMotor[RIGHT]->motorInfo.motor_fdb.speed * chassisFbDir[RIGHT];
@@ -127,8 +143,8 @@ float *Chassis::getChassisSpeed()
 float *Chassis::getChassisAngel()
 {
 #if defined SMALL_MODEL
-    chassisAngel[LEFT] = chssisMotor[LEFT]->canInfo.totalAngle_f * chassisFbDir[LEFT];
-    chassisAngel[RIGHT] = chssisMotor[RIGHT]->canInfo.totalAngle_f * chassisFbDir[RIGHT];
+    chassisAngel[LEFT] = chssisMotor[LEFT]->canInfo.totalAngle_f * chassisFbDir[LEFT];    // 单位 °
+    chassisAngel[RIGHT] = chssisMotor[RIGHT]->canInfo.totalAngle_f * chassisFbDir[RIGHT]; // 单位 °
 #elif defined BIG_MODEL
     chassisAngel[LEFT] = chssisMotor[LEFT]->motorInfo.motor_fdb.angle * chassisFbDir[LEFT];
     chassisAngel[RIGHT] = chssisMotor[RIGHT]->motorInfo.motor_fdb.angle * chassisFbDir[RIGHT];

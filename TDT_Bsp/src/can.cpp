@@ -46,6 +46,7 @@ static void canGpioNvicInit(CAN_TypeDef *can_x)
 	if (can_x == CAN1)
 	{
 #if defined USE_MAIN_CTRL_RM_CBOARD
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE); // 初始化CNA1时钟
 		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE); // 初始化GPIO时钟
 		// GPIO复用
 		GPIO_PinAFConfig(GPIOD, GPIO_PinSource0, GPIO_AF_CAN1);
@@ -56,6 +57,7 @@ static void canGpioNvicInit(CAN_TypeDef *can_x)
 		CanGpio.GPIO_OType = GPIO_OType_PP;
 		CanGpio.GPIO_Speed = GPIO_Speed_100MHz;
 		GPIO_Init(GPIOD, &CanGpio);
+		
 #else
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE); // 初始化CNA1时钟
 
@@ -309,6 +311,10 @@ void CAN1_RX0_IRQHandler(void)
 	{
 		CAN_Receive(CAN1, CAN_FIFO0, &Can1RxMsg);
 		// CAN信息处理
+		if(Can1RxMsg.StdId == 0x201)
+		{
+			Can1.Motor_Information_Calculate(Can_1, &Can1RxMsg);
+		}
 		Can1.Motor_Information_Calculate(Can_1, &Can1RxMsg);
 #if defined BIG_MODEL
 		if ((Can1RxMsg.ExtId & 0x0000FF00) == 0x007F00)
@@ -382,16 +388,18 @@ void canTx(vec4f *value, CAN_TypeDef *can_x, uint32_t id)
 void canTx(float *data, CAN_TypeDef *can_x, uint32_t id)
 {
 	CanTxMsg Can1TxMsg;
-	if (id != 0x200 || id != 0x1FF)
-	{
-		Can1TxMsg.IDE = CAN_Id_Extended; // 标准帧 CAN_Id_Standard 使用标准标识符 CAN_Id_Extended 使用标准标识符 + 扩展标识符
-		Can1TxMsg.ExtId = id;			 // 范围为 0 到 0x7FF
-	}
-	else
-	{
-		Can1TxMsg.IDE = CAN_Id_Standard; // 标准帧 CAN_Id_Standard 使用标准标识符 CAN_Id_Extended 使用标准标识符 + 扩展标识符
-		Can1TxMsg.StdId = id;			 // 范围为 0 到 0x7FF
-	}
+//	if (id != 0x200 || id != 0x1FF)
+//	{
+//		Can1TxMsg.IDE = CAN_Id_Extended; // 标准帧 CAN_Id_Standard 使用标准标识符 CAN_Id_Extended 使用标准标识符 + 扩展标识符
+//		Can1TxMsg.ExtId = id;			 // 范围为 0 到 0x7FF
+//	}
+//	else
+//	{
+//		Can1TxMsg.IDE = CAN_Id_Standard; // 标准帧 CAN_Id_Standard 使用标准标识符 CAN_Id_Extended 使用标准标识符 + 扩展标识符
+//		Can1TxMsg.StdId = id;			 // 范围为 0 到 0x7FF
+//	}
+	Can1TxMsg.IDE = CAN_Id_Standard; // 标准帧 CAN_Id_Standard 使用标准标识符 CAN_Id_Extended 使用标准标识符 + 扩展标识符
+	Can1TxMsg.StdId = id;			 // 范围为 0 到 0x7FF
 	Can1TxMsg.RTR = CAN_RTR_Data; // 数据帧 CAN_RTR_Data 数据帧 CAN_RTR_Remote 远程帧
 	Can1TxMsg.DLC = 8;			  // 帧长度 范围是 0 到 0x8
 

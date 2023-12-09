@@ -21,14 +21,6 @@ private:
 public:
     Chassis(/* args */);
     void chassisInit();
-#if defined SMALL_MODEL
-    Motor *chssisMotor[2];
-    Motor *legMotor[2];
-#elif defined BIG_MODEL
-    CyberGear *chssisMotor[2];
-    CyberGear *legMotor[2];
-#endif
-
     float chassisSpeed[2];
     float chassisAngel[2];
     float legSpeed[2];

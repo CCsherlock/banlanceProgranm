@@ -257,15 +257,15 @@ float Motor::ctrlCurrent(float current, u8 sendFlag)
  * @param  sendFlag         是否自动调用发送函数（传入sendFlag中）
  * @return float 输出的电流值
  */
-float Motor::ctrlTorque(float torque, u8 sendflag = 1)
+float Motor::ctrlTorque(float torque, u8 sendflag)
 {
 	/*电流输出*/
 	// DJI电机丢失发0
 	if ((otherInfo.isDjiMotorFlag && canInfo.lostFlag))
 	{
-		return ctrlCurrent(0, sendFlag);
+		return ctrlCurrent(0, sendflag);
 	}
-	return ctrlCurrent(torque * otherInfo.motorTorqueCoff, sendFlag);
+	return ctrlCurrent(torque * otherInfo.motorTorqueCoff, sendflag);
 }
 /**
  * @details 将设定的速度值通过pid计算后，将pid输出值传入ctrlCurrent

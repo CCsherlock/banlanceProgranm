@@ -14,9 +14,9 @@ struct Custom_Send_Struct_t
 {
 //	uint8_t frameHeader;		  ///<0xA5
 	/*↓↓↓↓↓↓↓↓↓↓↓custom data start↓↓↓↓↓↓↓↓↓↓↓*/
-	float sinValue = 0;
-	char part1 = CUSTOM_PART_SIGN;
-	float cosValue = 0;
+	float fi = 0;
+	float fiSpeed = 0;
+	char endPoint = '\0';
 	/*↑↑↑↑↑↑↑↑↑↑↑ custom data end ↑↑↑↑↑↑↑↑↑↑↑*/
 //	char frameEnd;
 };
@@ -46,7 +46,7 @@ extern "C"
 {
 #endif
 
-
+void USART1_IRQHandler(void);
 
 #ifdef __cplusplus
 }

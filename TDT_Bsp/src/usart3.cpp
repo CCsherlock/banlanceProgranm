@@ -4,7 +4,7 @@
 #include "stdio.h"
 Custom_Recv_Struct_t custom_RecvStruct;
 Custom_Send_Struct_t custom_SendStruct;
-char customSendData[sizeof(int) * 100];
+char customSendData[sizeof(custom_SendStruct)+3];
 DMA_InitTypeDef custom_Rx_DMA_InitStructure;
 DMA_InitTypeDef custom_Tx_DMA_InitStructure;
 u8 tmp_RecvBuff1[sizeof(Custom_Recv_Struct_t) + 1];
@@ -221,8 +221,9 @@ void USART1_IRQHandler(void)
 void custom_Send_Data(void)
 {
     /*****GetValueStart******/
-    //		custom_SendStruct.part1 = CUSTOM_PART_SIGN;
-    // sprintf(customSendData,"/*%f,%f*/",sinValue,cosValue);
+    custom_SendStruct.fi = balance.fiFb;
+		custom_SendStruct.fiSpeed = balance.fiSpeedFb;
+    sprintf(customSendData,"%0.2f,%0.2f",custom_SendStruct.fi,custom_SendStruct.fiSpeed);
     /***** GetValueEnd *****/
     /*****SetDefaultValue*****/
     //    custom_SendStruct.frameHeader = 0xA5;

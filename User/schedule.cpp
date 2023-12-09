@@ -26,8 +26,8 @@ void TDT_Loop_500Hz(void) // 2ms执行一次
 	//	pwmMpuTemp.pwmCalculate(50);
   Imu_Task();
 	
-//	Motor::sendCanMsg();
-//	custom_Send_Data();
+	Motor::sendCanMsg();
+	custom_Send_Data();
 }
 
 void TDT_Loop_200Hz(void) // 5ms执行一次
@@ -45,7 +45,7 @@ void TDT_Loop_50Hz(void) // 20ms执行一次
 void TDT_Loop_20Hz(void) // 50ms执行一次
 {
 	Led_Task();
-	custom_Send_Data();
+//	custom_Send_Data();
 }
 
 void TDT_Loop_10Hz(void) // 100ms执行一次
