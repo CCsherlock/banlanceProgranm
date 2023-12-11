@@ -30,8 +30,8 @@ void LqrCtrl::LqrInit()
     chassis->chassisInit();
     chassis->setChassisOutPutDir(-1, 1);
     chassis->setlegOutPutDir(1, -1);
-    chassis->setChassisFbDir(-1*chassisFbPossitive, 1*chassisFbPossitive);
-    chassis->setLegFbDir(1*legFbPossitive, -1*legFbPossitive);
+    chassis->setChassisFbDir(-1 * chassisFbPossitive, 1 * chassisFbPossitive);
+    chassis->setLegFbDir(1 * legFbPossitive, -1 * legFbPossitive);
 }
 /**
  * @brief lqr算法执行
@@ -51,7 +51,6 @@ void LqrCtrl::lqrCalRun()
 void LqrCtrl::getAllFbValue()
 {
     getXfb();
-    getSpeedFb();
     getThetaFb();
     fbValue[roboLqr->X_LEFT] = xFb[LEFT];
     fbValue[roboLqr->X_LEFT_DOT] = speedFb[LEFT];
@@ -88,15 +87,8 @@ void LqrCtrl::getXfb()
     for (uint8_t i = 0; i < 2; i++)
     {
         /* code */
-        xFb[i] = chassis->getChassisAngel()[i]*RAD_PER_DEG;// 单位 rad
-    }
-}
-void LqrCtrl::getSpeedFb()
-{
-    for (u8 i = 0; i < 2; i++)
-    {
-        /* code */
-        speedFb[i] = chassis->getChassisSpeed()[i]/60.0f*360.0f*RAD_PER_DEG*0.125;// 单位 m/s
+        xFb[i] = chassis->getChassisAngel()[i] * RAD_PER_DEG;           // 单位 rad
+        speedFb[i] = chassis->getChassisSpeed()[i] / 60.0f * PI * 0.25; // 单位 m/s
     }
 }
 void LqrCtrl::getThetaFb()
@@ -105,14 +97,14 @@ void LqrCtrl::getThetaFb()
     for (u8 i = 0; i < 2; i++)
     {
         /* code */
-        angleFb[i] = -(chassis->getLegAngel()[i]*RAD_PER_DEG + fiFb);// 单位 rad
-        angleSpeedFb[i] = -(chassis->getLegSpeed()[i]*RAD_PER_DEG + fiSpeedFb); // 单位 rad/s
+        angleFb[i] = -(chassis->getLegAngel()[i] * RAD_PER_DEG + fiFb);           // 单位 rad
+        angleSpeedFb[i] = -(chassis->getLegSpeed()[i] * RAD_PER_DEG + fiSpeedFb); // 单位 rad/s
     }
 }
 void LqrCtrl::getFiFb()
 {
-    fiFb = bmi088Cal->Angle.pitch*RAD_PER_DEG*-1;                   // 单位 rad
-    fiSpeedFb = bmi088Cal->gyro.radps.data[0]*-1; // 单位 rad/s
+    fiFb = bmi088Cal->Angle.pitch * RAD_PER_DEG * -1; // 单位 rad
+    fiSpeedFb = bmi088Cal->gyro.radps.data[0] * -1;   // 单位 rad/s
 }
 // #define OUTPUT_TEST
 float chassisTq[2] = {0, 0};
@@ -125,22 +117,16 @@ void LqrCtrl::lqrOutput()
 #else
     chassisTorque[LEFT] = LIMIT(roboLqr->resultValue[roboLqr->OUT_LEFT_MOTOR], -MAX_CHASSIS_T, MAX_CHASSIS_T);
     chassisTorque[RIGHT] = LIMIT(roboLqr->resultValue[roboLqr->OUT_RIGHT_MOTOR], -MAX_CHASSIS_T, MAX_CHASSIS_T);
-		chassisTorque[LEFT] = chassisTorque[LEFT]*chassisSetPossitive;
-	  chassisTorque[RIGHT] = chassisTorque[RIGHT]*chassisSetPossitive;
+    chassisTorque[LEFT] = chassisTorque[LEFT] * chassisSetPossitive;
+    chassisTorque[RIGHT] = chassisTorque[RIGHT] * chassisSetPossitive;
     chassis->chassisCtrlTorque(chassisTorque);
 
     legTorque[LEFT] = LIMIT(roboLqr->resultValue[roboLqr->IN_LEFT_MOTOR], -MAX_LEG_T, MAX_LEG_T);
     legTorque[RIGHT] = LIMIT(roboLqr->resultValue[roboLqr->IN_RIGHT_MOTOR], -MAX_LEG_T, MAX_LEG_T);
-		legTorque[LEFT] = legTorque[LEFT]*legSetPossitive;
-	  legTorque[RIGHT] = legTorque[RIGHT]*legSetPossitive;
+    legTorque[LEFT] = legTorque[LEFT] * legSetPossitive;
+    legTorque[RIGHT] = legTorque[RIGHT] * legSetPossitive;
     chassis->legCtrlTorque(legTorque);
 #endif
-}
-void LqrCtrl::lqrKset()
-{
-}
-void linkLqrFlash()
-{
 }
 bool lqrTaskInit = false;
 void lqrRunTask()

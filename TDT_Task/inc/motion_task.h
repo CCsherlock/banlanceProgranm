@@ -2,13 +2,14 @@
 #define _MOTION_TASK_H_
 
 #include "board.h"
-#define ROBOT_MAX_V 4
+#define ROBOT_MAX_V 1
 enum RobotMotion
 {
     DEFORCE = 0U, // 脱力
     SLEEP,        // 卧姿
     SIT,          // 坐姿
-    STAND         // 站姿
+    STAND,        // 站姿
+    CROSS_STAND   // 交叉站姿
 };
 class Motion
 {
@@ -20,6 +21,8 @@ public:
     void chassisSpeedCtrl();
     void bodyPitchCtrl();
     void bodyThetaCtrl();
+    float jumpThetaCal(float thetaNow, float targetAngleErr,int direction);
+    float standThetaCal(float thetaNow, float targetTheta);
     struct RobotCtrlVal
     {
         /* data */
@@ -29,4 +32,5 @@ public:
         float bodyTheta;    // 关节角度设定
     } robotCtrl;
 };
+extern void motionLoop();
 #endif

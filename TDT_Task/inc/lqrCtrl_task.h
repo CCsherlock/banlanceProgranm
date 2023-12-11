@@ -23,11 +23,9 @@ public:
     void getAllSetValue();
     void lqrCalRun();
     void lqrOutput();
-    void getSpeedFb();
     void getThetaFb();
     void getFiFb();
     void getXfb();
-    void lqrKset();
     bool lqrKsetFlag = false;
     float xSet[2] = {0, 0};          // 底盘位置设定值
     float xFb[2] = {0, 0};           // 底盘位置反馈值
@@ -41,16 +39,16 @@ public:
     float fiSpeedSet;                // 机体角速度设定值
     float fiFb;                      // 机体角度反馈值
     float fiSpeedFb;                 // 机体角速度反馈值
-    float chassisTorque[2] = {0,0};
-    float legTorque[2] = {0,0};
-		int chassisFbPossitive =-1;
-		int legFbPossitive =1;
-//		int chassisSetPossitive =-1;
-//		int legSetPossitive =-1;
+    float chassisTorque[2] = {0, 0};
+    float legTorque[2] = {0, 0};
+    int chassisFbPossitive = -1;
+    int legFbPossitive = 1;
+    //		int chassisSetPossitive =-1;
+    //		int legSetPossitive =-1;
 
-		int chassisSetPossitive =0;
-		
-		int legSetPossitive =0;
+    int chassisSetPossitive = 0;
+
+    int legSetPossitive = 0;
 };
 extern float laqK_buffer[40];
 void linkLqrFlash();
