@@ -34,6 +34,7 @@ History:
 #include "adc.h"
 #include "usart3.h"
 #include "flash.h"
+#include "beep.h"
 /***宏定义***/
 #define TICK_PER_SECOND 1000
 #define TICK_US (1000000 / TICK_PER_SECOND)
@@ -130,7 +131,7 @@ void boardALLInit(void)
 #else
 	Custom_Init_V5();
 #endif
-
+//	buzzerPWMInit(20999,300);
 	RC.init();
 	/*看门狗初始化-喂狗在LED*/
 	//	iwdgInit(4,50);

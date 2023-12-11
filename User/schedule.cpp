@@ -10,6 +10,7 @@
 #include "martixImu.h"
 #include "usart3.h"
 #include "lqrCtrl_task.h"
+#include "motion_task.h"
 void TDT_Loop_1000Hz(void) // 1ms执行一次
 {
 	RC.run_1000Hz();
@@ -21,10 +22,11 @@ void TDT_Loop_1000Hz(void) // 1ms执行一次
 
 void TDT_Loop_500Hz(void) // 2ms执行一次
 {
-	
+
 	//	adcMpuTemp.Get_Adc();
 	//	pwmMpuTemp.pwmCalculate(50);
-  Imu_Task();
+	Imu_Task();
+	motionLoop();
 	Motor::sendCanMsg();
 	custom_Send_Data();
 }
@@ -44,7 +46,7 @@ void TDT_Loop_50Hz(void) // 20ms执行一次
 void TDT_Loop_20Hz(void) // 50ms执行一次
 {
 	Led_Task();
-//	custom_Send_Data();
+	//	custom_Send_Data();
 }
 
 void TDT_Loop_10Hz(void) // 100ms执行一次
