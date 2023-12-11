@@ -46,9 +46,9 @@ public:
     //		int chassisSetPossitive =-1;
     //		int legSetPossitive =-1;
 
-    int chassisSetPossitive = 0;
+    int chassisSetPossitive = -1;
 
-    int legSetPossitive = 0;
+    int legSetPossitive = -1;
 };
 extern float laqK_buffer[40];
 void linkLqrFlash();
