@@ -225,13 +225,17 @@ void USART1_IRQHandler(void)
 void custom_Send_Data(void)
 {
     /*****GetValueStart******/
-	custom_SendStruct.speed_before = RadpsToRpm((float)legMotor[LEFT]->canInfo.speed);
-	custom_SendStruct.speed_encode = legMotor[LEFT]->canInfo.speedFromEncoder;
-	custom_SendStruct.speed_gyro = balance.fiSpeedFb;
-	custom_SendStruct.speed_theta = balance.angleSpeedFb[LEFT];
+		custom_SendStruct.fi = balance.fiFb;
+		custom_SendStruct.theta[LEFT] = balance.angleFb[LEFT];
+		custom_SendStruct.theta[RIGHT] = balance.angleFb[RIGHT];
+	custom_SendStruct.XSpeed[LEFT] = balance.speedFb[LEFT];
+	custom_SendStruct.XSpeed[RIGHT] = balance.speedFb[RIGHT];
+	custom_SendStruct.angleSpeed[LEFT] = balance.angleSpeedFb[LEFT];
+	custom_SendStruct.angleSpeed[RIGHT] = balance.angleSpeedFb[RIGHT];
+	custom_SendStruct.fiSpeed = balance.fiSpeedFb;
 //		memset(customSendData,0,sizeof(customSendData));
 //	sprintf(customSendData,"%f,%f\n",custom_SendStruct.fi,custom_SendStruct.fiSpeed);
-	sendData(3,custom_SendStruct.speed_before,custom_SendStruct.speed_gyro,custom_SendStruct.speed_theta);
+	sendData(3,custom_SendStruct.XSpeed[LEFT],custom_SendStruct.angleSpeed[LEFT],custom_SendStruct.fiSpeed);
     /***** GetValueEnd *****/
     /*****SetDefaultValue*****/
     //    custom_SendStruct.frameHeader = 0xA5;

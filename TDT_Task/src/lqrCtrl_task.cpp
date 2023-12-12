@@ -109,6 +109,7 @@ void LqrCtrl::getFiFb()
 // #define OUTPUT_TEST
 float chassisTq[2] = {0, 0};
 float legTq[2] = {0, 0};
+float resultKp = 0.1;
 void LqrCtrl::lqrOutput()
 {
 #ifdef OUTPUT_TEST
@@ -123,8 +124,8 @@ void LqrCtrl::lqrOutput()
 
     legTorque[LEFT] = LIMIT(roboLqr->resultValue[roboLqr->IN_LEFT_MOTOR], -MAX_LEG_T, MAX_LEG_T);
     legTorque[RIGHT] = LIMIT(roboLqr->resultValue[roboLqr->IN_RIGHT_MOTOR], -MAX_LEG_T, MAX_LEG_T);
-    legTorque[LEFT] = legTorque[LEFT] * legSetPossitive;
-    legTorque[RIGHT] = legTorque[RIGHT] * legSetPossitive;
+    legTorque[LEFT] = legTorque[LEFT] * legSetPossitive *resultKp;
+    legTorque[RIGHT] = legTorque[RIGHT] * legSetPossitive * resultKp;
     chassis->legCtrlTorque(legTorque);
 #endif
 }
