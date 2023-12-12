@@ -15,7 +15,7 @@ History:
 #define __CAN_CALCULATE_H__
 
 #include "board.h"
-
+#define RM_MOTOR_ENCODE_TO_RADS 0.0439453125
 /**
  * @addtogroup TDT_CAN_CALC
  * @{
@@ -29,6 +29,7 @@ typedef struct
 {
 	int16_t encoder;				///<原始机械编码器值
 	int16_t speed;					///<原始机械转速
+	float speedFromEncoder;
 	float dps;						///<转速（度每秒），与mpu6050单位相等
 	int32_t totalRound;				///<总圈数
 	int32_t totalAngle;				///<总角度
@@ -45,6 +46,8 @@ typedef struct
 	int32_t trueCurrent;			//实际电流
 	u8 lostFlag;					//掉线标志位
 	int32_t totalEncoder_SI;		//速度积分出来的位置
+	uint64_t recodeTime;
+	uint64_t recodeTime_last;
 } CanInfo;
 
 /**

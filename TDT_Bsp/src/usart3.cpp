@@ -2,13 +2,17 @@
 #include "crc.h"
 #include "lqrCtrl_task.h"
 #include "stdio.h"
+
+#include <stdarg.h>
+#include <stdlib.h>
+#include <string.h>
 Custom_Recv_Struct_t custom_RecvStruct;
 Custom_Send_Struct_t custom_SendStruct;
-char customSendData[sizeof(custom_SendStruct)+3];
+char customSendData[30];
 DMA_InitTypeDef custom_Rx_DMA_InitStructure;
 DMA_InitTypeDef custom_Tx_DMA_InitStructure;
 u8 tmp_RecvBuff1[sizeof(Custom_Recv_Struct_t) + 1];
-
+u8 u1SendBuf[100];
 void Custom_Init_V5(void)
 {
     USART_InitTypeDef USART_InitStructure;
@@ -30,7 +34,7 @@ void Custom_Init_V5(void)
     GPIO_Init(GPIOB, &GPIO_InitStructure);
 
     USART_DeInit(USART3);
-    USART_InitStructure.USART_BaudRate = 115200;
+    USART_InitStructure.USART_BaudRate = 921600;
     USART_InitStructure.USART_WordLength = USART_WordLength_8b;
     USART_InitStructure.USART_StopBits = USART_StopBits_1;
     USART_InitStructure.USART_Parity = USART_Parity_No;
@@ -114,7 +118,7 @@ void Custom_Init_Cboard(void)
     GPIO_Init(GPIOB, &GPIO_InitStructure);
 
     USART_DeInit(USART1);
-    USART_InitStructure.USART_BaudRate = 115200;
+    USART_InitStructure.USART_BaudRate = 921600;
     USART_InitStructure.USART_WordLength = USART_WordLength_8b;
     USART_InitStructure.USART_StopBits = USART_StopBits_1;
     USART_InitStructure.USART_Parity = USART_Parity_No;
@@ -154,9 +158,9 @@ void Custom_Init_Cboard(void)
     DMA_DeInit(DMA2_Stream7);
     custom_Tx_DMA_InitStructure.DMA_Channel = DMA_Channel_4;
     custom_Tx_DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t) & (USART1->DR);
-    custom_Tx_DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)&customSendData;
+    custom_Tx_DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)&u1SendBuf;
     custom_Tx_DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToPeripheral;
-    custom_Tx_DMA_InitStructure.DMA_BufferSize = sizeof(customSendData);
+    custom_Tx_DMA_InitStructure.DMA_BufferSize = sizeof(u1SendBuf);
     custom_Tx_DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
     custom_Tx_DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
     custom_Tx_DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
@@ -223,7 +227,9 @@ void custom_Send_Data(void)
     /*****GetValueStart******/
     custom_SendStruct.fi = balance.fiFb;
 		custom_SendStruct.fiSpeed = balance.fiSpeedFb;
-    sprintf(customSendData,"%0.2f,%0.2f",custom_SendStruct.fi,custom_SendStruct.fiSpeed);
+//		memset(customSendData,0,sizeof(customSendData));
+//	sprintf(customSendData,"%f,%f\n",custom_SendStruct.fi,custom_SendStruct.fiSpeed);
+	sendData(2,custom_SendStruct.fi,custom_SendStruct.fiSpeed);
     /***** GetValueEnd *****/
     /*****SetDefaultValue*****/
     //    custom_SendStruct.frameHeader = 0xA5;
@@ -231,14 +237,14 @@ void custom_Send_Data(void)
     //    Append_CRC16_Check_Sum((u8 *)&custom_SendStruct, sizeof(custom_SendStruct));
     // 设置传输数据长度
 #if defined USE_MAIN_CTRL_RM_CBOARD
-    // 设置传输数据长度
-    DMA_Cmd(DMA2_Stream7, DISABLE);
-    while (DMA_GetCmdStatus(DMA2_Stream7) != DISABLE)
-        ;
-    DMA_DeInit(DMA2_Stream7);
-    DMA_Init(DMA2_Stream7, &custom_Tx_DMA_InitStructure);
-    // 打开DMA,开始发送
-    DMA_Cmd(DMA2_Stream7, ENABLE);
+//    // 设置传输数据长度
+//    DMA_Cmd(DMA2_Stream7, DISABLE);
+//    while (DMA_GetCmdStatus(DMA2_Stream7) != DISABLE)
+//        ;
+//    DMA_DeInit(DMA2_Stream7);
+//    DMA_Init(DMA2_Stream7, &custom_Tx_DMA_InitStructure);
+//    // 打开DMA,开始发送
+//    DMA_Cmd(DMA2_Stream7, ENABLE);
 #else
     DMA_Cmd(DMA1_Stream3, DISABLE);
     while (DMA_GetCmdStatus(DMA1_Stream3) != DISABLE)
@@ -248,4 +254,34 @@ void custom_Send_Data(void)
     // 打开DMA,开始发送
     DMA_Cmd(DMA1_Stream3, ENABLE);
 #endif
+}
+
+void sendData(int cnt,...)
+{
+	va_list args;
+	va_start(args,cnt);
+	int allLength=0;
+	for(uint8_t i=0;i<cnt;i++)
+	{
+		if(i==0)
+			allLength += sprintf((char*)(u1SendBuf+allLength),"%.3f",va_arg(args,double));
+		else
+			allLength += sprintf((char*)(u1SendBuf+allLength),",%.3f",va_arg(args,double));
+	}
+	
+	allLength += sprintf((char*)(u1SendBuf+allLength),"\r\n");
+	va_end(args);
+	
+	//int len = sprintf((char*)u1SendBuf,"%.3f,%.3f,%.3f\r\n",data1,data2,data3);
+	
+    /*****SetDefaultValue*****/
+    //设置传输数据长度
+    DMA_Cmd(DMA2_Stream7, DISABLE);
+		custom_Tx_DMA_InitStructure.DMA_BufferSize = allLength;
+    while (DMA_GetCmdStatus(DMA2_Stream7) != DISABLE)
+        ;
+    DMA_DeInit(DMA2_Stream7);
+    DMA_Init(DMA2_Stream7, &custom_Tx_DMA_InitStructure);
+    // 打开DMA,开始发送
+    DMA_Cmd(DMA2_Stream7, ENABLE);
 }

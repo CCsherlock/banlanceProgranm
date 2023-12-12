@@ -16,7 +16,6 @@ struct Custom_Send_Struct_t
 	/*↓↓↓↓↓↓↓↓↓↓↓custom data start↓↓↓↓↓↓↓↓↓↓↓*/
 	float fi = 0;
 	float fiSpeed = 0;
-	char endPoint = '\0';
 	/*↑↑↑↑↑↑↑↑↑↑↑ custom data end ↑↑↑↑↑↑↑↑↑↑↑*/
 //	char frameEnd;
 };
@@ -41,6 +40,7 @@ extern Custom_Send_Struct_t custom_SendStruct;
 void Custom_Init_V5(void);
 void Custom_Init_Cboard(void);
 void custom_Send_Data(void);
+void sendData(int cnt,...);
 #ifdef __cplusplus
 extern "C"
 {

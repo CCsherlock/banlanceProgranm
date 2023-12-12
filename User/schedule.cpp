@@ -28,7 +28,7 @@ void TDT_Loop_500Hz(void) // 2ms执行一次
 	Imu_Task();
 	motionLoop();
 	Motor::sendCanMsg();
-	custom_Send_Data();
+
 }
 
 void TDT_Loop_200Hz(void) // 5ms执行一次
@@ -37,6 +37,7 @@ void TDT_Loop_200Hz(void) // 5ms执行一次
 
 void TDT_Loop_100Hz(void) // 10ms执行一次
 {
+		custom_Send_Data();
 }
 
 void TDT_Loop_50Hz(void) // 20ms执行一次
