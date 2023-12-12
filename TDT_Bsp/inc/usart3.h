@@ -16,6 +16,10 @@ struct Custom_Send_Struct_t
 	/*↓↓↓↓↓↓↓↓↓↓↓custom data start↓↓↓↓↓↓↓↓↓↓↓*/
 	float fi = 0;
 	float fiSpeed = 0;
+	float speed_encode = 0;
+	float speed_before = 0;
+	float speed_gyro = 0;
+	float speed_theta = 0;
 	/*↑↑↑↑↑↑↑↑↑↑↑ custom data end ↑↑↑↑↑↑↑↑↑↑↑*/
 //	char frameEnd;
 };

@@ -97,14 +97,14 @@ void LqrCtrl::getThetaFb()
     for (u8 i = 0; i < 2; i++)
     {
         /* code */
-        angleFb[i] = -(chassis->getLegAngel()[i] * RAD_PER_DEG + fiFb);           // 单位 rad
-        angleSpeedFb[i] = -(chassis->getLegSpeed()[i] * RAD_PER_DEG + fiSpeedFb); // 单位 rad/s
+        angleFb[i] = -(chassis->getLegAngel()[i] + fiFb);           // 单位 rad
+        angleSpeedFb[i] = -(RadpsToRpm(chassis->getLegSpeed()[i])+ fiSpeedFb); // 单位 rad/s
     }
 }
 void LqrCtrl::getFiFb()
 {
     fiFb = bmi088Cal->Angle.pitch * RAD_PER_DEG * -1; // 单位 rad
-    fiSpeedFb = bmi088Cal->gyro.radps.data[0] * -1;   // 单位 rad/s
+    fiSpeedFb = bmi088Cal->gyro.radps.data[1] * -1;   // 单位 rad/s
 }
 // #define OUTPUT_TEST
 float chassisTq[2] = {0, 0};

@@ -2,7 +2,7 @@
 #include "crc.h"
 #include "lqrCtrl_task.h"
 #include "stdio.h"
-
+#include "chassis_task.h"
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -225,11 +225,13 @@ void USART1_IRQHandler(void)
 void custom_Send_Data(void)
 {
     /*****GetValueStart******/
-    custom_SendStruct.fi = balance.fiFb;
-		custom_SendStruct.fiSpeed = balance.fiSpeedFb;
+	custom_SendStruct.speed_before = RadpsToRpm((float)legMotor[LEFT]->canInfo.speed);
+	custom_SendStruct.speed_encode = legMotor[LEFT]->canInfo.speedFromEncoder;
+	custom_SendStruct.speed_gyro = balance.fiSpeedFb;
+	custom_SendStruct.speed_theta = balance.angleSpeedFb[LEFT];
 //		memset(customSendData,0,sizeof(customSendData));
 //	sprintf(customSendData,"%f,%f\n",custom_SendStruct.fi,custom_SendStruct.fiSpeed);
-	sendData(2,custom_SendStruct.fi,custom_SendStruct.fiSpeed);
+	sendData(3,custom_SendStruct.speed_before,custom_SendStruct.speed_gyro,custom_SendStruct.speed_theta);
     /***** GetValueEnd *****/
     /*****SetDefaultValue*****/
     //    custom_SendStruct.frameHeader = 0xA5;

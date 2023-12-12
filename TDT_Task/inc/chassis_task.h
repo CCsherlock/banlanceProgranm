@@ -39,5 +39,6 @@ public:
     float legMotorTq2Cu = 1;
     MotorMode motorMode = DEFORCE;
 };
-
+extern Motor *chssisMotor[2];
+extern Motor *legMotor[2];
 #endif
