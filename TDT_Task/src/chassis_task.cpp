@@ -171,13 +171,13 @@ float *Chassis::getChassisAngel()
 /**
  * @brief 关节电机速度反馈
  *
- * @return float* 速度结构体 单位 °/s
+ * @return float* 速度结构体 单位 RPM
  */
 float *Chassis::getLegSpeed()
 {
 #if defined SMALL_MODEL
-    legSpeed[LEFT] = legMotor[LEFT]->canInfo.speed * legFbDir[LEFT];    // 单位 °/s
-    legSpeed[RIGHT] = legMotor[RIGHT]->canInfo.speed * legFbDir[RIGHT]; // 单位 °/s
+    legSpeed[LEFT] = legMotor[LEFT]->canInfo.speed * legFbDir[LEFT];    // 单位 RPM
+    legSpeed[RIGHT] = legMotor[RIGHT]->canInfo.speed * legFbDir[RIGHT]; // 单位 RPM
 #elif defined BIG_MODEL
     chassisAngel[LEFT] = legMotor[LEFT]->motorInfo.motor_fdb.speed * chassisFbDir[LEFT];
     chassisAngel[RIGHT] = legMotor[RIGHT]->motorInfo.motor_fdb.speed * chassisFbDir[RIGHT];

@@ -301,25 +301,45 @@ float Math_Max(float a, float b, float c, float d, float e, float f)
 			result = data[i];
 	return result;
 }
-
+/**
+ * @brief 转每分 TO 度每秒 
+ * 
+ * @param rpm 
+ * @return float 
+ */
 float rpmToDps(float rpm)
 {
-	return rpm * 0.166667f;
+	return rpm * 6.0f;
 }
-
+/**
+ * @brief 度每秒 TO 转每分
+ * 
+ * @param dps 
+ * @return float 
+ */
 float dpsToRpm(float dps)
 {
-	return dps * 6.0f;
+	return dps * 0.166667f;
 }
-
+/**
+ * @brief 转每分 TO 弧度每秒 
+ * 
+ * @param rpm 
+ * @return float 
+ */
 float rpmToRadps(float rpm)
 {
-	return rpm * 9.549297f;
+	return rpm * 0.10472f;
 }
-
+/**
+ * @brief 弧度每秒 TO 转每分
+ * 
+ * @param radps 
+ * @return float 
+ */
 float RadpsToRpm(float radps)
 {
-	return radps * 0.10472f;
+	return radps * 9.549297f;
 }
 
 /**

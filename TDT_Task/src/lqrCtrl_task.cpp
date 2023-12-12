@@ -87,8 +87,8 @@ void LqrCtrl::getXfb()
     for (uint8_t i = 0; i < 2; i++)
     {
         /* code */
-        xFb[i] = chassis->getChassisAngel()[i] * RAD_PER_DEG;           // 单位 rad
-        speedFb[i] = chassis->getChassisSpeed()[i] / 60.0f * PI * 0.25; // 单位 m/s
+        xFb[i] = chassis->getChassisAngel()[i] * RAD_PER_DEG;          // 单位 rad
+        speedFb[i] = rpmToRadps(chassis->getChassisSpeed()[i]) * 0.25; // 单位 m/s
     }
 }
 void LqrCtrl::getThetaFb()
@@ -97,8 +97,8 @@ void LqrCtrl::getThetaFb()
     for (u8 i = 0; i < 2; i++)
     {
         /* code */
-        angleFb[i] = -(chassis->getLegAngel()[i] + fiFb);           // 单位 rad
-        angleSpeedFb[i] = -(RadpsToRpm(chassis->getLegSpeed()[i])+ fiSpeedFb); // 单位 rad/s
+        angleFb[i] = -(chassis->getLegAngel()[i] * RAD_PER_DEG + fiFb);         // 单位 rad
+        angleSpeedFb[i] = -(rpmToRadps(chassis->getLegSpeed()[i]) + fiSpeedFb); // 单位 rad/s
     }
 }
 void LqrCtrl::getFiFb()
