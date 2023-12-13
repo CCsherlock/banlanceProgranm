@@ -228,17 +228,16 @@ void custom_Send_Data(void)
 		custom_SendStruct.fi = balance.fiFb;
 		custom_SendStruct.theta[LEFT] = balance.angleFb[LEFT];
 		custom_SendStruct.theta[RIGHT] = balance.angleFb[RIGHT];
-	custom_SendStruct.XSpeed[LEFT] = balance.speedFb[LEFT];
-	custom_SendStruct.XSpeed[RIGHT] = balance.speedFb[RIGHT];
-	custom_SendStruct.angleSpeed[LEFT] = balance.angleSpeedFb[LEFT];
-	custom_SendStruct.angleSpeed[RIGHT] = balance.angleSpeedFb[RIGHT];
-	custom_SendStruct.fiSpeed = balance.fiSpeedFb;
-	custom_SendStruct.setTorque[LEFT] = balance.legTorque[LEFT];
-//	custom_SendStruct.motorSpeed[LEFT] = ((float)legMotor[LEFT]->canInfo.speed);
-	custom_SendStruct.motorSpeed[LEFT] = balance.chassis->legSpeed[LEFT];
+		custom_SendStruct.XSpeed[LEFT] = balance.speedFb[LEFT];
+		custom_SendStruct.XSpeed[RIGHT] = balance.speedFb[RIGHT];
+		custom_SendStruct.angleSpeed[LEFT] = balance.angleSpeedFb[LEFT];
+		custom_SendStruct.angleSpeed[RIGHT] = balance.angleSpeedFb[RIGHT];
+		custom_SendStruct.fiSpeed = balance.fiSpeedFb;
+		custom_SendStruct.setTorque[LEFT] = balance.legTorque[LEFT];
+		custom_SendStruct.motorSpeed[LEFT] = balance.chassis->legSpeed[LEFT];
 //		memset(customSendData,0,sizeof(customSendData));
 //	sprintf(customSendData,"%f,%f\n",custom_SendStruct.fi,custom_SendStruct.fiSpeed);
-	sendData(3,custom_SendStruct.motorSpeed[LEFT],custom_SendStruct.fiSpeed,custom_SendStruct.angleSpeed[LEFT]);
+	sendData(5,custom_SendStruct.setTorque[LEFT],custom_SendStruct.fi,custom_SendStruct.fiSpeed,custom_SendStruct.theta[LEFT],custom_SendStruct.angleSpeed[LEFT]);
     /***** GetValueEnd *****/
     /*****SetDefaultValue*****/
     //    custom_SendStruct.frameHeader = 0xA5;
