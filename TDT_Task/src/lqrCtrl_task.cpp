@@ -98,7 +98,7 @@ void LqrCtrl::getThetaFb()
     {
         /* code */
         angleFb[i] = -(chassis->getLegAngel()[i] * RAD_PER_DEG + fiFb);         // 单位 rad
-        angleSpeedFb[i] = -(rpmToRadps(chassis->getLegSpeed()[i]) + fiSpeedFb); // 单位 rad/s
+        angleSpeedFb[i] = -((chassis->getLegSpeed()[i]) + fiSpeedFb); // 单位 rad/s
     }
 }
 void LqrCtrl::getFiFb()

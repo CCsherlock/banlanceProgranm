@@ -221,7 +221,7 @@ void USART1_IRQHandler(void)
         DMA_Cmd(DMA2_Stream5, ENABLE);
     }
 }
-
+extern float legSpeed;
 void custom_Send_Data(void)
 {
     /*****GetValueStart******/
@@ -233,9 +233,12 @@ void custom_Send_Data(void)
 	custom_SendStruct.angleSpeed[LEFT] = balance.angleSpeedFb[LEFT];
 	custom_SendStruct.angleSpeed[RIGHT] = balance.angleSpeedFb[RIGHT];
 	custom_SendStruct.fiSpeed = balance.fiSpeedFb;
+	custom_SendStruct.setTorque[LEFT] = balance.legTorque[LEFT];
+//	custom_SendStruct.motorSpeed[LEFT] = ((float)legMotor[LEFT]->canInfo.speed);
+	custom_SendStruct.motorSpeed[LEFT] = balance.chassis->legSpeed[LEFT];
 //		memset(customSendData,0,sizeof(customSendData));
 //	sprintf(customSendData,"%f,%f\n",custom_SendStruct.fi,custom_SendStruct.fiSpeed);
-	sendData(3,custom_SendStruct.XSpeed[LEFT],custom_SendStruct.angleSpeed[LEFT],custom_SendStruct.fiSpeed);
+	sendData(3,custom_SendStruct.motorSpeed[LEFT],custom_SendStruct.fiSpeed,custom_SendStruct.angleSpeed[LEFT]);
     /***** GetValueEnd *****/
     /*****SetDefaultValue*****/
     //    custom_SendStruct.frameHeader = 0xA5;

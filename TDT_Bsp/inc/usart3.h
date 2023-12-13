@@ -15,11 +15,12 @@ struct Custom_Send_Struct_t
 //	uint8_t frameHeader;		  ///<0xA5
 	/*↓↓↓↓↓↓↓↓↓↓↓custom data start↓↓↓↓↓↓↓↓↓↓↓*/
 	float fi = 0;
-	float speed_theta = 0;
 	float theta[2] = {0,0};
 	float XSpeed[2] = {0,0};
 	float angleSpeed[2] = {0,0};
 	float fiSpeed = 0;
+	float setTorque[2] = {0,0};
+	float motorSpeed[2] = {0,0};
 	/*↑↑↑↑↑↑↑↑↑↑↑ custom data end ↑↑↑↑↑↑↑↑↑↑↑*/
 //	char frameEnd;
 };

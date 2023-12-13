@@ -41,4 +41,5 @@ public:
 };
 extern Motor *chssisMotor[2];
 extern Motor *legMotor[2];
+float legSpeedCal(float encode);
 #endif

@@ -1,5 +1,8 @@
 #include "chassis_task.h"
 #include "dbus.h"
+#include "filter.h"
+Lpf2p encodeSpeedLeftFilter;
+Lpf2p encodeSpeedRightFilter;
 #if defined SMALL_MODEL
 Motor *chssisMotor[2];
 Motor *legMotor[2];
@@ -32,6 +35,8 @@ void Chassis::chassisInit()
     legMotor[RIGHT] = new Motor(GM6020, CAN1, 0X205);
     legMotor[RIGHT]->setZeroValue(legZero[RIGHT]);
     legMotor[RIGHT]->setMotorTorqueCoff(25000);
+	encodeSpeedLeftFilter.SetCutoffFreq(1000,5);
+	
     //    for (u8 i = 0; i < 2; i++)
     //    {
     ///* code */
@@ -176,8 +181,9 @@ float *Chassis::getChassisAngel()
 float *Chassis::getLegSpeed()
 {
 #if defined SMALL_MODEL
-    legSpeed[LEFT] = legMotor[LEFT]->canInfo.speed * legFbDir[LEFT];    // 单位 RPM
-    legSpeed[RIGHT] = legMotor[RIGHT]->canInfo.speed * legFbDir[RIGHT]; // 单位 RPM
+//    legSpeed[LEFT] = legMotor[LEFT]->canInfo.speedFromEncoder * legFbDir[LEFT];    // 单位 RPM
+    legSpeed[RIGHT] = legMotor[RIGHT]->canInfo.speedFromEncoder * legFbDir[RIGHT]; // 单位 RPM
+	legSpeed[LEFT]  = encodeSpeedLeftFilter.Apply(legMotor[LEFT]->canInfo.speedFromEncoder)* legFbDir[LEFT];
 #elif defined BIG_MODEL
     chassisAngel[LEFT] = legMotor[LEFT]->motorInfo.motor_fdb.speed * chassisFbDir[LEFT];
     chassisAngel[RIGHT] = legMotor[RIGHT]->motorInfo.motor_fdb.speed * chassisFbDir[RIGHT];
@@ -243,4 +249,15 @@ void Chassis::setLegFbDir(int8_t left, int8_t right)
 {
     legFbDir[LEFT] = left;
     legFbDir[RIGHT] = right;
+}
+float encode_last;
+uint64_t timeFrom,timeLast;
+float legSpeedCal(float encode)
+{
+float radpsSpeed;
+timeFrom = getSysTimeUs();
+radpsSpeed = (encode - encode_last)/(float)(timeFrom - timeLast);
+encode_last = encode;
+	timeLast = timeFrom;
+	return radpsSpeed;
 }

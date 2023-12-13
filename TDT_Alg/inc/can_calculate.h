@@ -34,6 +34,7 @@ typedef struct
 	int32_t totalRound;				///<总圈数
 	int32_t totalAngle;				///<总角度
 	float totalAngle_f;				///<总角度（浮点），与mpu6050单位相等
+	float totalAngle_f_last;
 	int32_t totalEncoder;			///<总角度
 	int16_t lastEncoderCalibration; ///<上次减去机械角度初值后的角度
 	int16_t encoderCalibration;		///<减去机械角度初值后的角度
@@ -46,8 +47,8 @@ typedef struct
 	int32_t trueCurrent;			//实际电流
 	u8 lostFlag;					//掉线标志位
 	int32_t totalEncoder_SI;		//速度积分出来的位置
-	uint64_t recodeTime;
-	uint64_t recodeTime_last;
+	float recodeTime;
+	float recodeTime_last;
 } CanInfo;
 
 /**

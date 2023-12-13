@@ -20,6 +20,7 @@ History:
 #include "can_calculate.h"
 #include "motor.h"
 #include "my_math.h"
+
 /**
  * @ingroup TDT_ALG
  * @defgroup TDT_CAN_CALC CAN信息处理
@@ -142,16 +143,16 @@ void Can::Motor_Information_Calculate(u8 can_x, CanRxMsg *_CanRxMsg)
 
 	Info->totalEncoder_SI += Info->speed;
 	
-	Info->recodeTime = getSysTimeUs();
+	Info->recodeTime = getSysTimeUs()/ 1e6f;
 	float timeErr = Info->recodeTime-Info->recodeTime_last;
-	Info->speedFromEncoder = (Info->totalEncoder - Info->lastTotalEncoder)/timeErr * 1e6f * RM_MOTOR_ENCODE_TO_RADS * RAD_PER_DEG;//rad/s
+	Info->speedFromEncoder = (Info->totalAngle_f - Info->totalAngle_f_last)/timeErr * RAD_PER_DEG;///s
 	Info->recodeTime_last = Info->recodeTime;
 	//速度积分和位置反馈做互补滤波！！！
 	/*记录此次机械角度*/
 	Info->lastEncoder = Info->encoder;
 	Info->lastTotalEncoder = Info->totalEncoder;
 	Info->lastEncoderCalibration = Info->encoderCalibration;
-
+	Info->totalAngle_f_last = Info->totalAngle_f;
 	/*电机离线检测部分*/
 	Info->lostCnt = 0;	//清空计数器
 	Info->lostFlag = 0; //电机在线
