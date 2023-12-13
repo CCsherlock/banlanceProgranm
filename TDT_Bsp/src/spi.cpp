@@ -255,9 +255,11 @@ void BMI088_ACCEL_NS_H(void)
 void BMI088_GYRO_NS_L(void)
 {
 	GPIO_WriteBit(CS1_GYRO_GPIO_Port,CS1_GYRO_Pin,Bit_RESET);
+	delayUs(5);
 }
 void BMI088_GYRO_NS_H(void)
 {
+		delayUs(5);
 	GPIO_WriteBit(CS1_GYRO_GPIO_Port,CS1_GYRO_Pin,Bit_SET);	
 }
 uint16_t BMI088_read_write_byte(uint16_t txdata)

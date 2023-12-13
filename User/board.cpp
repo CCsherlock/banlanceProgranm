@@ -91,7 +91,7 @@ uint64_t timeIntervalFrom(uint64_t timeFrom)
 void delayUs(uint32_t us)
 {
 	uint64_t from = getSysTimeUs();
-	while (!(getSysTimeUs() > us + from))
+	while ((getSysTimeUs()  < us + from))
 	{
 	}
 }
@@ -122,7 +122,7 @@ void boardALLInit(void)
 	//	/*LED初始化*/
 	ledInit();
 	/*陀螺仪初始化*/
-	imuInit();
+
 //	adcMpuTemp.adcInit();
 //	pwmMpuTemp.pwmInit(1000);
 //	RS485_Init();
@@ -138,6 +138,7 @@ void boardALLInit(void)
 	/*  使能全局中断 */
 	__enable_irq();
 	/*初始化完成*/
+		imuInit();
 	Init_OK = 1;
 }
 /***********End of file*****************  */

@@ -88,7 +88,8 @@ public:
 				fp32 gyro[3];
 				fp32 time;
 		} bmi088_real_data_t;
-    virtual void init(void) override;
+		uint8_t bmiinit(void);
+    virtual void init(void) override { while(bmiinit()); };
     void get6AxisRawData(void);
     void get3AxisAccRawData(void);
     void get3AxisGyroRawData(void);

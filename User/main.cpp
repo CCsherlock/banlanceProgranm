@@ -75,6 +75,8 @@ History:
  */
 
 /*通用任务的宏定义在 my_task.h 下*/
+int cntplus;
+uint64_t temp1[20];
 int main(void)
 {
 	/*中断分组*/
@@ -84,6 +86,12 @@ int main(void)
 	/*初始化TIM2，便于统计CPU占用率*/
 	ConfigureTimeForRunTimeStats();
 	boardALLInit();
-	while(1){}
+	cntplus = 0;
+	while(1){
+		delayMs(1000);
+		cntplus++;
+		if(cntplus<20)
+		temp1[cntplus] = getSysTimeUs();
+	}
 }
 
