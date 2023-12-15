@@ -34,7 +34,7 @@ void Custom_Init_V5(void)
     GPIO_Init(GPIOB, &GPIO_InitStructure);
 
     USART_DeInit(USART3);
-    USART_InitStructure.USART_BaudRate = 921600;
+    USART_InitStructure.USART_BaudRate = 256000;
     USART_InitStructure.USART_WordLength = USART_WordLength_8b;
     USART_InitStructure.USART_StopBits = USART_StopBits_1;
     USART_InitStructure.USART_Parity = USART_Parity_No;
@@ -118,7 +118,7 @@ void Custom_Init_Cboard(void)
     GPIO_Init(GPIOB, &GPIO_InitStructure);
 
     USART_DeInit(USART1);
-    USART_InitStructure.USART_BaudRate = 921600;
+    USART_InitStructure.USART_BaudRate = 256000;
     USART_InitStructure.USART_WordLength = USART_WordLength_8b;
     USART_InitStructure.USART_StopBits = USART_StopBits_1;
     USART_InitStructure.USART_Parity = USART_Parity_No;
