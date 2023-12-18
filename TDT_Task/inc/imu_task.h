@@ -1,8 +1,8 @@
 /*
  * @Author: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
  * @Date: 2023-06-22 21:41:57
- * @LastEditors: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
- * @LastEditTime: 2023-06-23 09:52:45
+ * @LastEditors: Sherlock 943477295@qq.com
+ * @LastEditTime: 2023-12-18 11:32:47
  * @FilePath: \Projectd:\TDT2023\Programe\TDT-Frame\TDT_Task\inc\imu_task.h
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -26,7 +26,7 @@ History:
 #define FROM_FLASH 1
 #define FROM_MANUL 0
 //extern ImuCalc *mpu6050Cal;
-extern ImuCalc *bmi088Cal;
+extern ImuCalc *myImuCal;
 extern float *visionSendYaw, *visionSendPitch;
 
 void imuInit(void);

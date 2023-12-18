@@ -145,22 +145,22 @@ float Motion::standThetaCal(float thetaNow, float targetTheta)
 }
 /**
  * @brief （待完成）跳跃计算函数
- * 
- * @param thetaNow 
- * @param targetAngleErr 
- * @param direction 
- * @return float 
+ *
+ * @param thetaNow
+ * @param targetAngleErr
+ * @param direction
+ * @return float
  */
-//float Motion::jumpThetaCal(float thetaNow, float targetAngleErr, int direction)
+// float Motion::jumpThetaCal(float thetaNow, float targetAngleErr, int direction)
 //{
-//    float resultTheta;
-//    float cntNow = (int)(thetaNow / RAD_PER_DEG / 360.0f);
-//    float degreeNow = ((int)(thetaNow / RAD_PER_DEG * 1000)) % 360000 / 1000.0f;
-//    if (degreeNow < 0)
-//    {
-//        degreeNow = degreeNow + 360.0f; // 转到0-360°
-//    }
-//}
+//     float resultTheta;
+//     float cntNow = (int)(thetaNow / RAD_PER_DEG / 360.0f);
+//     float degreeNow = ((int)(thetaNow / RAD_PER_DEG * 1000)) % 360000 / 1000.0f;
+//     if (degreeNow < 0)
+//     {
+//         degreeNow = degreeNow + 360.0f; // 转到0-360°
+//     }
+// }
 void motionLoop()
 {
     robotMotion.motionModeSwitch(); // 设置机器人整体状态

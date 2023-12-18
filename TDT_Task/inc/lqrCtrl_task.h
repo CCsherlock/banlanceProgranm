@@ -41,14 +41,24 @@ public:
     float fiSpeedFb;                 // 机体角速度反馈值
     float chassisTorque[2] = {0, 0};
     float legTorque[2] = {0, 0};
+
+		/**小轮模型**/
+//		int chassisFbPossitive = -1;
+//    int legFbPossitive = 1;
+//		int chassisSetPossitive =-1;
+//		int legSetPossitive =-1;
+		
+#if defined SMALL_MODEL
     int chassisFbPossitive = -1;
     int legFbPossitive = 1;
-    //		int chassisSetPossitive =-1;
-    //		int legSetPossitive =-1;
-
     int chassisSetPossitive = 0;
-
     int legSetPossitive = -1;
+#elif defined BIG_MODEL
+    int chassisFbPossitive = -1;
+    int legFbPossitive = 1;
+    int chassisSetPossitive = 0;
+    int legSetPossitive = -1;
+#endif
 };
 extern float laqK_buffer[40];
 void linkLqrFlash();

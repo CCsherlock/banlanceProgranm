@@ -1,11 +1,3 @@
-/*
- * @Author: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
- * @Date: 2023-06-22 21:41:57
- * @LastEditors: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
- * @LastEditTime: 2023-11-27 15:02:06
- * @FilePath: \Projectd:\TDT2023\Programe\TDT-Frame\TDT_Task\src\imu_task.cpp
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
 /******************************
 File name: TDT_Task\src\imu_task.cpp
 Description: 陀螺仪姿态解算任务
@@ -35,7 +27,7 @@ History:
 extern TimeSimultaneity imuTimeMatch;
 
 // ImuCalc *mpu6050Cal;
-ImuCalc *bmi088Cal;
+ImuCalc *myImuCal;
 eulerAngle angleForWatch;
 eulerAngle angleForWatchAHRS;
 accdata accForWatch1;
@@ -48,17 +40,17 @@ float *visionSendYaw, *visionSendPitch;
  */
 void Imu_Task()
 {
-	if (bmi088Cal->forceGetOffset)
+	if (myImuCal->forceGetOffset)
 	{
-		bmi088Cal->getOffset();
+		myImuCal->getOffset();
 	}
 	/*MPU6050读取*/
-	uint64_t readImuTime = bmi088Cal->TDT_IMU_update();
+	uint64_t readImuTime = myImuCal->TDT_IMU_update();
 
-	angleForWatch = bmi088Cal->Angle;
-	angleForWatchAHRS = bmi088Cal->AHRS_data.Angle;
-	accForWatch1 = bmi088Cal->acc;
-	gyroForWatch1 = bmi088Cal->gyro;
+	angleForWatch = myImuCal->Angle;
+	angleForWatchAHRS = myImuCal->AHRS_data.Angle;
+	accForWatch1 = myImuCal->acc;
+	gyroForWatch1 = myImuCal->gyro;
 }
 /**
 右手坐标系
@@ -76,30 +68,30 @@ gyro z 逆﹢ 顺﹣
 void imuInit()
 {
 	// mpu6050Cal = new ImuCalc;
-	bmi088Cal = new ImuCalc;
+	myImuCal = new ImuCalc;
 	/*当前主控陀螺仪的引脚号*/
 	// RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC,ENABLE);
 	// mpu6050Cal = new Mpu6050(GPIOC, GPIO_Pin_2, GPIO_Pin_1);
-	bmi088Cal = new Bmi088(SPI1, SPI_BaudRatePrescaler_256);
+	myImuCal = new Bmi088(SPI1, SPI_BaudRatePrescaler_256);
 
 	/*陀螺仪和加速度的方向旋转矩阵*/
 	//	float gyroScaleFactor[3][3] = {{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
 	// mpu6050Cal->setGyroScaleFactor(gyroScaleFactor);
 	float gyroScaleFactor[3][3] = {{-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
-	bmi088Cal->setGyroScaleFactor(gyroScaleFactor);
+	myImuCal->setGyroScaleFactor(gyroScaleFactor);
 	//	float accScaleFactor[3][3] = {{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
 	// mpu6050Cal->setAccScaleFactor(accScaleFactor);
 	float accScaleFactor[3][3] = {{-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
-	bmi088Cal->setAccScaleFactor(accScaleFactor);
+	myImuCal->setAccScaleFactor(accScaleFactor);
 	/*icm20602以及MPU6050初始化*/
 	// mpu6050Cal->init();
 	// mpu6050Cal->getOffset();
-	bmi088Cal->init();
-	bmi088Cal->getOffset();
+	myImuCal->init();
+	myImuCal->getOffset();
 	delayMs(50);
 	// mpu6050Cal->initalAngle();
 	/*陀螺仪初始化完成标志位*/
-	bmi088Cal->imu_OK = 1;
+	myImuCal->imu_OK = 1;
 
 	// 视觉发送的值的初始化
 	// visionSendYaw = &mpu6050Cal->Angle.yaw;
