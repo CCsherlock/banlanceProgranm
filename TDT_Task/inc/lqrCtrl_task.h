@@ -46,7 +46,7 @@ public:
     //		int chassisSetPossitive =-1;
     //		int legSetPossitive =-1;
 
-    int chassisSetPossitive = 0;
+    int chassisSetPossitive = -1;
 
     int legSetPossitive = -1;
 };

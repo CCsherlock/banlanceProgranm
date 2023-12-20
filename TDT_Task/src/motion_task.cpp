@@ -26,7 +26,7 @@ void Motion::motionModeSwitch()
     }
     else if (RC.Key.SW2 == Mid && RC.Key.SW1 == Up)
     {
-        robotMode = STAND;
+        robotMode = CROSS_STAND;
     }
     robotMode_last = robotMode;
 }
@@ -34,6 +34,8 @@ void Motion::motionModeSwitch()
  * @brief
  *
  */
+float speedP = 10;
+float turnP = 5;
 void Motion::chassisSpeedCtrl()
 {
     switch (robotMode)
@@ -42,14 +44,15 @@ void Motion::chassisSpeedCtrl()
         robotCtrl.chassisSpeed = 0; // m/s
         break;
     case SIT:
-        robotCtrl.chassisSpeed = (RC.Key.CH[3] / 660.f) * ROBOT_MAX_V; // m/s
+        robotCtrl.chassisSpeed = (RC.Key.CH[3] / 660.f) * ROBOT_MAX_V*speedP; // m/s
+		    robotCtrl.chassisTurnSpeed = (RC.Key.CH[0] / 660.f) * ROBOT_MAX_V*turnP; // m/s
         break;
     default:
+			  robotCtrl.chassisSpeed = 0; // m/s
         break;
     }
-    robotCtrl.chassisSpeed = LIMIT(robotCtrl.chassisSpeed, -ROBOT_MAX_V, ROBOT_MAX_V);
-    balance.speedSet[LEFT] = robotCtrl.chassisSpeed;  // m/s
-    balance.speedSet[RIGHT] = robotCtrl.chassisSpeed; // m/s
+     balance.speedSet[LEFT] = LIMIT(robotCtrl.chassisSpeed + robotCtrl.chassisTurnSpeed, -ROBOT_MAX_V*speedP, ROBOT_MAX_V*speedP);
+		 balance.speedSet[RIGHT] = LIMIT(robotCtrl.chassisSpeed - robotCtrl.chassisTurnSpeed, -ROBOT_MAX_V*speedP, ROBOT_MAX_V*speedP);
 }
 /**
  * @brief
@@ -77,6 +80,9 @@ void Motion::bodyThetaCtrl()
         balance.angleSet[LEFT] = standThetaCal(balance.angleFb[LEFT], robotCtrl.bodyTheta) * RAD_PER_DEG;    // rad
         balance.angleSet[RIGHT] = standThetaCal(balance.angleFb[RIGHT], -robotCtrl.bodyTheta) * RAD_PER_DEG; // rad
     default:
+			  robotCtrl.bodyTheta = 0;                                                                            // °
+        balance.angleSet[LEFT] = standThetaCal(balance.angleFb[LEFT], robotCtrl.bodyTheta) * RAD_PER_DEG;   // rad
+        balance.angleSet[RIGHT] = standThetaCal(balance.angleFb[RIGHT], robotCtrl.bodyTheta) * RAD_PER_DEG; // rad
         break;
     }
 }

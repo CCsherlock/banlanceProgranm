@@ -109,7 +109,7 @@ void LqrCtrl::getFiFb()
 // #define OUTPUT_TEST
 float chassisTq[2] = {0, 0};
 float legTq[2] = {0, 0};
-float resultKp = 0.1;
+float resultKp = 0.5;
 void LqrCtrl::lqrOutput()
 {
 #ifdef OUTPUT_TEST

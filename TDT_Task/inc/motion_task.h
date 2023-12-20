@@ -26,7 +26,8 @@ public:
     struct RobotCtrlVal
     {
         /* data */
-        float chassisSpeed; // 底盘速度设定
+        float chassisSpeed; // 底盘直行速度设定
+				float chassisTurnSpeed;// 底盘转向速度设定
         float chassisYaw;   // 底盘Yaw方向设定
         float bodyPitch;    // 机体俯仰设定
         float bodyTheta;    // 关节角度设定
