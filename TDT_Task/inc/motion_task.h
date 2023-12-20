@@ -32,6 +32,30 @@ public:
         float bodyPitch;    // 机体俯仰设定
         float bodyTheta;    // 关节角度设定
     } robotCtrl;
+		float crossStandAngle = 90;
+		float crossStandSpeed = 45;
+		float fiOffset = -4;
+};
+
+class RampCurve
+{
+
+private:
+	  enum CurveMode
+    {
+        INIT = 0,
+        RUNNING,
+        END
+    };
+public:
+    RampCurve();
+    bool curveInit = false;
+    float curveResult;
+    float curveTime,curveTime_last;
+    bool curveFinish;
+    float ramp(double slop,double start,double end);
+    void reset();
+    uint8_t curveMode;
 };
 extern void motionLoop();
 #endif

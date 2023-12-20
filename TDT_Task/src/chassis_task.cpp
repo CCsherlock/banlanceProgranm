@@ -18,7 +18,7 @@ Chassis::Chassis(/* args */)
  *
  */
 #if defined SMALL_MODEL
-int legZero[2] = {1429, 1362};
+int legZero[2] = {1340, 1280};
 #elif defined BIG_MODEL
 int legZero[2] = {0, 0};
 #endif
