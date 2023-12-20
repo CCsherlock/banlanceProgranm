@@ -28,7 +28,7 @@ void buzzerPWMInit(u32 arr,u32 psc)
 	//初始化TIM4 Channe3 PWM模式	 
 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1; //选择定时器模式:TIM脉冲宽度调制模式2
  	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //比较输出使能
-	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low; //输出极性:TIM输出比较极性低
+	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High; //输出极性:TIM输出比较极性低
 	TIM_OC3Init(TIM4, &TIM_OCInitStructure);  //根据T指定的参数初始化外设TIM4 OC3
 
 	TIM_OC3PreloadConfig(TIM4, TIM_OCPreload_Enable);  //使能TIM14在CCR3上的预装载寄存器
@@ -37,8 +37,34 @@ void buzzerPWMInit(u32 arr,u32 psc)
 	
 	TIM_Cmd(TIM4, ENABLE);  //使能TIM14
 }
+void buzzer_on(int _psc,int _pwm)
+{
+	TIM_PrescalerConfig(TIM4,_psc,TIM_PSCReloadMode_Immediate);
+	TIM_SetCompare3(TIM4,_pwm);
+}
+#define MAX_PSC                 1000
+
+#define MAX_BUZZER_PWM      20000
+#define MIN_BUZZER_PWM      10000
+uint16_t psc = 0;
+uint16_t pwm = MIN_BUZZER_PWM;
 
 void beepLoop()
 {
+	
+//	        pwm++;
+//        psc++;
+//        
+//        if(pwm > MAX_BUZZER_PWM)
+//        {
+//            pwm = MIN_BUZZER_PWM;
+//        }
+//        if(psc > MAX_PSC)
+//        {
+//            psc = 0;
+//        }
+        buzzer_on(1000, 12000);
 
+	
+	
 }

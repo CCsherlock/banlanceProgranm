@@ -131,7 +131,7 @@ void boardALLInit(void)
 #else
 	Custom_Init_V5();
 #endif
-//	buzzerPWMInit(20999,300);
+	buzzerPWMInit(20999,0);
 	RC.init();
 	/*看门狗初始化-喂狗在LED*/
 	//	iwdgInit(4,50);

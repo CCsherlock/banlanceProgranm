@@ -12,6 +12,7 @@
 #include "lqrCtrl_task.h"
 #include "motion_task.h"
 #include "chassis_task.h"
+#include "beep.h"
 void TDT_Loop_1000Hz(void) // 1ms执行一次
 {
 	RC.run_1000Hz();
@@ -54,6 +55,7 @@ void TDT_Loop_20Hz(void) // 50ms执行一次
 
 void TDT_Loop_10Hz(void) // 100ms执行一次
 {
+	beepLoop();
 }
 
 void TDT_Loop_2Hz(void) // 500ms执行一次
