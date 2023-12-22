@@ -475,6 +475,11 @@
               <FilePath>..\TDT_Alg\src\imu.cpp</FilePath>
             </File>
             <File>
+              <FileName>ErrorTest.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\TDT_Alg\src\ErrorTest.cpp</FilePath>
+            </File>
+            <File>
               <FileName>my_math.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\TDT_Alg\src\my_math.cpp</FilePath>

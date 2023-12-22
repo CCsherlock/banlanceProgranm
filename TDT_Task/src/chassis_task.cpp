@@ -1,6 +1,7 @@
 #include "chassis_task.h"
 #include "dbus.h"
 #include "filter.h"
+#include "ErrorTest.h"
 Lpf2p encodeSpeedLeftFilter;
 Lpf2p encodeSpeedRightFilter;
 #if defined SMALL_MODEL
@@ -62,6 +63,10 @@ void Chassis::chassisInit()
 float temp;
 void Chassis::chassisCtrlTorque(float torque[2])
 {
+	if(chssisMotor[LEFT]->canInfo.lostFlag)
+	{
+		errorList[MotorLostError].errorCheck();
+	}
 	if(deforceFlag)
 	{
 		motorMode = DEFORCE;
