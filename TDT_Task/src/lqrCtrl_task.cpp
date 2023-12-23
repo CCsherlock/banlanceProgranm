@@ -55,10 +55,15 @@ void LqrCtrl::lqrCalRun()
  * @brief 获取所有反馈值并传入LQR模块
  *
  */
+float motorSpeed_JS,megSpeed_Js;
+float megPos_JS;
 void LqrCtrl::getAllFbValue()
 {
     getXfb();
     getThetaFb();
+	  motorSpeed_JS = chssisMotor[0]->motorInfo.motor_fdb.speed_temp;
+		megSpeed_Js = -1*legMotor[0]->megSpeed;
+	  megPos_JS = -1*legMotor[0]->megAngle;
     fbValue[roboLqr->X_LEFT] = xFb[LEFT];
     fbValue[roboLqr->X_LEFT_DOT] = speedFb[LEFT];
     fbValue[roboLqr->X_RIGHT] = xFb[RIGHT];
@@ -113,7 +118,7 @@ void LqrCtrl::getFiFb()
     fiFb = myImuCal->Angle.pitch * RAD_PER_DEG * -1; // 单位 rad
     fiSpeedFb = myImuCal->gyro.radps.data[1] * -1;   // 单位 rad/s
 }
-// #define OUTPUT_TEST
+#define OUTPUT_TEST
 float chassisTq[2] = {0, 0};
 float legTq[2] = {0, 0};
 

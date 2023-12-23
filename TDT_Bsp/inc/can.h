@@ -43,6 +43,7 @@ extern "C"
 	void CAN2_TX_IRQHandler(void);
 	void CAN1_RX0_IRQHandler(void);
 	void CAN2_RX0_IRQHandler(void);
+
 #ifdef __cplusplus
 }
 #endif /*__cplusplus*/

@@ -18,6 +18,15 @@ uint8_t *Float_to_Byte(float f)
     byte[3] = (longdata & 0x000000FF);
     return byte;
 }
+float u8toflaot(uint8_t u4,uint8_t u3,uint8_t u2,uint8_t u1)
+{
+	FormatTrans FT;
+	FT.U[3] = u4;
+	FT.U[2] = u3;
+	FT.U[1] = u2;
+	FT.U[0] = u1;
+	return FT.F;
+}
 /*******************************************************************************
  * @function     : 小米电机回文16位数据转浮点
  * @param        : 1. 16位回文 2.对应参数下限 3.对应参数上限 4. 参数位数
@@ -56,10 +65,11 @@ int float_to_uint(float x, float x_min, float x_max, int bits)
  * @param _Canx   CAN1 / CAN2
  * @param _Ext_ID
  */
-CyberGear::CyberGear(CAN_TypeDef *_Canx, uint8_t _Ext_ID, int Motor_Num, float mode)
+CyberGear::CyberGear(CAN_TypeDef *_Canx, uint8_t _Ext_ID, uint8_t _Meg_ID,int Motor_Num, float mode)
 {
     myCan_x = _Canx;
     _extID = _Ext_ID;
+		_megBoardID = _Meg_ID;
     _motorNum = Motor_Num;
     _runMode = mode;
 }
@@ -220,4 +230,18 @@ void CyberGear::motorDataHandler(CanRxMsg *canRxData)
     motorInfo.motor_fdb.torque = motorInfo.motor_fdb.torque_temp; // ±12N/m
     motorInfo.motor_fdb.temprature_temp = (canRxData->Data[6] << 8 | canRxData->Data[7]);
     motorInfo.motor_fdb.temprature = motorInfo.motor_fdb.temprature_temp * Temp_Gain; //℃
+}
+void CyberGear::megSpeedMessegeGet(CanRxMsg *canRxData)
+{
+	uint8_t receiveBuffer[4];
+	for(uint8_t i = 0; i<4 ;i++)
+	{
+		receiveBuffer[i] = canRxData->Data[i];
+	}
+	megAngle = u8toflaot(receiveBuffer[3],receiveBuffer[2],receiveBuffer[1],receiveBuffer[0]);
+	for(uint8_t i = 0; i<4 ;i++)
+	{
+		receiveBuffer[i] = canRxData->Data[i+4];
+	}
+	megSpeed = u8toflaot(receiveBuffer[3],receiveBuffer[2],receiveBuffer[1],receiveBuffer[0]);
 }

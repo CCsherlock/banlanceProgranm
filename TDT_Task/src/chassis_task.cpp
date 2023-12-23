@@ -42,9 +42,9 @@ void Chassis::chassisInit()
     for (u8 i = 0; i < 2; i++)
     {
         /* code */
-        chssisMotor[i] = new CyberGear(CAN1, 0x7F + i, i + 1, Motion_mode);
+        chssisMotor[i] = new CyberGear(CAN1, 0x7F + i, 0x103+i, i + 1, Motion_mode);
         chssisMotor[i]->initMotor();
-        legMotor[i] = new CyberGear(CAN2, 0x7F + i, i + 1, Motion_mode);
+        legMotor[i] = new CyberGear(CAN1, 0x81 + i, 0x101+i, i + 1, Motion_mode);
         legMotor[i]->initMotor();
     }
 #endif
