@@ -128,12 +128,13 @@ private:
     /* data */
     CAN_TypeDef *myCan_x;
     uint32_t _extID;
+		uint32_t _megBoardID;
     int _motorNum;
     float _runMode;
 
 public:
     MI_Motor_t motorInfo;
-    CyberGear(CAN_TypeDef *_Canx, uint8_t _Ext_ID, int Motor_Num, float mode);
+    CyberGear(CAN_TypeDef *_Canx, uint8_t _Ext_ID, uint8_t _Meg_ID,int Motor_Num, float mode);
     void initMotor();
     void enableMotor();
     void stopMotor(uint8_t clear_error);
@@ -143,7 +144,20 @@ public:
     void motorCtrlMode(float torque, float MechPosition , float speed , float kp , float kd);
     void setZeroPos();
     void setCANID(uint8_t Target_ID);
+		void megSpeedMessegeGet(CanRxMsg *canRxData);
+		float megSpeed;
+		float megAngle;
 };
 float uint16_to_float(uint16_t x, float x_min, float x_max, int bits);
 uint8_t *Float_to_Byte(float f);
+	typedef struct _vec4u
+	{
+		uint8_t data[4];
+	}_vec4u;
+	typedef union
+	{
+			uint8_t U[4];
+			float F;
+			int I;
+	}FormatTrans;
 #endif

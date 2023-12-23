@@ -26,6 +26,7 @@ int legZero[2] = {0, 0};
 
 void Chassis::chassisInit()
 {
+#if defined SMALL_MODEL
     chssisMotor[LEFT] = new Motor(M3508, CAN1, 0x201);
     chssisMotor[LEFT]->setMotorTorqueCoff(12970);
     legMotor[LEFT] = new Motor(GM6020, CAN1, 0X206);
@@ -36,24 +37,17 @@ void Chassis::chassisInit()
     legMotor[RIGHT] = new Motor(GM6020, CAN1, 0X205);
     legMotor[RIGHT]->setZeroValue(legZero[RIGHT]);
     legMotor[RIGHT]->setMotorTorqueCoff(25000);
-	encodeSpeedLeftFilter.SetCutoffFreq(2000,5);
-	
-    //    for (u8 i = 0; i < 2; i++)
-    //    {
-    ///* code */
-    // #if defined SMALL_MODEL
-    //         chssisMotor[i] = new Motor(M3508, CAN1, 0x201 + i);
-    //         chssisMotor[i]->setMotorTorqueCoff(12970);
-    //         legMotor[i] = new Motor(GM6020, CAN1, 0X205 + i);
-    //         legMotor[i]->setZeroValue(legZero[i]);
-    //         legMotor[i]->setMotorTorqueCoff(25000);
-    // #elif defined BIG_MODEL
-    //         chssisMotor[i] = new CyberGear(CAN1, 0x7F + i, i + 1, Motion_mode);
-    //         chssisMotor[i]->initMotor();
-    //         legMotor[i] = new CyberGear(CAN1, 0x81 + i, i + 1, Motion_mode);
-    //         legMotor[i]->initMotor();
-    // #endif
-    //     }
+    encodeSpeedLeftFilter.SetCutoffFreq(2000, 5);
+#elif defined BIG_MODEL
+    for (u8 i = 0; i < 2; i++)
+    {
+        /* code */
+        chssisMotor[i] = new CyberGear(CAN1, 0x7F + i, 0x103+i, i + 1, Motion_mode);
+        chssisMotor[i]->initMotor();
+        legMotor[i] = new CyberGear(CAN1, 0x81 + i, 0x101+i, i + 1, Motion_mode);
+        legMotor[i]->initMotor();
+    }
+#endif
 }
 /**
  * @brief 底盘动力电机力矩输出

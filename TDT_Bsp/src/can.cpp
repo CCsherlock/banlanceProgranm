@@ -319,7 +319,19 @@ void CAN1_RX0_IRQHandler(void)
 #if defined BIG_MODEL
 		if ((Can1RxMsg.ExtId & 0x0000FF00) == 0x007F00)
 		{
-			motorMi[0]->motorDataHandler(&Can1RxMsg);
+			chssisMotor[LEFT]->motorDataHandler(&Can1RxMsg);
+		}
+		else if((Can1RxMsg.ExtId & 0x0000FF00) == 0x008000)
+		{
+			chssisMotor[RIGHT]->motorDataHandler(&Can1RxMsg);
+		}
+		else if ((Can2RxMsg.ExtId & 0x0000FF00) == 0x008100)
+		{
+			legMotor[LEFT]->motorDataHandler(&Can2RxMsg);
+		}
+		else if((Can2RxMsg.ExtId & 0x0000FF00) == 0x008200)
+		{
+			legMotor[RIGHT]->motorDataHandler(&Can2RxMsg);
 		}
 		memset(&Can1RxMsg, 0, sizeof(Can1RxMsg));
 #endif
@@ -339,7 +351,17 @@ void CAN2_RX0_IRQHandler(void)
 		CAN_Receive(CAN2, CAN_FIFO0, &Can2RxMsg);
 		// CAN信息处理
 		Can2.Motor_Information_Calculate(Can_2, &Can2RxMsg);
+#if defined BIG_MODEL
+		if(Can2RxMsg.StdId == 0x101)
+		{
+			legMotor[LEFT]->megSpeedMessegeGet(&Can2RxMsg);
+		}
+		if(Can2RxMsg.StdId == 0x102)
+		{
+			legMotor[RIGHT]->megSpeedMessegeGet(&Can2RxMsg);
+		}
 		memset(&Can2RxMsg, 0, sizeof(Can2RxMsg));
+#endif
 		CAN_ClearITPendingBit(CAN2, CAN_IT_FMP0);
 		// switch (Can2RxMsg.StdId)
 		// {
