@@ -50,7 +50,7 @@ void Beep::beepOff()
 {
 	beepState = SILENT;
 	TIM_PrescalerConfig(TIM4, MAX_PSC, TIM_PSCReloadMode_Immediate);
-	TIM_SetCompare3(TIM4, _pwm);
+	TIM_SetCompare3(TIM4, 0);
 }
 void Beep::setBeepTone(uint16_t tone)
 {
@@ -67,8 +67,13 @@ void Beep::beepToggle()
 		beepOn();
 	}
 }
-void Beep::beepAlarm(uint8_t times)
+void Beep::beepAlarm(uint8_t times )
 {
+	if(times == 0)
+	{
+		beepOff();
+		return;
+	}
 	if (ringLoopReset)
 	{
 		runingTime = (float)(getSysTimeUs() / 1e3f);
