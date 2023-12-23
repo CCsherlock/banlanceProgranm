@@ -57,10 +57,17 @@ void Chassis::chassisInit()
 float temp;
 void Chassis::chassisCtrlTorque(float torque[2])
 {
+#if defined SMALL_MODEL
 	if(chssisMotor[LEFT]->canInfo.lostFlag)
 	{
 		errorList[MotorLostError].errorCheck();
 	}
+#else 
+	if(chssisMotor[LEFT]->motorInfo.lostFlag)
+	{
+		errorList[MotorLostError].errorCheck();
+	}	
+#endif
 	if(deforceFlag)
 	{
 		motorMode = DEFORCE;

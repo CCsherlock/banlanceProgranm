@@ -119,6 +119,7 @@ struct MI_Motor_t
     motor_mode_e motor_mode;
     EXT_ID_t EXT_ID;
     uint8_t txdata[8];
+		uint8_t lostFlag;
     Motor_fdb_t motor_fdb;
 };
 

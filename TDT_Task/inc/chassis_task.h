@@ -39,7 +39,13 @@ public:
     float legMotorTq2Cu = 1;
     MotorMode motorMode = DEFORCE;
 };
+#if defined SMALL_MODEL
 extern Motor *chssisMotor[2];
 extern Motor *legMotor[2];
+#elif defined BIG_MODEL
+extern CyberGear *chssisMotor[2];
+extern CyberGear *legMotor[2];
+#endif
+
 float legSpeedCal(float encode);
 #endif

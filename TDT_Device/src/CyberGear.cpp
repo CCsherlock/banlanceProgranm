@@ -72,6 +72,7 @@ CyberGear::CyberGear(CAN_TypeDef *_Canx, uint8_t _Ext_ID, uint8_t _Meg_ID,int Mo
 		_megBoardID = _Meg_ID;
     _motorNum = Motor_Num;
     _runMode = mode;
+		motorInfo.lostFlag = 0;
 }
 /*******************************************************************************
  * @function     : 电机参数初始化
