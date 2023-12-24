@@ -109,7 +109,35 @@ double Kf::KalmanFilter(const double ResrcData,double ProcessNoise_Q,double Meas
    return x_now;
 }
 
-
+SlideWindow::SlideWindow(int windowWidth, int filterWidth,float* dataDocker)
+{
+	_windowWidth = windowWidth;
+	
+	if(filterWidth>windowWidth)
+	{
+		_filterWidth = _windowWidth;
+	}	
+	else
+	{
+		_filterWidth = filterWidth;
+	}
+	windowData = dataDocker;
+}
+float SlideWindow::slideWindowFilter(float data)
+{
+	for(uint8_t i = _windowWidth - 1; i >= 1; i--)
+	{
+		*(windowData + i) = *(windowData + i -1);
+	}
+	*windowData = data;
+	float temp = 0;
+	for(uint8_t i = 0 ; i < _filterWidth; i++)
+	{
+		temp += *(windowData + i);
+	}
+	result = temp/((float)_filterWidth);
+	return result;
+}
 
 
 

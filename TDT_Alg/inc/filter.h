@@ -48,5 +48,16 @@ public:
 
 };
 
+class SlideWindow
+{
+private:
+	int _windowWidth;
+	int _filterWidth;
+public:
+	SlideWindow(int windowWidth, int filterWidth,float* dataDocker);
+	float slideWindowFilter(float data);
+	float *windowData;
+	float result;
+};
 
 #endif

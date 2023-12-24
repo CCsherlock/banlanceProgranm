@@ -209,6 +209,30 @@ void CyberGear::setCANID(uint8_t Target_ID)
     memcpy(&sendId, &motorInfo.EXT_ID, sizeof(motorInfo.EXT_ID));
     canTx(motorInfo.txdata, motorInfo.phcan, sendId);
 }
+
+uint8_t megCANmessege[8];
+
+void CyberGear::setMegZeroOffset()
+{
+	megTrans.setZeroFlag = 1;
+	megCANmessege[0 + _motorNum*sizeof(megTrans)] = megTrans.setZeroFlag;
+	if((_motorNum+1) * sizeof(megTrans) <= 8)
+	{
+		canTx(megCANmessege, MEG_BOARD_CANX, MEG_BOARD_CANID);
+	}
+	megTrans.setZeroFlag = 0;
+}
+
+void CyberGear::resetMegBoard()
+{
+	megTrans.resetFlag = 1;
+	megCANmessege[1 + _motorNum*sizeof(megTrans)] = megTrans.resetFlag;
+	if((_motorNum+1) * sizeof(megTrans) <= 8)
+	{
+		canTx(megCANmessege, MEG_BOARD_CANX, MEG_BOARD_CANID);
+	}
+	megTrans.resetFlag = 0;
+}
 /*******************************************************************************
  * @function     : 电机回复帧数据处理函数
  * @param        : 1.对应控制电机结构体 2.数据帧 3.扩展ID帧

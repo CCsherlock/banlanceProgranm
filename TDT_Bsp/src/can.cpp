@@ -442,7 +442,7 @@ void canTx(float *data, CAN_TypeDef *can_x, uint32_t id)
 void canTx(u8 data[8], CAN_TypeDef *can_x, uint32_t id)
 {
 	CanTxMsg Can1TxMsg;
-	if (id != 0x200 || id != 0x1FF)
+	if (id != 0x200 || id != 0x1FF || id!= 0x100)
 	{
 		Can1TxMsg.IDE = CAN_Id_Extended; // 标准帧 CAN_Id_Standard 使用标准标识符 CAN_Id_Extended 使用标准标识符 + 扩展标识符
 		Can1TxMsg.ExtId = id;			 // 范围为 0 到 0x7FF

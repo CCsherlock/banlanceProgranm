@@ -55,6 +55,8 @@
 #define Motion_mode 0
 #define Speed_mode 2
 
+#define MEG_BOARD_CANID 0x100
+#define MEG_BOARD_CANX CAN2
 struct MI_Motor
 {
     uint8_t CAN_ID;
@@ -122,6 +124,11 @@ struct MI_Motor_t
 		uint8_t lostFlag;
     Motor_fdb_t motor_fdb;
 };
+struct MegEncode_t
+{
+	uint8_t resetFlag = 0;
+	uint8_t setZeroFlag = 0;
+};
 
 class CyberGear
 {
@@ -148,6 +155,9 @@ public:
 		void megSpeedMessegeGet(CanRxMsg *canRxData);
 		float megSpeed;
 		float megAngle;
+		void setMegZeroOffset();
+		void resetMegBoard();
+		MegEncode_t megTrans;
 };
 float uint16_to_float(uint16_t x, float x_min, float x_max, int bits);
 uint8_t *Float_to_Byte(float f);

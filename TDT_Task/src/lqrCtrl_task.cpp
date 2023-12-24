@@ -5,6 +5,8 @@
 #include "stdio.h"
 #include "imu_task.h"
 #include "my_math.h"
+#include "dbus.h"
+#include "filter.h"
 LqrCtrl balance;       // lqr运算实例化
 float laqK_buffer[40]; // lqrK矩阵暂存数组
 LqrCtrl::LqrCtrl(/* args */)
@@ -48,10 +50,21 @@ void LqrCtrl::lqrCalRun()
  * @brief 获取所有反馈值并传入LQR模块
  *
  */
+#define JS 1
+#if JS
+float encodeSpeed_JS;
+float motorSpeed_JS;
+float encodeAngle_JS;
+#endif
 void LqrCtrl::getAllFbValue()
 {
     getXfb();
     getThetaFb();
+#if JS
+		encodeSpeed_JS = -1*legMotor[RIGHT]->megSpeed;
+		motorSpeed_JS = chssisMotor[LEFT]->motorInfo.motor_fdb.speed_temp;
+	  encodeAngle_JS = legMotor[RIGHT]->megAngle;
+#endif
     fbValue[roboLqr->X_LEFT] = xFb[LEFT];
     fbValue[roboLqr->X_LEFT_DOT] = speedFb[LEFT];
     fbValue[roboLqr->X_RIGHT] = xFb[RIGHT];
@@ -106,13 +119,23 @@ void LqrCtrl::getFiFb()
     fiFb = bmi088Cal->Angle.pitch * RAD_PER_DEG * -1; // 单位 rad
     fiSpeedFb = bmi088Cal->gyro.radps.data[1] * -1;   // 单位 rad/s
 }
-// #define OUTPUT_TEST
+#define OUTPUT_TEST 1
 float chassisTq[2] = {0, 0};
 float legTq[2] = {0, 0};
 float resultKp = 0.5;
+uint8_t resetZeroFlag = 0;
 void LqrCtrl::lqrOutput()
 {
-#ifdef OUTPUT_TEST
+#if OUTPUT_TEST
+		chassisTq[LEFT] = (RC.Key.CH[1] / 660.0) * 0.1;
+		if(RC.Key.CH[4] == 1)
+		{
+			if(!resetZeroFlag)
+			{
+				legMotor[RIGHT]->resetMegBoard();
+				resetZeroFlag = 1;
+			}
+		}
     chassis->chassisCtrlTorque(chassisTq);
     chassis->legCtrlTorque(legTq);
 #else
