@@ -50,7 +50,7 @@ void LqrCtrl::lqrCalRun()
  * @brief 获取所有反馈值并传入LQR模块
  *
  */
-#define JS 1
+#define JS 0
 #if JS
 float encodeSpeed_JS;
 float motorSpeed_JS;
@@ -119,7 +119,7 @@ void LqrCtrl::getFiFb()
     fiFb = bmi088Cal->Angle.pitch * RAD_PER_DEG * -1; // 单位 rad
     fiSpeedFb = bmi088Cal->gyro.radps.data[1] * -1;   // 单位 rad/s
 }
-#define OUTPUT_TEST 1
+#define OUTPUT_TEST 0
 float chassisTq[2] = {0, 0};
 float legTq[2] = {0, 0};
 float resultKp = 0.5;
