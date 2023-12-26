@@ -2,11 +2,12 @@
 #include "dbus.h"
 #include "filter.h"
 #include "ErrorTest.h"
-Lpf2p encodeSpeedLeftFilter;
-Lpf2p encodeSpeedRightFilter;
+#include "instableCheck_task.h"
 #if defined SMALL_MODEL
 Motor *chssisMotor[2];
 Motor *legMotor[2];
+Lpf2p encodeSpeedLeftFilter;
+Lpf2p encodeSpeedRightFilter;
 #elif defined BIG_MODEL
 CyberGear *chssisMotor[2];
 CyberGear *legMotor[2];
@@ -38,13 +39,14 @@ void Chassis::chassisInit()
     legMotor[RIGHT]->setZeroValue(legZero[RIGHT]);
     legMotor[RIGHT]->setMotorTorqueCoff(25000);
     encodeSpeedLeftFilter.SetCutoffFreq(2000, 5);
+    encodeSpeedRightFilter.SetCutoffFreq(2000, 5);
 #elif defined BIG_MODEL
     for (u8 i = 0; i < 2; i++)
     {
         /* code */
-        chssisMotor[i] = new CyberGear(CAN1, 0x7F + i, 0x103+i, i, Motion_mode);
+        chssisMotor[i] = new CyberGear(CAN1, 0x7F + i, 0x103 + i, i, Motion_mode);
         chssisMotor[i]->initMotor();
-        legMotor[i] = new CyberGear(CAN1, 0x81 + i, 0x101+i, i, Motion_mode);
+        legMotor[i] = new CyberGear(CAN1, 0x81 + i, 0x101 + i, i, Motion_mode);
         legMotor[i]->initMotor();
     }
 #endif
@@ -57,26 +59,14 @@ void Chassis::chassisInit()
 float temp;
 void Chassis::chassisCtrlTorque(float torque[2])
 {
-#if defined SMALL_MODEL
-	if(chssisMotor[LEFT]->canInfo.lostFlag)
-	{
-		errorList[MotorLostError].errorCheck();
-	}
-#else 
-	if(chssisMotor[LEFT]->motorInfo.lostFlag)
-	{
-		errorList[MotorLostError].errorCheck();
-	}	
-#endif
-//	chssisMotor[LEFT]->setCANID(0x7f);
-	if(deforceFlag)
-	{
-		motorMode = DEFORCE;
-	}
-	else
-	{
-		motorMode = RUNNING;
-	}
+    if (deforceFlag || instableFlag)
+    {
+        motorMode = DEFORCE;
+    }
+    else
+    {
+        motorMode = RUNNING;
+    }
     for (u8 i = 0; i < 2; i++)
     {
         /* code */
@@ -91,7 +81,7 @@ void Chassis::chassisCtrlTorque(float torque[2])
             break;
         case RUNNING:
 #if defined SMALL_MODEL
-            chssisMotor[i]->ctrlTorque(torque[i]*chassisOutputDir[i]);
+            chssisMotor[i]->ctrlTorque(torque[i] * chassisOutputDir[i]);
 #elif defined BIG_MODEL
             if (chssisMotor[i]->motorInfo.motor_mode != RUN_MODE)
             {
@@ -112,14 +102,14 @@ void Chassis::chassisCtrlTorque(float torque[2])
  */
 void Chassis::legCtrlTorque(float torque[2])
 {
-	if(deforceFlag)
-	{
-		motorMode = DEFORCE;
-	}
-	else
-	{
-		motorMode = RUNNING;
-	}
+    if (deforceFlag || instableFlag)
+    {
+        motorMode = DEFORCE;
+    }
+    else
+    {
+        motorMode = RUNNING;
+    }
     for (u8 i = 0; i < 2; i++)
     {
         /* code */
@@ -134,7 +124,7 @@ void Chassis::legCtrlTorque(float torque[2])
             break;
         case RUNNING:
 #if defined SMALL_MODEL
-            legMotor[i]->ctrlTorque(torque[i]* legOutputDir[i]);
+            legMotor[i]->ctrlTorque(torque[i] * legOutputDir[i]);
 #elif defined BIG_MODEL
             if (legMotor[i]->motorInfo.motor_mode != RUN_MODE)
             {
@@ -159,9 +149,8 @@ float *Chassis::getChassisSpeed()
     chassisSpeed[LEFT] = chssisMotor[LEFT]->canInfo.speed * chassisFbDir[LEFT];    // 单位  RPM
     chassisSpeed[RIGHT] = chssisMotor[RIGHT]->canInfo.speed * chassisFbDir[RIGHT]; // 单位  RPM
 #elif defined BIG_MODEL
-    chassisSpeed[LEFT] = chssisMotor[LEFT]->motorInfo.motor_fdb.speed * chassisFbDir[LEFT];
-    chassisSpeed[RIGHT] = chssisMotor[RIGHT]->motorInfo.motor_fdb.speed * chassisFbDir[RIGHT];
-		
+    chassisSpeed[LEFT] = chssisMotor[LEFT]->motorInfo.motor_fdb.speed * chassisFbDir[LEFT] * ROBOT_WHEEL_RADIO / 1000.0;    // 单位  m/s
+    chassisSpeed[RIGHT] = chssisMotor[RIGHT]->motorInfo.motor_fdb.speed * chassisFbDir[RIGHT] * ROBOT_WHEEL_RADIO / 1000.0; // 单位  m/s
 #endif
     return chassisSpeed;
 }
@@ -176,8 +165,8 @@ float *Chassis::getChassisAngel()
     chassisAngel[LEFT] = chssisMotor[LEFT]->canInfo.totalAngle_f * chassisFbDir[LEFT];    // 单位 °
     chassisAngel[RIGHT] = chssisMotor[RIGHT]->canInfo.totalAngle_f * chassisFbDir[RIGHT]; // 单位 °
 #elif defined BIG_MODEL
-    chassisAngel[LEFT] = chssisMotor[LEFT]->motorInfo.motor_fdb.angle * chassisFbDir[LEFT];
-    chassisAngel[RIGHT] = chssisMotor[RIGHT]->motorInfo.motor_fdb.angle * chassisFbDir[RIGHT];
+    chassisAngel[LEFT] = chssisMotor[LEFT]->motorInfo.motor_fdb.angle * chassisFbDir[LEFT];    // 单位 rad
+    chassisAngel[RIGHT] = chssisMotor[RIGHT]->motorInfo.motor_fdb.angle * chassisFbDir[RIGHT]; // 单位 rad
 #endif
     return chassisAngel;
 }
@@ -187,17 +176,20 @@ float *Chassis::getChassisAngel()
  * @return float* 速度结构体 单位 RPM
  */
 float encodeBuffer[50];
-SlideWindow encodeWindow(50,50,encodeBuffer);
+SlideWindow encodeLeftWindow(50, 50, encodeBuffer);
+SlideWindow encodeRightWindow(50, 50, encodeBuffer);
 float *Chassis::getLegSpeed()
 {
 #if defined SMALL_MODEL
-//    legSpeed[LEFT] = legMotor[LEFT]->canInfo.speedFromEncoder * legFbDir[LEFT];    // 单位 RPM
-    legSpeed[RIGHT] = legMotor[RIGHT]->canInfo.speedFromEncoder * legFbDir[RIGHT]; // 单位 RPM
-		legSpeed[LEFT]  = encodeSpeedLeftFilter.Apply(legMotor[LEFT]->canInfo.speedFromEncoder)* legFbDir[LEFT];
+    // legSpeed[LEFT] = legMotor[LEFT]->canInfo.speedFromEncoder * legFbDir[LEFT];                                 // 单位 rad/s
+    // legSpeed[RIGHT] = legMotor[RIGHT]->canInfo.speedFromEncoder * legFbDir[RIGHT];                              // 单位 rad/s
+    legSpeed[LEFT] = encodeSpeedLeftFilter.Apply(legMotor[LEFT]->canInfo.speedFromEncoder) * legFbDir[LEFT];    // 单位 rad/s
+    legSpeed[RIGHT] = encodeSpeedLeftFilter.Apply(legMotor[RIGHT]->canInfo.speedFromEncoder) * legFbDir[RIGHT]; // 单位 rad/s
 #elif defined BIG_MODEL
-    legSpeed[LEFT] = legMotor[LEFT]->motorInfo.motor_fdb.speed * chassisFbDir[LEFT];
-    legSpeed[RIGHT] = legMotor[RIGHT]->motorInfo.motor_fdb.speed * chassisFbDir[RIGHT];
-		encodeWindow.slideWindowFilter(-1*legMotor[RIGHT]->megSpeed);
+    legSpeed[LEFT] = legMotor[LEFT]->motorInfo.motor_fdb.speed * chassisFbDir[LEFT];    // 电机反馈速度 rad/s
+    legSpeed[RIGHT] = legMotor[RIGHT]->motorInfo.motor_fdb.speed * chassisFbDir[RIGHT]; // 电机反馈速度 rad/s
+    // encodeLeftWindow.slideWindowFilter(-1 * legMotor[LEFT]->megSpeed);                  // 编码器反馈速度 rad/s
+    // encodeRightWindow.slideWindowFilter(-1 * legMotor[RIGHT]->megSpeed);                // 编码器反馈速度 rad/s
 #endif
     return legSpeed;
 }
@@ -212,8 +204,8 @@ float *Chassis::getLegAngel()
     legAngel[LEFT] = legMotor[LEFT]->canInfo.totalAngle_f * legFbDir[LEFT];    // 单位 °
     legAngel[RIGHT] = legMotor[RIGHT]->canInfo.totalAngle_f * legFbDir[RIGHT]; // 单位 °
 #elif defined BIG_MODEL
-    chassisAngel[LEFT] = legMotor[LEFT]->motorInfo.motor_fdb.angle * chassisFbDir[LEFT];
-    chassisAngel[RIGHT] = legMotor[RIGHT]->motorInfo.motor_fdb.angle * chassisFbDir[RIGHT];
+    chassisAngel[LEFT] = legMotor[LEFT]->motorInfo.motor_fdb.angle * chassisFbDir[LEFT];    // 单位 rad
+    chassisAngel[RIGHT] = legMotor[RIGHT]->motorInfo.motor_fdb.angle * chassisFbDir[RIGHT]; // 单位 rad
 #endif
     return legAngel;
 }
@@ -262,13 +254,13 @@ void Chassis::setLegFbDir(int8_t left, int8_t right)
     legFbDir[RIGHT] = right;
 }
 float encode_last;
-uint64_t timeFrom,timeLast;
+uint64_t timeFrom, timeLast;
 float legSpeedCal(float encode)
 {
-float radpsSpeed;
-timeFrom = getSysTimeUs();
-radpsSpeed = (encode - encode_last)/(float)(timeFrom - timeLast);
-encode_last = encode;
-	timeLast = timeFrom;
-	return radpsSpeed;
+    float radpsSpeed;
+    timeFrom = getSysTimeUs();
+    radpsSpeed = (encode - encode_last) / (float)(timeFrom - timeLast);
+    encode_last = encode;
+    timeLast = timeFrom;
+    return radpsSpeed;
 }

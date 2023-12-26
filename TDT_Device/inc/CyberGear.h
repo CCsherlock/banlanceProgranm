@@ -11,8 +11,8 @@
 #define KD_MAX 5.0f
 #define T_MIN -12.0f
 #define T_MAX 12.0f
-#define MAX_P 4*PI
-#define MIN_P -4*PI
+#define MAX_P 4 * PI
+#define MIN_P -4 * PI
 
 #define Master_CAN_ID 0x00
 
@@ -121,13 +121,16 @@ struct MI_Motor_t
     motor_mode_e motor_mode;
     EXT_ID_t EXT_ID;
     uint8_t txdata[8];
-		uint8_t lostFlag;
+    uint8_t lostFlag;
+    uint16_t lostCnt;
     Motor_fdb_t motor_fdb;
 };
 struct MegEncode_t
 {
-	uint8_t resetFlag = 0;
-	uint8_t setZeroFlag = 0;
+    uint8_t resetFlag = 0;
+    uint8_t setZeroFlag = 0;
+    uint8_t lostFlag;
+    uint16_t lostCnt;
 };
 
 class CyberGear
@@ -136,39 +139,40 @@ private:
     /* data */
     CAN_TypeDef *myCan_x;
     uint32_t _extID;
-		uint32_t _megBoardID;
+    uint32_t _megBoardID;
     int _motorNum;
     float _runMode;
 
 public:
     MI_Motor_t motorInfo;
-    CyberGear(CAN_TypeDef *_Canx, uint8_t _Ext_ID, uint8_t _Meg_ID,int Motor_Num, float mode);
+    CyberGear(CAN_TypeDef *_Canx, uint8_t _Ext_ID, uint8_t _Meg_ID, int Motor_Num, float mode);
     void initMotor();
     void enableMotor();
     void stopMotor(uint8_t clear_error);
     void motorDataHandler(CanRxMsg *canRxData);
     uint32_t getMotorID(uint32_t CAN_ID_Frame);
-    void setMotorParameter(uint16_t index ,uint8_t data[4]);
-    void motorCtrlMode(float torque, float MechPosition , float speed , float kp , float kd);
+    void setMotorParameter(uint16_t index, uint8_t data[4]);
+    void motorCtrlMode(float torque, float MechPosition, float speed, float kp, float kd);
     void setZeroPos();
     void setCANID(uint8_t Target_ID);
-		void megSpeedMessegeGet(CanRxMsg *canRxData);
-		float megSpeed;
-		float megAngle;
-		void setMegZeroOffset();
-		void resetMegBoard();
-		MegEncode_t megTrans;
+    void megSpeedMessegeGet(CanRxMsg *canRxData);
+    float megSpeed;
+    float megAngle;
+    void setMegZeroOffset();
+    void resetMegBoard();
+    MegEncode_t megTrans;
 };
 float uint16_to_float(uint16_t x, float x_min, float x_max, int bits);
 uint8_t *Float_to_Byte(float f);
-	typedef struct _vec4u
-	{
-		uint8_t data[4];
-	}_vec4u;
-	typedef union
-	{
-			uint8_t U[4];
-			float F;
-			int I;
-	}FormatTrans;
+void cyberGearLostCheck(CyberGear* motor);
+typedef struct _vec4u
+{
+    uint8_t data[4];
+} _vec4u;
+typedef union
+{
+    uint8_t U[4];
+    float F;
+    int I;
+} FormatTrans;
 #endif

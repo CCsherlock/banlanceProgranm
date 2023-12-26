@@ -4,7 +4,8 @@
 #include "board.h"
 enum errorListAll
 {
-    MotorLostError = 0U,
+    ENCODE_BOARD_LOST = 0U,
+		MotorLostError,
     AllErrorNumber
 };
 #define NO_ERROR 0
@@ -16,6 +17,9 @@ public:
     ErrorList();
     bool errorState = false;
     bool errorCheck();
+		bool trigeFlag = false;
+		bool error();
+		bool nError();
     bool getErrorState() { return errorState; };
     float errorTimeTreshold = 10;
     float errorTimeTotal = 0;
@@ -27,5 +31,5 @@ extern ErrorList errorList[AllErrorNumber];
 
 
 void ErrorChechAlarm();
-
+void errorTestList();
 #endif

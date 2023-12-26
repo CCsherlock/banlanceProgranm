@@ -2,16 +2,20 @@
 #include "dbus.h"
 #include "imu_task.h"
 #include "lqrCtrl_task.h"
+#include "instableCheck_task.h"
 using namespace RCS;
 Motion robotMotion;
 RampCurve ThetaUpRamp;
 Motion::Motion()
 {
 }
-
+/**
+ * @brief 机器人根据遥控器进行状态切换
+ * @mode DEFORCE SIT SLEEP CROSS_STAND
+ */
 void Motion::motionModeSwitch()
 {
-    if (deforceFlag)
+    if (deforceFlag || instableFlag)
     {
         robotMode = DEFORCE;
         robotMode_last = robotMode;
@@ -31,12 +35,17 @@ void Motion::motionModeSwitch()
     }
     robotMode_last = robotMode;
 }
-/**
- * @brief
- *
- */
+#if defined SMALL_MODEL
 float speedP = 10;
 float turnP = 5;
+#else
+float speedP = 1;
+float turnP = 1;
+#endif
+/**
+ * @brief 速度设定
+ *
+ */
 void Motion::chassisSpeedCtrl()
 {
     switch (robotMode)
@@ -45,18 +54,18 @@ void Motion::chassisSpeedCtrl()
         robotCtrl.chassisSpeed = 0; // m/s
         break;
     case SIT:
-        robotCtrl.chassisSpeed = (RC.Key.CH[3] / 660.f) * ROBOT_MAX_V*speedP; // m/s
-		    robotCtrl.chassisTurnSpeed = (RC.Key.CH[0] / 660.f) * ROBOT_MAX_V*turnP; // m/s
+        robotCtrl.chassisSpeed = (RC.Key.CH[3] / 660.f) * ROBOT_MAX_V * speedP;    // m/s
+        robotCtrl.chassisTurnSpeed = (RC.Key.CH[0] / 660.f) * ROBOT_MAX_V * turnP; // m/s
         break;
     default:
-			  robotCtrl.chassisSpeed = 0; // m/s
+        robotCtrl.chassisSpeed = 0; // m/s
         break;
     }
-     balance.speedSet[LEFT] = LIMIT(robotCtrl.chassisSpeed + robotCtrl.chassisTurnSpeed, -ROBOT_MAX_V*speedP, ROBOT_MAX_V*speedP);
-		 balance.speedSet[RIGHT] = LIMIT(robotCtrl.chassisSpeed - robotCtrl.chassisTurnSpeed, -ROBOT_MAX_V*speedP, ROBOT_MAX_V*speedP);
+    balance.speedSet[LEFT] = LIMIT(robotCtrl.chassisSpeed + robotCtrl.chassisTurnSpeed, -ROBOT_MAX_V * speedP, ROBOT_MAX_V * speedP);
+    balance.speedSet[RIGHT] = LIMIT(robotCtrl.chassisSpeed - robotCtrl.chassisTurnSpeed, -ROBOT_MAX_V * speedP, ROBOT_MAX_V * speedP);
 }
 /**
- * @brief
+ * @brief 内圈角度设定
  *
  */
 void Motion::bodyThetaCtrl()
@@ -65,13 +74,13 @@ void Motion::bodyThetaCtrl()
     {
     case DEFORCE:
         robotCtrl.bodyTheta = 0; // °
-				ThetaUpRamp.reset();
+        ThetaUpRamp.reset();
         break;
     case SIT:
         robotCtrl.bodyTheta = 0;                                                                            // °
         balance.angleSet[LEFT] = standThetaCal(balance.angleFb[LEFT], robotCtrl.bodyTheta) * RAD_PER_DEG;   // rad
         balance.angleSet[RIGHT] = standThetaCal(balance.angleFb[RIGHT], robotCtrl.bodyTheta) * RAD_PER_DEG; // rad
-				ThetaUpRamp.reset();
+        ThetaUpRamp.reset();
         break;
     case STAND:
         robotCtrl.bodyTheta = 90;                                                                           // °
@@ -79,19 +88,19 @@ void Motion::bodyThetaCtrl()
         balance.angleSet[RIGHT] = standThetaCal(balance.angleFb[RIGHT], robotCtrl.bodyTheta) * RAD_PER_DEG; // rad
         break;
     case CROSS_STAND:
-				robotCtrl.bodyTheta = ThetaUpRamp.ramp(crossStandSpeed, 0, crossStandAngle);		// °
+        robotCtrl.bodyTheta = ThetaUpRamp.ramp(crossStandSpeed, 0, crossStandAngle);                         // °
         balance.angleSet[LEFT] = standThetaCal(balance.angleFb[LEFT], robotCtrl.bodyTheta) * RAD_PER_DEG;    // rad
         balance.angleSet[RIGHT] = standThetaCal(balance.angleFb[RIGHT], -robotCtrl.bodyTheta) * RAD_PER_DEG; // rad
-				break;
+        break;
     default:
-			  robotCtrl.bodyTheta = 0;                                                                            // °
+        robotCtrl.bodyTheta = 0;                                                                            // °
         balance.angleSet[LEFT] = standThetaCal(balance.angleFb[LEFT], robotCtrl.bodyTheta) * RAD_PER_DEG;   // rad
         balance.angleSet[RIGHT] = standThetaCal(balance.angleFb[RIGHT], robotCtrl.bodyTheta) * RAD_PER_DEG; // rad
         break;
     }
 }
 /**
- * @brief
+ * @brief 身体俯仰角设定
  *
  */
 void Motion::bodyPitchCtrl()
@@ -110,7 +119,7 @@ void Motion::bodyPitchCtrl()
         robotCtrl.bodyPitch = 0; // °
         break;
     }
-    balance.fiSet = (robotCtrl.bodyPitch+fiOffset) * RAD_PER_DEG; // rad
+    balance.fiSet = (robotCtrl.bodyPitch + fiOffset) * RAD_PER_DEG; // rad
 }
 /**
  * @brief 计算稳态下内圈设定值
@@ -155,22 +164,22 @@ float Motion::standThetaCal(float thetaNow, float targetTheta)
 }
 /**
  * @brief （待完成）跳跃计算函数
- * 
- * @param thetaNow 
- * @param targetAngleErr 
- * @param direction 
- * @return float 
+ *
+ * @param thetaNow
+ * @param targetAngleErr
+ * @param direction
+ * @return float
  */
-//float Motion::jumpThetaCal(float thetaNow, float targetAngleErr, int direction)
+// float Motion::jumpThetaCal(float thetaNow, float targetAngleErr, int direction)
 //{
-//    float resultTheta;
-//    float cntNow = (int)(thetaNow / RAD_PER_DEG / 360.0f);
-//    float degreeNow = ((int)(thetaNow / RAD_PER_DEG * 1000)) % 360000 / 1000.0f;
-//    if (degreeNow < 0)
-//    {
-//        degreeNow = degreeNow + 360.0f; // 转到0-360°
-//    }
-//}
+//     float resultTheta;
+//     float cntNow = (int)(thetaNow / RAD_PER_DEG / 360.0f);
+//     float degreeNow = ((int)(thetaNow / RAD_PER_DEG * 1000)) % 360000 / 1000.0f;
+//     if (degreeNow < 0)
+//     {
+//         degreeNow = degreeNow + 360.0f; // 转到0-360°
+//     }
+// }
 
 RampCurve::RampCurve(/* args */)
 {
@@ -184,13 +193,13 @@ float RampCurve::ramp(double slop, double start, double end)
     if (!curveInit)
     {
         curveResult = start;
-        curveTime = (float)(getSysTimeUs()/1e6f);
+        curveTime = (float)(getSysTimeUs() / 1e6f);
         curveTime_last = curveTime;
         curveInit = true;
         curveFinish = false;
         return curveResult;
     }
-    curveTime = (float)(getSysTimeUs()/1e6f);
+    curveTime = (float)(getSysTimeUs() / 1e6f);
     if (signbit(slop))
     {
         if (curveResult <= end)
@@ -224,7 +233,7 @@ void RampCurve::reset()
         curveResult = 0;
         curveTime = curveTime_last = 0;
         curveMode = INIT;
-			  curveInit = false;
+        curveInit = false;
     }
 }
 void motionLoop()

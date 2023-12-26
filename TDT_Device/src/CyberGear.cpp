@@ -18,14 +18,14 @@ uint8_t *Float_to_Byte(float f)
     byte[3] = (longdata & 0x000000FF);
     return byte;
 }
-float u8toflaot(uint8_t u4,uint8_t u3,uint8_t u2,uint8_t u1)
+float u8toflaot(uint8_t u4, uint8_t u3, uint8_t u2, uint8_t u1)
 {
-	FormatTrans FT;
-	FT.U[3] = u4;
-	FT.U[2] = u3;
-	FT.U[1] = u2;
-	FT.U[0] = u1;
-	return FT.F;
+    FormatTrans FT;
+    FT.U[3] = u4;
+    FT.U[2] = u3;
+    FT.U[1] = u2;
+    FT.U[0] = u1;
+    return FT.F;
 }
 /*******************************************************************************
  * @function     : 小米电机回文16位数据转浮点
@@ -65,14 +65,15 @@ int float_to_uint(float x, float x_min, float x_max, int bits)
  * @param _Canx   CAN1 / CAN2
  * @param _Ext_ID
  */
-CyberGear::CyberGear(CAN_TypeDef *_Canx, uint8_t _Ext_ID, uint8_t _Meg_ID,int Motor_Num, float mode)
+CyberGear::CyberGear(CAN_TypeDef *_Canx, uint8_t _Ext_ID, uint8_t _Meg_ID, int Motor_Num, float mode)
 {
     myCan_x = _Canx;
     _extID = _Ext_ID;
-		_megBoardID = _Meg_ID;
+    _megBoardID = _Meg_ID;
     _motorNum = Motor_Num;
     _runMode = mode;
-		motorInfo.lostFlag = 0;
+    motorInfo.lostFlag = 1;
+    motorInfo.lostCnt = 1000;
 }
 /*******************************************************************************
  * @function     : 电机参数初始化
@@ -102,6 +103,7 @@ uint32_t CyberGear::getMotorID(uint32_t CAN_ID_Frame)
     uint32_t sendId;
     memcpy(&sendId, &motorInfo.EXT_ID, sizeof(motorInfo.EXT_ID));
     canTx(motorInfo.txdata, motorInfo.phcan, sendId);
+    motorInfo.lostCnt++;
     return (CAN_ID_Frame & 0xFFFF) >> 8;
 }
 /*******************************************************************************
@@ -120,6 +122,7 @@ void CyberGear::enableMotor()
     uint32_t sendId;
     memcpy(&sendId, &motorInfo.EXT_ID, sizeof(motorInfo.EXT_ID));
     canTx(motorInfo.txdata, motorInfo.phcan, sendId);
+    motorInfo.lostCnt++;
 }
 /*******************************************************************************
  * @function     : 停止电机
@@ -137,6 +140,7 @@ void CyberGear::stopMotor(uint8_t clear_error)
     uint32_t sendId;
     memcpy(&sendId, &motorInfo.EXT_ID, sizeof(motorInfo.EXT_ID));
     canTx(motorInfo.txdata, motorInfo.phcan, sendId);
+    motorInfo.lostCnt++;
 }
 void CyberGear::motorCtrlMode(float torque, float MechPosition, float speed, float kp, float kd)
 {
@@ -156,6 +160,7 @@ void CyberGear::motorCtrlMode(float torque, float MechPosition, float speed, flo
     uint32_t sendId;
     memcpy(&sendId, &motorInfo.EXT_ID, sizeof(motorInfo.EXT_ID));
     canTx(motorInfo.txdata, motorInfo.phcan, sendId);
+    motorInfo.lostCnt++;
 }
 /*******************************************************************************
  * @function     : 写入电机参数
@@ -190,6 +195,7 @@ void CyberGear::setZeroPos()
     uint32_t sendId;
     memcpy(&sendId, &motorInfo.EXT_ID, sizeof(motorInfo.EXT_ID));
     canTx(motorInfo.txdata, motorInfo.phcan, sendId);
+    motorInfo.lostCnt++;
 }
 /*******************************************************************************
  * @function     : 设置电机CANID
@@ -208,30 +214,39 @@ void CyberGear::setCANID(uint8_t Target_ID)
     uint32_t sendId;
     memcpy(&sendId, &motorInfo.EXT_ID, sizeof(motorInfo.EXT_ID));
     canTx(motorInfo.txdata, motorInfo.phcan, sendId);
+    motorInfo.lostCnt++;
 }
 
 uint8_t megCANmessege[8];
-
+/**
+ * @brief 设置编码器零点
+ *
+ */
 void CyberGear::setMegZeroOffset()
 {
-	megTrans.setZeroFlag = 1;
-	megCANmessege[0 + _motorNum*sizeof(megTrans)] = megTrans.setZeroFlag;
-	if((_motorNum+1) * sizeof(megTrans) <= 8)
-	{
-		canTx(megCANmessege, MEG_BOARD_CANX, MEG_BOARD_CANID);
-	}
-	megTrans.setZeroFlag = 0;
+    megTrans.setZeroFlag = 1;
+    megCANmessege[0 + _motorNum * sizeof(megTrans)] = megTrans.setZeroFlag;
+    if ((_motorNum + 1) * sizeof(megTrans) <= 8)
+    {
+        canTx(megCANmessege, MEG_BOARD_CANX, MEG_BOARD_CANID);
+        megTrans.lostCnt++;
+    }
+    megTrans.setZeroFlag = 0;
 }
-
+/**
+ * @brief 重启编码器
+ *
+ */
 void CyberGear::resetMegBoard()
 {
-	megTrans.resetFlag = 1;
-	megCANmessege[1 + _motorNum*sizeof(megTrans)] = megTrans.resetFlag;
-	if((_motorNum+1) * sizeof(megTrans) <= 8)
-	{
-		canTx(megCANmessege, MEG_BOARD_CANX, MEG_BOARD_CANID);
-	}
-	megTrans.resetFlag = 0;
+    megTrans.resetFlag = 1;
+    megCANmessege[1 + _motorNum * sizeof(megTrans)] = megTrans.resetFlag;
+    if ((_motorNum + 1) * sizeof(megTrans) <= 8)
+    {
+        canTx(megCANmessege, MEG_BOARD_CANX, MEG_BOARD_CANID);
+        megTrans.lostCnt++;
+    }
+    megTrans.resetFlag = 0;
 }
 /*******************************************************************************
  * @function     : 电机回复帧数据处理函数
@@ -243,30 +258,46 @@ void CyberGear::resetMegBoard()
 uint16_t decode_temp_mi = 0;
 void CyberGear::motorDataHandler(CanRxMsg *canRxData)
 {
-    if((canRxData->ExtId&0x00FF0000)>>16 != 0)
+    if ((canRxData->ExtId & 0x00FF0000) >> 16 != 0)
     {
-
     }
     motorInfo.motor_fdb.angle_temp = uint16_to_float(canRxData->Data[0] << 8 | canRxData->Data[1], MIN_P, MAX_P, 16);
-    motorInfo.motor_fdb.angle = motorInfo.motor_fdb.angle_temp / RAD_PER_DEG; // ±720°
+    motorInfo.motor_fdb.angle = motorInfo.motor_fdb.angle_temp / RAD_PER_DEG; // ±720 °
     motorInfo.motor_fdb.speed_temp = uint16_to_float(canRxData->Data[2] << 8 | canRxData->Data[3], V_MIN, V_MAX, 16);
-    motorInfo.motor_fdb.speed = motorInfo.motor_fdb.speed_temp / RAD_PER_DEG; // ±1718.87°/s
+    motorInfo.motor_fdb.speed = motorInfo.motor_fdb.speed_temp; // ±30 rad/s
     motorInfo.motor_fdb.torque_temp = uint16_to_float(canRxData->Data[4] << 8 | canRxData->Data[5], T_MIN, T_MAX, 16);
-    motorInfo.motor_fdb.torque = motorInfo.motor_fdb.torque_temp; // ±12N/m
+    motorInfo.motor_fdb.torque = motorInfo.motor_fdb.torque_temp; // ±12 N/m
     motorInfo.motor_fdb.temprature_temp = (canRxData->Data[6] << 8 | canRxData->Data[7]);
-    motorInfo.motor_fdb.temprature = motorInfo.motor_fdb.temprature_temp * Temp_Gain; //℃
+    motorInfo.motor_fdb.temprature = motorInfo.motor_fdb.temprature_temp * Temp_Gain; // ℃
+    motorInfo.lostCnt = 0;
+    motorInfo.lostFlag = 0;
 }
 void CyberGear::megSpeedMessegeGet(CanRxMsg *canRxData)
 {
-	uint8_t receiveBuffer[4];
-	for(uint8_t i = 0; i<4 ;i++)
-	{
-		receiveBuffer[i] = canRxData->Data[i];
-	}
-	megAngle = u8toflaot(receiveBuffer[3],receiveBuffer[2],receiveBuffer[1],receiveBuffer[0]);
-	for(uint8_t i = 0; i<4 ;i++)
-	{
-		receiveBuffer[i] = canRxData->Data[i+4];
-	}
-	megSpeed = u8toflaot(receiveBuffer[3],receiveBuffer[2],receiveBuffer[1],receiveBuffer[0]);
+    uint8_t receiveBuffer[4];
+    for (uint8_t i = 0; i < 4; i++)
+    {
+        receiveBuffer[i] = canRxData->Data[i];
+    }
+    megAngle = u8toflaot(receiveBuffer[3], receiveBuffer[2], receiveBuffer[1], receiveBuffer[0]); // rad
+    for (uint8_t i = 0; i < 4; i++)
+    {
+        receiveBuffer[i] = canRxData->Data[i + 4];
+    }
+    megSpeed = u8toflaot(receiveBuffer[3], receiveBuffer[2], receiveBuffer[1], receiveBuffer[0]); // rad/s
+    megTrans.lostCnt = 0;
+    megTrans.lostFlag = 0;
+}
+void cyberGearLostCheck(CyberGear *motor)
+{
+    motor->motorInfo.lostCnt++;
+    if (motor->motorInfo.lostCnt > 100)
+    {
+        motor->motorInfo.lostFlag = 1;
+    }
+    motor->megTrans.lostCnt++;
+    if (motor->megTrans.lostCnt > 100)
+    {
+        motor->megTrans.lostFlag = 1;
+    }
 }

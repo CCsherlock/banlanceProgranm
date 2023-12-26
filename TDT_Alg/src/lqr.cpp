@@ -84,7 +84,7 @@ void Lqr::calLqrResult()
 {
     // TODO  判断设定值和反馈值nan和inf
     arm_status matState;
-    matState = arm_mat_sub_f32(&set_Value, &fd_Value, &err_Value);
-    matState = arm_mat_mult_f32(&lqr_K, &err_Value, &result_Value);
+    matState = arm_mat_sub_f32(&set_Value, &fd_Value, &err_Value); // err = set - fb
+    matState = arm_mat_mult_f32(&lqr_K, &err_Value, &result_Value); // result = K * err
     // TODO  判断输出值nan和inf
 }

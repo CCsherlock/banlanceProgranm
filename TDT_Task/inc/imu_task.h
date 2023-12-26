@@ -27,7 +27,6 @@ History:
 #define FROM_MANUL 0
 //extern ImuCalc *mpu6050Cal;
 extern ImuCalc *bmi088Cal;
-extern float *visionSendYaw, *visionSendPitch;
 
 void imuInit(void);
 void Imu_Task(void);

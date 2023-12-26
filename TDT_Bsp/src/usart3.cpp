@@ -100,7 +100,7 @@ void Custom_Init_Cboard(void)
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE); // USART1时钟使能
 
-    GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_USART1);  // GPIOA9，USART1，TX
+    GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_USART1); // GPIOA9，USART1，TX
     GPIO_PinAFConfig(GPIOB, GPIO_PinSource7, GPIO_AF_USART1); // GPIOB7，USART1，RX
 
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
@@ -225,36 +225,54 @@ extern float legSpeed;
 void custom_Send_Data(void)
 {
     /*****GetValueStart******/
-		custom_SendStruct.fi = balance.fiFb;
-		custom_SendStruct.theta[LEFT] = balance.angleFb[LEFT];
-		custom_SendStruct.theta[RIGHT] = balance.angleFb[RIGHT];
-		custom_SendStruct.XSpeed[LEFT] = balance.speedFb[LEFT];
-		custom_SendStruct.XSpeed[RIGHT] = balance.speedFb[RIGHT];
-		custom_SendStruct.angleSpeed[LEFT] = balance.angleSpeedFb[LEFT];
-		custom_SendStruct.angleSpeed[RIGHT] = balance.angleSpeedFb[RIGHT];
-		custom_SendStruct.fiSpeed = balance.fiSpeedFb;
-		custom_SendStruct.setTorque[LEFT] = balance.legTorque[LEFT];
-		custom_SendStruct.motorSpeed[LEFT] = balance.chassis->legSpeed[LEFT];
-//		memset(customSendData,0,sizeof(customSendData));
-//	sprintf(customSendData,"%f,%f\n",custom_SendStruct.fi,custom_SendStruct.fiSpeed);
-	sendData(5,custom_SendStruct.setTorque[LEFT],custom_SendStruct.fi,custom_SendStruct.fiSpeed,custom_SendStruct.theta[LEFT],custom_SendStruct.angleSpeed[LEFT]);
+    custom_SendStruct.fi = balance.fiFb;
+    custom_SendStruct.theta[LEFT] = balance.angleFb[LEFT];
+    custom_SendStruct.theta[RIGHT] = balance.angleFb[RIGHT];
+    custom_SendStruct.XSpeed[LEFT] = balance.speedFb[LEFT];
+    custom_SendStruct.XSpeed[RIGHT] = balance.speedFb[RIGHT];
+    custom_SendStruct.angleSpeed[LEFT] = balance.angleSpeedFb[LEFT];
+    custom_SendStruct.angleSpeed[RIGHT] = balance.angleSpeedFb[RIGHT];
+    custom_SendStruct.fiSpeed = balance.fiSpeedFb;
+    custom_SendStruct.setTorque[LEFT] = balance.legTorque[LEFT];
+    custom_SendStruct.motorSpeed[LEFT] = balance.chassis->legSpeed[LEFT];
     /***** GetValueEnd *****/
+    sendData(5,
+             custom_SendStruct.setTorque[LEFT],
+             custom_SendStruct.fi,
+             custom_SendStruct.fiSpeed,
+             custom_SendStruct.theta[LEFT],
+             custom_SendStruct.angleSpeed[LEFT]);
+}
+
+void sendData(int cnt, ...)
+{
+    va_list args;
+    va_start(args, cnt);
+    int allLength = 0;
+    for (uint8_t i = 0; i < cnt; i++)
+    {
+        if (i == 0)
+            allLength += sprintf((char *)(u1SendBuf + allLength), "%.3f", va_arg(args, double));
+        else
+            allLength += sprintf((char *)(u1SendBuf + allLength), ",%.3f", va_arg(args, double));
+    }
+
+    allLength += sprintf((char *)(u1SendBuf + allLength), "\r\n");
+    va_end(args);
     /*****SetDefaultValue*****/
-    //    custom_SendStruct.frameHeader = 0xA5;
-    //		custom_SendStruct.frameEnd = CUSTOM_PART_END;
-    //    Append_CRC16_Check_Sum((u8 *)&custom_SendStruct, sizeof(custom_SendStruct));
-    // 设置传输数据长度
 #if defined USE_MAIN_CTRL_RM_CBOARD
-//    // 设置传输数据长度
-//    DMA_Cmd(DMA2_Stream7, DISABLE);
-//    while (DMA_GetCmdStatus(DMA2_Stream7) != DISABLE)
-//        ;
-//    DMA_DeInit(DMA2_Stream7);
-//    DMA_Init(DMA2_Stream7, &custom_Tx_DMA_InitStructure);
-//    // 打开DMA,开始发送
-//    DMA_Cmd(DMA2_Stream7, ENABLE);
+    // 设置传输数据长度
+    DMA_Cmd(DMA2_Stream7, DISABLE);
+    custom_Tx_DMA_InitStructure.DMA_BufferSize = allLength;
+    while (DMA_GetCmdStatus(DMA2_Stream7) != DISABLE)
+        ;
+    DMA_DeInit(DMA2_Stream7);
+    DMA_Init(DMA2_Stream7, &custom_Tx_DMA_InitStructure);
+    // 打开DMA,开始发送
+    DMA_Cmd(DMA2_Stream7, ENABLE);
 #else
     DMA_Cmd(DMA1_Stream3, DISABLE);
+    custom_Tx_DMA_InitStructure.DMA_BufferSize = allLength;
     while (DMA_GetCmdStatus(DMA1_Stream3) != DISABLE)
         ;
     DMA_DeInit(DMA1_Stream3);
@@ -262,34 +280,4 @@ void custom_Send_Data(void)
     // 打开DMA,开始发送
     DMA_Cmd(DMA1_Stream3, ENABLE);
 #endif
-}
-
-void sendData(int cnt,...)
-{
-	va_list args;
-	va_start(args,cnt);
-	int allLength=0;
-	for(uint8_t i=0;i<cnt;i++)
-	{
-		if(i==0)
-			allLength += sprintf((char*)(u1SendBuf+allLength),"%.3f",va_arg(args,double));
-		else
-			allLength += sprintf((char*)(u1SendBuf+allLength),",%.3f",va_arg(args,double));
-	}
-	
-	allLength += sprintf((char*)(u1SendBuf+allLength),"\r\n");
-	va_end(args);
-	
-	//int len = sprintf((char*)u1SendBuf,"%.3f,%.3f,%.3f\r\n",data1,data2,data3);
-	
-    /*****SetDefaultValue*****/
-    //设置传输数据长度
-    DMA_Cmd(DMA2_Stream7, DISABLE);
-		custom_Tx_DMA_InitStructure.DMA_BufferSize = allLength;
-    while (DMA_GetCmdStatus(DMA2_Stream7) != DISABLE)
-        ;
-    DMA_DeInit(DMA2_Stream7);
-    DMA_Init(DMA2_Stream7, &custom_Tx_DMA_InitStructure);
-    // 打开DMA,开始发送
-    DMA_Cmd(DMA2_Stream7, ENABLE);
 }

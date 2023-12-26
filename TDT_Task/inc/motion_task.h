@@ -32,8 +32,8 @@ public:
         float bodyPitch;    // 机体俯仰设定
         float bodyTheta;    // 关节角度设定
     } robotCtrl;
-		float crossStandAngle = 90;
-		float crossStandSpeed = 45;
+		float crossStandAngle = 180;
+		float crossStandSpeed = 90;
 		float fiOffset = -4;
 };
 

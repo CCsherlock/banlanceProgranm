@@ -101,3 +101,13 @@ void Beep::beepAlarm(uint8_t times )
 		ringLoopTimes++;
 	}
 }
+void beepDbug(uint8_t times)
+{
+	for(uint8_t i = 0; i<times ; i++)
+	{
+		beep.beepOn();
+		delayMs(200);
+		beep.beepOff();
+		delayMs(200);
+	}
+}

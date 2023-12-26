@@ -145,7 +145,7 @@ void Can::Motor_Information_Calculate(u8 can_x, CanRxMsg *_CanRxMsg)
 	
 	Info->recodeTime = getSysTimeUs()/ 1e6f;
 	float timeErr = Info->recodeTime-Info->recodeTime_last;
-	Info->speedFromEncoder = (Info->totalAngle_f - Info->totalAngle_f_last)/timeErr * RAD_PER_DEG;///s
+	Info->speedFromEncoder = (Info->totalAngle_f - Info->totalAngle_f_last)/timeErr * RAD_PER_DEG;//rad/s
 	Info->recodeTime_last = Info->recodeTime;
 	//速度积分和位置反馈做互补滤波！！！
 	/*记录此次机械角度*/

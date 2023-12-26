@@ -36,4 +36,5 @@ public:
 };
 void buzzerPWMInit(u32 arr, u32 psc);
 extern Beep beep;
+void beepDbug(uint8_t times);
 #endif

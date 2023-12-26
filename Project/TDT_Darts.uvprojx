@@ -338,7 +338,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>-frtti -Wno-invalid-source-encoding</MiscControls>
-              <Define>STM32F40_41xxx,USE_STDPERIPH_DRIVER,ARM_MATH_CM4,ARM_MATH_MATRIX_CHECK,ARM_MATH_ROUNDING,USE_MAIN_CTRL_RM_CBOARD,BIG_MODEL</Define>
+              <Define>STM32F40_41xxx,USE_STDPERIPH_DRIVER,ARM_MATH_CM4,ARM_MATH_MATRIX_CHECK,ARM_MATH_ROUNDING,USE_MAIN_CTRL_RM_CBOARD,SMALL_MODEL</Define>
               <Undefine></Undefine>
               <IncludePath>C:\Users\sherlock\AppData\Local\Arm\Packs\ARM\CMSIS\5.9.0;..\ST_Lib\inc;..\User;..\DSP_Lib;..\TDT_Bsp\inc;..\TDT_Alg\inc;..\TDT_device\inc;..\TDT_Task\inc</IncludePath>
             </VariousControls>
@@ -444,6 +444,11 @@
               <FileType>8</FileType>
               <FilePath>..\TDT_Task\src\motion_task.cpp</FilePath>
             </File>
+            <File>
+              <FileName>instableCheck_task.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\TDT_Task\src\instableCheck_task.cpp</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -490,16 +495,6 @@
               <FilePath>..\TDT_Alg\src\can_calculate.cpp</FilePath>
             </File>
             <File>
-              <FileName>curve_model.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\TDT_Alg\src\curve_model.cpp</FilePath>
-            </File>
-            <File>
-              <FileName>mecanum.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\TDT_Alg\src\mecanum.cpp</FilePath>
-            </File>
-            <File>
               <FileName>AHRS_middleware.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\TDT_Alg\src\AHRS_middleware.c</FilePath>
@@ -508,21 +503,6 @@
               <FileName>AHRS.lib</FileName>
               <FileType>4</FileType>
               <FilePath>..\TDT_Alg\src\AHRS.lib</FilePath>
-            </File>
-            <File>
-              <FileName>TimeMatch.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\TDT_Alg\src\TimeMatch.cpp</FilePath>
-            </File>
-            <File>
-              <FileName>KeyProcess.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\TDT_Alg\src\KeyProcess.cpp</FilePath>
-            </File>
-            <File>
-              <FileName>martixImu.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\TDT_Alg\src\martixImu.cpp</FilePath>
             </File>
             <File>
               <FileName>kalmanFilter.cpp</FileName>
@@ -560,62 +540,6 @@
               <FilePath>..\TDT_Bsp\src\timer.cpp</FilePath>
             </File>
             <File>
-              <FileName>vision.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\TDT_device\src\vision.cpp</FilePath>
-              <FileOption>
-                <CommonProperty>
-                  <UseCPPCompiler>2</UseCPPCompiler>
-                  <RVCTCodeConst>0</RVCTCodeConst>
-                  <RVCTZI>0</RVCTZI>
-                  <RVCTOtherData>0</RVCTOtherData>
-                  <ModuleSelection>0</ModuleSelection>
-                  <IncludeInBuild>0</IncludeInBuild>
-                  <AlwaysBuild>2</AlwaysBuild>
-                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
-                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
-                  <PublicsOnly>2</PublicsOnly>
-                  <StopOnExitCode>11</StopOnExitCode>
-                  <CustomArgument></CustomArgument>
-                  <IncludeLibraryModules></IncludeLibraryModules>
-                  <ComprImg>1</ComprImg>
-                </CommonProperty>
-                <FileArmAds>
-                  <Cads>
-                    <interw>2</interw>
-                    <Optim>0</Optim>
-                    <oTime>2</oTime>
-                    <SplitLS>2</SplitLS>
-                    <OneElfS>2</OneElfS>
-                    <Strict>2</Strict>
-                    <EnumInt>2</EnumInt>
-                    <PlainCh>2</PlainCh>
-                    <Ropi>2</Ropi>
-                    <Rwpi>2</Rwpi>
-                    <wLevel>0</wLevel>
-                    <uThumb>2</uThumb>
-                    <uSurpInc>2</uSurpInc>
-                    <uC99>2</uC99>
-                    <uGnu>2</uGnu>
-                    <useXO>2</useXO>
-                    <v6Lang>0</v6Lang>
-                    <v6LangP>0</v6LangP>
-                    <vShortEn>2</vShortEn>
-                    <vShortWch>2</vShortWch>
-                    <v6Lto>2</v6Lto>
-                    <v6WtE>2</v6WtE>
-                    <v6Rtti>2</v6Rtti>
-                    <VariousControls>
-                      <MiscControls></MiscControls>
-                      <Define></Define>
-                      <Undefine></Undefine>
-                      <IncludePath></IncludePath>
-                    </VariousControls>
-                  </Cads>
-                </FileArmAds>
-              </FileOption>
-            </File>
-            <File>
               <FileName>iic.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\TDT_Bsp\src\iic.cpp</FilePath>
@@ -624,62 +548,6 @@
               <FileName>adc.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\TDT_Bsp\src\adc.cpp</FilePath>
-            </File>
-            <File>
-              <FileName>rs485.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\TDT_Bsp\src\rs485.cpp</FilePath>
-              <FileOption>
-                <CommonProperty>
-                  <UseCPPCompiler>2</UseCPPCompiler>
-                  <RVCTCodeConst>0</RVCTCodeConst>
-                  <RVCTZI>0</RVCTZI>
-                  <RVCTOtherData>0</RVCTOtherData>
-                  <ModuleSelection>0</ModuleSelection>
-                  <IncludeInBuild>0</IncludeInBuild>
-                  <AlwaysBuild>2</AlwaysBuild>
-                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
-                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
-                  <PublicsOnly>2</PublicsOnly>
-                  <StopOnExitCode>11</StopOnExitCode>
-                  <CustomArgument></CustomArgument>
-                  <IncludeLibraryModules></IncludeLibraryModules>
-                  <ComprImg>1</ComprImg>
-                </CommonProperty>
-                <FileArmAds>
-                  <Cads>
-                    <interw>2</interw>
-                    <Optim>0</Optim>
-                    <oTime>2</oTime>
-                    <SplitLS>2</SplitLS>
-                    <OneElfS>2</OneElfS>
-                    <Strict>2</Strict>
-                    <EnumInt>2</EnumInt>
-                    <PlainCh>2</PlainCh>
-                    <Ropi>2</Ropi>
-                    <Rwpi>2</Rwpi>
-                    <wLevel>0</wLevel>
-                    <uThumb>2</uThumb>
-                    <uSurpInc>2</uSurpInc>
-                    <uC99>2</uC99>
-                    <uGnu>2</uGnu>
-                    <useXO>2</useXO>
-                    <v6Lang>0</v6Lang>
-                    <v6LangP>0</v6LangP>
-                    <vShortEn>2</vShortEn>
-                    <vShortWch>2</vShortWch>
-                    <v6Lto>2</v6Lto>
-                    <v6WtE>2</v6WtE>
-                    <v6Rtti>2</v6Rtti>
-                    <VariousControls>
-                      <MiscControls></MiscControls>
-                      <Define></Define>
-                      <Undefine></Undefine>
-                      <IncludePath></IncludePath>
-                    </VariousControls>
-                  </Cads>
-                </FileArmAds>
-              </FileOption>
             </File>
             <File>
               <FileName>pwm.cpp</FileName>
@@ -712,161 +580,14 @@
               <FilePath>..\TDT_device\src\mpu6050.cpp</FilePath>
             </File>
             <File>
-              <FileName>oled.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\TDT_device\src\oled.cpp</FilePath>
-            </File>
-            <File>
               <FileName>icm20602.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\TDT_device\src\icm20602.cpp</FilePath>
             </File>
             <File>
-              <FileName>icm42605.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\TDT_device\src\icm42605.cpp</FilePath>
-            </File>
-            <File>
-              <FileName>scha634_03.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\TDT_device\src\scha634_03.cpp</FilePath>
-            </File>
-            <File>
-              <FileName>judgement.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\TDT_device\src\judgement.cpp</FilePath>
-            </File>
-            <File>
-              <FileName>multi_imu.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\TDT_device\src\multi_imu.cpp</FilePath>
-            </File>
-            <File>
-              <FileName>flash_var.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\TDT_Device\src\flash_var.cpp</FilePath>
-              <FileOption>
-                <CommonProperty>
-                  <UseCPPCompiler>2</UseCPPCompiler>
-                  <RVCTCodeConst>0</RVCTCodeConst>
-                  <RVCTZI>0</RVCTZI>
-                  <RVCTOtherData>0</RVCTOtherData>
-                  <ModuleSelection>0</ModuleSelection>
-                  <IncludeInBuild>0</IncludeInBuild>
-                  <AlwaysBuild>2</AlwaysBuild>
-                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
-                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
-                  <PublicsOnly>2</PublicsOnly>
-                  <StopOnExitCode>11</StopOnExitCode>
-                  <CustomArgument></CustomArgument>
-                  <IncludeLibraryModules></IncludeLibraryModules>
-                  <ComprImg>1</ComprImg>
-                </CommonProperty>
-                <FileArmAds>
-                  <Cads>
-                    <interw>2</interw>
-                    <Optim>0</Optim>
-                    <oTime>2</oTime>
-                    <SplitLS>2</SplitLS>
-                    <OneElfS>2</OneElfS>
-                    <Strict>2</Strict>
-                    <EnumInt>2</EnumInt>
-                    <PlainCh>2</PlainCh>
-                    <Ropi>2</Ropi>
-                    <Rwpi>2</Rwpi>
-                    <wLevel>0</wLevel>
-                    <uThumb>2</uThumb>
-                    <uSurpInc>2</uSurpInc>
-                    <uC99>2</uC99>
-                    <uGnu>2</uGnu>
-                    <useXO>2</useXO>
-                    <v6Lang>0</v6Lang>
-                    <v6LangP>0</v6LangP>
-                    <vShortEn>2</vShortEn>
-                    <vShortWch>2</vShortWch>
-                    <v6Lto>2</v6Lto>
-                    <v6WtE>2</v6WtE>
-                    <v6Rtti>2</v6Rtti>
-                    <VariousControls>
-                      <MiscControls></MiscControls>
-                      <Define></Define>
-                      <Undefine></Undefine>
-                      <IncludePath></IncludePath>
-                    </VariousControls>
-                  </Cads>
-                </FileArmAds>
-              </FileOption>
-            </File>
-            <File>
-              <FileName>icm20608.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\TDT_Device\src\icm20608.cpp</FilePath>
-            </File>
-            <File>
-              <FileName>bl24c512a.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\TDT_Device\src\bl24c512a.cpp</FilePath>
-            </File>
-            <File>
               <FileName>bmi088.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\TDT_Device\src\bmi088.cpp</FilePath>
-            </File>
-            <File>
-              <FileName>ur_motor.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\TDT_Device\src\ur_motor.cpp</FilePath>
-              <FileOption>
-                <CommonProperty>
-                  <UseCPPCompiler>2</UseCPPCompiler>
-                  <RVCTCodeConst>0</RVCTCodeConst>
-                  <RVCTZI>0</RVCTZI>
-                  <RVCTOtherData>0</RVCTOtherData>
-                  <ModuleSelection>0</ModuleSelection>
-                  <IncludeInBuild>0</IncludeInBuild>
-                  <AlwaysBuild>2</AlwaysBuild>
-                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
-                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
-                  <PublicsOnly>2</PublicsOnly>
-                  <StopOnExitCode>11</StopOnExitCode>
-                  <CustomArgument></CustomArgument>
-                  <IncludeLibraryModules></IncludeLibraryModules>
-                  <ComprImg>1</ComprImg>
-                </CommonProperty>
-                <FileArmAds>
-                  <Cads>
-                    <interw>2</interw>
-                    <Optim>0</Optim>
-                    <oTime>2</oTime>
-                    <SplitLS>2</SplitLS>
-                    <OneElfS>2</OneElfS>
-                    <Strict>2</Strict>
-                    <EnumInt>2</EnumInt>
-                    <PlainCh>2</PlainCh>
-                    <Ropi>2</Ropi>
-                    <Rwpi>2</Rwpi>
-                    <wLevel>0</wLevel>
-                    <uThumb>2</uThumb>
-                    <uSurpInc>2</uSurpInc>
-                    <uC99>2</uC99>
-                    <uGnu>2</uGnu>
-                    <useXO>2</useXO>
-                    <v6Lang>0</v6Lang>
-                    <v6LangP>0</v6LangP>
-                    <vShortEn>2</vShortEn>
-                    <vShortWch>2</vShortWch>
-                    <v6Lto>2</v6Lto>
-                    <v6WtE>2</v6WtE>
-                    <v6Rtti>2</v6Rtti>
-                    <VariousControls>
-                      <MiscControls></MiscControls>
-                      <Define></Define>
-                      <Undefine></Undefine>
-                      <IncludePath></IncludePath>
-                    </VariousControls>
-                  </Cads>
-                </FileArmAds>
-              </FileOption>
             </File>
             <File>
               <FileName>flash.cpp</FileName>

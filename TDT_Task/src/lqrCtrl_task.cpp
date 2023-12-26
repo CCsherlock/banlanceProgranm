@@ -7,6 +7,7 @@
 #include "my_math.h"
 #include "dbus.h"
 #include "filter.h"
+#include "beep.h"
 LqrCtrl balance;       // lqr运算实例化
 float laqK_buffer[40]; // lqrK矩阵暂存数组
 LqrCtrl::LqrCtrl(/* args */)
@@ -61,9 +62,9 @@ void LqrCtrl::getAllFbValue()
     getXfb();
     getThetaFb();
 #if JS
-		encodeSpeed_JS = -1*legMotor[RIGHT]->megSpeed;
-		motorSpeed_JS = chssisMotor[LEFT]->motorInfo.motor_fdb.speed_temp;
-	  encodeAngle_JS = legMotor[RIGHT]->megAngle;
+    encodeSpeed_JS = -1 * legMotor[RIGHT]->megSpeed;
+    motorSpeed_JS = chssisMotor[LEFT]->motorInfo.motor_fdb.speed_temp;
+    encodeAngle_JS = legMotor[RIGHT]->megAngle;
 #endif
     fbValue[roboLqr->X_LEFT] = xFb[LEFT];
     fbValue[roboLqr->X_LEFT_DOT] = speedFb[LEFT];
@@ -99,9 +100,14 @@ void LqrCtrl::getXfb()
 {
     for (uint8_t i = 0; i < 2; i++)
     {
-        /* code */
+/* code */
+#if defined BIG_MODEL
+        xFb[i] = chassis->getChassisAngel()[i];                 // 单位 rad
+        speedFb[i] = rpmToRadps(chassis->getChassisSpeed()[i]); // 单位 m/s
+#else
         xFb[i] = chassis->getChassisAngel()[i] * RAD_PER_DEG;          // 单位 rad
         speedFb[i] = rpmToRadps(chassis->getChassisSpeed()[i]) * 0.25; // 单位 m/s
+#endif
     }
 }
 void LqrCtrl::getThetaFb()
@@ -109,8 +115,12 @@ void LqrCtrl::getThetaFb()
     getFiFb();
     for (u8 i = 0; i < 2; i++)
     {
-        /* code */
-        angleFb[i] = -(chassis->getLegAngel()[i] * RAD_PER_DEG + fiFb);         // 单位 rad
+/* code */
+#if defined BIG_MODEL
+        angleFb[i] = -(chassis->getLegAngel()[i] + fiFb); // 单位 rad
+#else
+        angleFb[i] = -(chassis->getLegAngel()[i] * RAD_PER_DEG + fiFb); // 单位 rad
+#endif
         angleSpeedFb[i] = -((chassis->getLegSpeed()[i]) + fiSpeedFb); // 单位 rad/s
     }
 }
@@ -122,33 +132,32 @@ void LqrCtrl::getFiFb()
 #define OUTPUT_TEST 0
 float chassisTq[2] = {0, 0};
 float legTq[2] = {0, 0};
-float resultKp = 0.5;
+#if defined BIG_MODEL
+float legResultKp = 1;
+float chassisResultKp = 1;
+#else
+float legResultKp = 0.5;
+float chassisResultKp = 1;
+#endif
+#if OUTPUT_TEST
 uint8_t resetZeroFlag = 0;
+#endif
 void LqrCtrl::lqrOutput()
 {
 #if OUTPUT_TEST
-		chassisTq[LEFT] = (RC.Key.CH[1] / 660.0) * 0.1;
-		if(RC.Key.CH[4] == 1)
-		{
-			if(!resetZeroFlag)
-			{
-				legMotor[RIGHT]->resetMegBoard();
-				resetZeroFlag = 1;
-			}
-		}
     chassis->chassisCtrlTorque(chassisTq);
     chassis->legCtrlTorque(legTq);
 #else
     chassisTorque[LEFT] = LIMIT(roboLqr->resultValue[roboLqr->OUT_LEFT_MOTOR], -MAX_CHASSIS_T, MAX_CHASSIS_T);
     chassisTorque[RIGHT] = LIMIT(roboLqr->resultValue[roboLqr->OUT_RIGHT_MOTOR], -MAX_CHASSIS_T, MAX_CHASSIS_T);
-    chassisTorque[LEFT] = chassisTorque[LEFT] * chassisSetPossitive;
-    chassisTorque[RIGHT] = chassisTorque[RIGHT] * chassisSetPossitive;
+    chassisTorque[LEFT] = chassisTorque[LEFT] * chassisSetPossitive * chassisResultKp;   // 底盘输出力矩乘以系数
+    chassisTorque[RIGHT] = chassisTorque[RIGHT] * chassisSetPossitive * chassisResultKp; // 底盘输出力矩乘以系数
     chassis->chassisCtrlTorque(chassisTorque);
 
     legTorque[LEFT] = LIMIT(roboLqr->resultValue[roboLqr->IN_LEFT_MOTOR], -MAX_LEG_T, MAX_LEG_T);
     legTorque[RIGHT] = LIMIT(roboLqr->resultValue[roboLqr->IN_RIGHT_MOTOR], -MAX_LEG_T, MAX_LEG_T);
-    legTorque[LEFT] = legTorque[LEFT] * legSetPossitive *resultKp;
-    legTorque[RIGHT] = legTorque[RIGHT] * legSetPossitive * resultKp;
+    legTorque[LEFT] = legTorque[LEFT] * legSetPossitive * legResultKp;   // 腿部输出力矩乘以系数
+    legTorque[RIGHT] = legTorque[RIGHT] * legSetPossitive * legResultKp; // 腿部输出力矩乘以系数
     chassis->legCtrlTorque(legTorque);
 #endif
 }
@@ -157,17 +166,20 @@ void lqrRunTask()
 {
     if (!lqrTaskInit)
     {
-        balance.LqrInit();
+        balance.LqrInit(); //平衡算法初始化 电机初始化 
         lqrTaskInit = true;
     }
-    saveLqrMessage();
-    readLqrMessage();
-    // customMessageTest();
-    balance.lqrCalRun();
+    saveLqrMessage(); //不断检测是否有LQR参数变更
+    readLqrMessage(); //如果LQR参数改变，重新读取
+    balance.lqrCalRun(); //LQR算法计算
 }
 #define FLASH_SAVE_ADDR ((u32)0x080E0000)
 #define FLASH_DATA_LEN sizeof(laqK_buffer)
 bool readflag = 1;
+/**
+ * @brief 存储LQR参数
+ *
+ */
 void saveLqrMessage()
 {
     if (custom_RecvStruct.lqrKChange == 1)
@@ -177,9 +189,13 @@ void saveLqrMessage()
         STMFLASH_Write(FLASH_SAVE_ADDR, temp, FLASH_DATA_LEN / 4);
         custom_RecvStruct.lqrKChange = 0;
         readflag = 1;
+				beepDbug(1);
     }
 }
-
+/**
+ * @brief FLASH 读取LQR参数
+ *
+ */
 void readLqrMessage()
 {
     if (readflag)
@@ -190,5 +206,6 @@ void readLqrMessage()
         memcpy(&balance.roboLqr->lqrK, laqK_buffer, FLASH_DATA_LEN);
         delayMs(10);
         readflag = 0;
+				beepDbug(2);
     }
 }

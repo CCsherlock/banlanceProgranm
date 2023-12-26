@@ -26,7 +26,7 @@ History:
 #include "board.h"
 #include "string.h"
 #include "task_virtual.h"
-#include "KeyProcess.h"
+//#include "KeyProcess.h"
 
 /**
  * @ingroup TDT_DEVICE
@@ -235,7 +235,7 @@ void _RC::run_1000Hz()
 			SW1Tick = UnDefined;
 			SW2Tick = UnDefined;
 			// 仍然进行按键处理，不过所有键松开
-			KeyProcess::keyHandle(0);
+//			KeyProcess::keyHandle(0);
 			deforceFlag = 1;
 			// 仍然进行任务调度
 			taskSchedule();
@@ -374,7 +374,7 @@ void _RC::remoteUpdate()
 	{
 		VirtualTask::taskList[i]->remoteCtrlUpdate();
 	}
-	KeyProcess::keyHandle(Key.keyValue);
+//	KeyProcess::keyHandle(Key.keyValue);
 }
 
 /**

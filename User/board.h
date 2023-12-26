@@ -29,7 +29,7 @@ History:
 
 #ifdef SMALL_MODEL
 #define ROBOT_VER_1
-#else 
+#else
 #define ROBOT_VER_2
 #endif
 #ifdef USE_MAIN_CTRL_2019
@@ -96,6 +96,12 @@ enum IsEnable
  */
 #define LEFT 0
 #define RIGHT 1
+
+#if defined BIG_MODEL
+#define ROBOT_WHEEL_RADIO 200
+#else
+#define ROBOT_WHEEL_RADIO 100
+#endif // DEBUG
 /**********************/
 typedef unsigned char bool_t;
 typedef float fp32;

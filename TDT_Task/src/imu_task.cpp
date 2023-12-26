@@ -32,7 +32,6 @@ History:
 #include "parameter.h"
 #include "flash_var.h"
 #include "bmi088.h"
-extern TimeSimultaneity imuTimeMatch;
 
 // ImuCalc *mpu6050Cal;
 ImuCalc *bmi088Cal;
@@ -101,7 +100,4 @@ void imuInit()
 	/*陀螺仪初始化完成标志位*/
 	bmi088Cal->imu_OK = 1;
 
-	// 视觉发送的值的初始化
-	// visionSendYaw = &mpu6050Cal->Angle.yaw;
-	// visionSendPitch = &mpu6050Cal->Angle.pitch;
 }

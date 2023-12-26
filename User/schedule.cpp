@@ -13,51 +13,59 @@
 #include "motion_task.h"
 #include "chassis_task.h"
 #include "ErrorTest.h"
+#include "instableCheck_task.h"
+#include "CyberGear.h"
 void TDT_Loop_1000Hz(void) // 1ms执行一次
 {
 	RC.run_1000Hz();
-#if USE_JUDGEMENT
-	ringQueue();
+	lqrRunTask(); // LQR 参数运行
+	motionLoop(); // 机器人状态切换
+	if (!deforceFlag)
+	{
+		robotStabelCheck.checkLoop();
+	}
+	else
+	{
+		robotStabelCheck.checkReset();
+	}
+
+#if defined BIG_MODEL
+	for (uint8_t i = 0; i < 2; i++)
+	{
+		/* code */
+		cyberGearLostCheck(chssisMotor[i]);
+		cyberGearLostCheck(legMotor[i]);
+	}
 #endif
-	lqrRunTask();
 }
 float legSpeed;
 void TDT_Loop_500Hz(void) // 2ms执行一次
 {
-
-	//	adcMpuTemp.Get_Adc();
-	//	pwmMpuTemp.pwmCalculate(50);
-	Imu_Task();
-	motionLoop();
+	Imu_Task(); // 陀螺仪解算程序
 	Motor::sendCanMsg();
-	ErrorChechAlarm();
-//	legSpeed = legSpeedCal(legMotor[LEFT]->canInfo.totalAngle);
+	ErrorChechAlarm(); // 机器人异常检测
 }
 
 void TDT_Loop_200Hz(void) // 5ms执行一次
 {
-	custom_Send_Data();
+	custom_Send_Data(); // 串口DBUG程序
 }
 
 void TDT_Loop_100Hz(void) // 10ms执行一次
 {
-		
 }
 
 void TDT_Loop_50Hz(void) // 20ms执行一次
 {
-
 }
 
 void TDT_Loop_20Hz(void) // 50ms执行一次
 {
-	Led_Task();
-	//	custom_Send_Data();
+	Led_Task(); // LED执行
 }
 
 void TDT_Loop_10Hz(void) // 100ms执行一次
 {
-
 }
 
 void TDT_Loop_2Hz(void) // 500ms执行一次
@@ -136,5 +144,14 @@ void TDT_Loop(struct _Schedule *robotSchedule)
 		TDT_Loop_1Hz();
 		robotSchedule->runTime_1000ms = getSysTimeUs() - startTimeStamp;
 	}
-	robotSchedule->CPU_usage = (robotSchedule->runTime_1ms * 1000 + robotSchedule->runTime_2ms * 500 + robotSchedule->runTime_5ms * 200 + robotSchedule->runTime_10ms * 100 + robotSchedule->runTime_20ms * 50 + robotSchedule->runTime_50ms * 20 + robotSchedule->runTime_100ms * 10 + robotSchedule->runTime_500ms * 2 + robotSchedule->runTime_1000ms) / 1e6f;
+	robotSchedule->CPU_usage = (robotSchedule->runTime_1ms * 1000 +
+								robotSchedule->runTime_2ms * 500 +
+								robotSchedule->runTime_5ms * 200 +
+								robotSchedule->runTime_10ms * 100 +
+								robotSchedule->runTime_20ms * 50 +
+								robotSchedule->runTime_50ms * 20 +
+								robotSchedule->runTime_100ms * 10 +
+								robotSchedule->runTime_500ms * 2 +
+								robotSchedule->runTime_1000ms) /
+							   1e6f;
 }
