@@ -78,9 +78,10 @@ struct MI_Motor
 };
 enum motor_mode_e // 电机运行模式
 {
-    RESET_MODE = 0, // Reset[模式]
-    CALI_MODE = 1,  // Cali 模式[标定]
-    RUN_MODE = 2    // Motor模式[运行]
+    GET_ID_MODE = 0,    // 获取电机ID
+    GET_PARAM_MODE = 1, // 获取电机参数
+    RUN_MODE = 2,        // 运行模式
+		DEFORCE_MODE
 };
 struct EXT_ID_t // 32位扩展ID解析结构体
 {
@@ -103,6 +104,21 @@ struct Motor_fdb_t // 电机编码器反馈结构体
     float temprature;
     uint32_t last_update_time; // 编码器时间戳
 };
+struct Motor_fb_id_t
+{
+    uint16_t fbID;
+    uint64_t fbMCU;
+};
+struct Motor_fb_param_t
+{
+    uint8_t index;
+    union fb_param_data
+    {
+        uint8_t u4_data[4];
+        float f_data;
+    };
+};
+
 enum motor_state_e // 电机状态（故障信息）
 {
     OK = 0,                // 无故障
@@ -124,6 +140,8 @@ struct MI_Motor_t
     uint8_t lostFlag;
     uint16_t lostCnt;
     Motor_fdb_t motor_fdb;
+    Motor_fb_id_t motor_fbID;
+    Motor_fb_param_t motor_fbParam;
 };
 struct MegEncode_t
 {
@@ -146,12 +164,15 @@ private:
 public:
     MI_Motor_t motorInfo;
     CyberGear(CAN_TypeDef *_Canx, uint8_t _Ext_ID, uint8_t _Meg_ID, int Motor_Num, float mode);
+    CyberGear(CAN_TypeDef *_Canx, uint8_t _Ext_ID, int Motor_Num, float mode);
     void initMotor();
     void enableMotor();
     void stopMotor(uint8_t clear_error);
     void motorDataHandler(CanRxMsg *canRxData);
     uint32_t getMotorID(uint32_t CAN_ID_Frame);
     void setMotorParameter(uint16_t index, uint8_t data[4]);
+    void setMotorParameter(uint16_t index, float data);
+    void setMotorParameter(uint16_t index, uint8_t data);
     void motorCtrlMode(float torque, float MechPosition, float speed, float kp, float kd);
     void setZeroPos();
     void setCANID(uint8_t Target_ID);
@@ -160,11 +181,12 @@ public:
     float megAngle;
     void setMegZeroOffset();
     void resetMegBoard();
+    void changeThisId(uint8_t changeId);
     MegEncode_t megTrans;
 };
 float uint16_to_float(uint16_t x, float x_min, float x_max, int bits);
 uint8_t *Float_to_Byte(float f);
-void cyberGearLostCheck(CyberGear* motor);
+void cyberGearLostCheck(CyberGear *motor);
 typedef struct _vec4u
 {
     uint8_t data[4];

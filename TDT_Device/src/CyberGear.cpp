@@ -75,6 +75,16 @@ CyberGear::CyberGear(CAN_TypeDef *_Canx, uint8_t _Ext_ID, uint8_t _Meg_ID, int M
     motorInfo.lostFlag = 1;
     motorInfo.lostCnt = 1000;
 }
+CyberGear::CyberGear(CAN_TypeDef *_Canx, uint8_t _Ext_ID, int Motor_Num, float mode)
+{
+    myCan_x = _Canx;
+    _extID = _Ext_ID;
+    _megBoardID = 0x200;
+    _motorNum = Motor_Num;
+    _runMode = mode;
+    motorInfo.lostFlag = 1;
+    motorInfo.lostCnt = 1000;
+}
 /*******************************************************************************
  * @function     : 电机参数初始化
  * @param        : 1. 电机结构体 2.电机CANID 3.电机编号 4.电机工作模式（1.运动模式 2. 位置模式 3. 速度模式 4. 电流模式）
@@ -95,6 +105,7 @@ void CyberGear::initMotor()
  *******************************************************************************/
 uint32_t CyberGear::getMotorID(uint32_t CAN_ID_Frame)
 {
+    motorInfo.motor_mode = GET_ID_MODE;
     motorInfo.EXT_ID.mode = Communication_Type_GetID;
     motorInfo.EXT_ID.motor_id = 0;
     motorInfo.EXT_ID.res = 0;
@@ -114,6 +125,7 @@ uint32_t CyberGear::getMotorID(uint32_t CAN_ID_Frame)
  *******************************************************************************/
 void CyberGear::enableMotor()
 {
+    motorInfo.motor_mode = RUN_MODE;
     motorInfo.EXT_ID.mode = Communication_Type_MotorEnable;
     motorInfo.EXT_ID.motor_id = _extID;
     motorInfo.EXT_ID.res = 0;
@@ -132,6 +144,7 @@ void CyberGear::enableMotor()
  *******************************************************************************/
 void CyberGear::stopMotor(uint8_t clear_error)
 {
+    motorInfo.motor_mode = DEFORCE_MODE;
     motorInfo.EXT_ID.mode = Communication_Type_MotorStop;
     motorInfo.EXT_ID.motor_id = _extID;
     motorInfo.EXT_ID.res = 0;
@@ -144,6 +157,7 @@ void CyberGear::stopMotor(uint8_t clear_error)
 }
 void CyberGear::motorCtrlMode(float torque, float MechPosition, float speed, float kp, float kd)
 {
+    motorInfo.motor_mode = RUN_MODE;
     motorInfo.EXT_ID.mode = Communication_Type_MotionControl;
     motorInfo.EXT_ID.motor_id = _extID;
     motorInfo.EXT_ID.res = 0;
@@ -170,18 +184,52 @@ void CyberGear::motorCtrlMode(float torque, float MechPosition, float speed, flo
  *******************************************************************************/
 void CyberGear::setMotorParameter(uint16_t index, uint8_t data[4])
 {
+    motorInfo.motor_mode = GET_PARAM_MODE;
     motorInfo.EXT_ID.mode = Communication_Type_SetSingleParameter;
     motorInfo.EXT_ID.motor_id = _extID;
     motorInfo.EXT_ID.res = 0;
     motorInfo.EXT_ID.data = Master_CAN_ID;
-
     memcpy(&motorInfo.txdata[0], &index, 2);
     memcpy(&motorInfo.txdata[4], data, 4);
+    uint32_t sendId;
+    memcpy(&sendId, &motorInfo.EXT_ID, sizeof(motorInfo.EXT_ID));
+    canTx(motorInfo.txdata, motorInfo.phcan, sendId);
+    motorInfo.lostCnt++;
+}
+void CyberGear::setMotorParameter(uint16_t index, float data)
+{
+    motorInfo.motor_mode = GET_PARAM_MODE;
+    motorInfo.EXT_ID.mode = Communication_Type_SetSingleParameter;
+    motorInfo.EXT_ID.motor_id = _extID;
+    motorInfo.EXT_ID.res = 0;
+    motorInfo.EXT_ID.data = Master_CAN_ID;
+    memcpy(&motorInfo.txdata[0], &index, 2);
+    uint8_t temp[4];
+    memcpy(temp, Float_to_Byte(data), sizeof(temp));
+    memcpy(&motorInfo.txdata[4], temp, 4);
+    uint32_t sendId;
+    memcpy(&sendId, &motorInfo.EXT_ID, sizeof(motorInfo.EXT_ID));
+    canTx(motorInfo.txdata, motorInfo.phcan, sendId);
+    motorInfo.lostCnt++;
+}
+void CyberGear::setMotorParameter(uint16_t index, uint8_t data)
+{
+    motorInfo.motor_mode = GET_PARAM_MODE;
+    motorInfo.EXT_ID.mode = Communication_Type_SetSingleParameter;
+    motorInfo.EXT_ID.motor_id = _extID;
+    motorInfo.EXT_ID.res = 0;
+    motorInfo.EXT_ID.data = Master_CAN_ID;
+    memcpy(&motorInfo.txdata[0], &index, 2);
+    motorInfo.txdata[4] = data;
+    uint32_t sendId;
+    memcpy(&sendId, &motorInfo.EXT_ID, sizeof(motorInfo.EXT_ID));
+    canTx(motorInfo.txdata, motorInfo.phcan, sendId);
+    motorInfo.lostCnt++;
 }
 /*******************************************************************************
  * @function     : 设置电机机械零点
  * @param        : %2
- * @return       : %3
+ * @return       : %None
  * @description  : %4
  *******************************************************************************/
 void CyberGear::setZeroPos()
@@ -205,12 +253,13 @@ void CyberGear::setZeroPos()
  *******************************************************************************/
 void CyberGear::setCANID(uint8_t Target_ID)
 {
+    motorInfo.motor_mode = GET_ID_MODE;
     motorInfo.EXT_ID.mode = Communication_Type_CanID;
     motorInfo.EXT_ID.motor_id = _extID;
     motorInfo.EXT_ID.res = 0;
     motorInfo.EXT_ID.data = Target_ID << 8 | Master_CAN_ID;
     memset(motorInfo.txdata, 0, sizeof(motorInfo.txdata));
-    motorInfo.txdata[0] = 1;
+    motorInfo.txdata[0] = 0;
     uint32_t sendId;
     memcpy(&sendId, &motorInfo.EXT_ID, sizeof(motorInfo.EXT_ID));
     canTx(motorInfo.txdata, motorInfo.phcan, sendId);
@@ -258,9 +307,6 @@ void CyberGear::resetMegBoard()
 uint16_t decode_temp_mi = 0;
 void CyberGear::motorDataHandler(CanRxMsg *canRxData)
 {
-    if ((canRxData->ExtId & 0x00FF0000) >> 16 != 0)
-    {
-    }
     motorInfo.motor_fdb.angle_temp = uint16_to_float(canRxData->Data[0] << 8 | canRxData->Data[1], MIN_P, MAX_P, 16);
     motorInfo.motor_fdb.angle = motorInfo.motor_fdb.angle_temp / RAD_PER_DEG; // ±720 °
     motorInfo.motor_fdb.speed_temp = uint16_to_float(canRxData->Data[2] << 8 | canRxData->Data[3], V_MIN, V_MAX, 16);
@@ -287,6 +333,17 @@ void CyberGear::megSpeedMessegeGet(CanRxMsg *canRxData)
     megSpeed = u8toflaot(receiveBuffer[3], receiveBuffer[2], receiveBuffer[1], receiveBuffer[0]); // rad/s
     megTrans.lostCnt = 0;
     megTrans.lostFlag = 0;
+}
+/**
+ * @brief 更改当前电机ID，更改后重新初始化电机
+ *
+ * @param changeId
+ */
+void CyberGear::changeThisId(uint8_t changeId)
+{
+    setCANID(changeId);
+    _extID = changeId;
+    initMotor();
 }
 void cyberGearLostCheck(CyberGear *motor)
 {

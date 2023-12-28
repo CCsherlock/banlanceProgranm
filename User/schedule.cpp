@@ -15,11 +15,16 @@
 #include "ErrorTest.h"
 #include "instableCheck_task.h"
 #include "CyberGear.h"
+#include "singleMotor_task.h"
 void TDT_Loop_1000Hz(void) // 1ms执行一次
 {
 	RC.run_1000Hz();
+#if defined SINGLE_MOTOR_TEST
+	motorTestLoop();
+#else
 	lqrRunTask(); // LQR 参数运行
 	motionLoop(); // 机器人状态切换
+#endif
 	if (!deforceFlag)
 	{
 		robotStabelCheck.checkLoop();
@@ -43,7 +48,12 @@ void TDT_Loop_500Hz(void) // 2ms执行一次
 {
 	Imu_Task(); // 陀螺仪解算程序
 	Motor::sendCanMsg();
+#if SINGLE_MOTOR_TEST
+
+#else
 	ErrorChechAlarm(); // 机器人异常检测
+#endif
+
 }
 
 void TDT_Loop_200Hz(void) // 5ms执行一次

@@ -19,6 +19,7 @@ History:
 #include "motor.h"
 #include "can_calculate.h"
 #include "chassis_task.h"
+#include "singleMotor_task.h"
 /**
  * @ingroup TDT_BSP
  * @defgroup TDT_BSP_CAN CAN
@@ -305,6 +306,7 @@ void CAN2_TX_IRQHandler(void)
  */
 Can Can1;
 Can Can2;
+extern CyberGear testMotor;
 void CAN1_RX0_IRQHandler(void)
 {
 	if (CAN_GetITStatus(CAN1, CAN_IT_FMP0) != RESET)
@@ -317,22 +319,26 @@ void CAN1_RX0_IRQHandler(void)
 		}
 		Can1.Motor_Information_Calculate(Can_1, &Can1RxMsg);
 #if defined BIG_MODEL
-		if ((Can1RxMsg.ExtId & 0x0000FF00) == 0x007F00)
+		testMotor.motorDataHandler(&Can1RxMsg);
+#if defined SINGLE_MOTOR_TEST
+#else
+		if ((Can1RxMsg.ExtId & 0x0000FF00) == 0x007300)
 		{
 			chssisMotor[LEFT]->motorDataHandler(&Can1RxMsg);
 		}
-		else if((Can1RxMsg.ExtId & 0x0000FF00) == 0x008000)
+		else if((Can1RxMsg.ExtId & 0x0000FF00) == 0x007400)
 		{
 			chssisMotor[RIGHT]->motorDataHandler(&Can1RxMsg);
 		}
-		else if ((Can2RxMsg.ExtId & 0x0000FF00) == 0x008100)
+		else if ((Can2RxMsg.ExtId & 0x0000FF00) == 0x007100)
 		{
 			legMotor[LEFT]->motorDataHandler(&Can2RxMsg);
 		}
-		else if((Can2RxMsg.ExtId & 0x0000FF00) == 0x008200)
+		else if((Can2RxMsg.ExtId & 0x0000FF00) == 0x007200)
 		{
 			legMotor[RIGHT]->motorDataHandler(&Can2RxMsg);
 		}
+#endif
 		memset(&Can1RxMsg, 0, sizeof(Can1RxMsg));
 #endif
 		// switch (Can1RxMsg.StdId)
