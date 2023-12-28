@@ -48,12 +48,7 @@ void TDT_Loop_500Hz(void) // 2ms执行一次
 {
 	Imu_Task(); // 陀螺仪解算程序
 	Motor::sendCanMsg();
-#if SINGLE_MOTOR_TEST
-
-#else
 	ErrorChechAlarm(); // 机器人异常检测
-#endif
-
 }
 
 void TDT_Loop_200Hz(void) // 5ms执行一次

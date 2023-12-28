@@ -27,6 +27,8 @@ History:
 #include "arm_const_structs.h"
 #include "TDT_USER.h"
 
+//#define SINGLE_MOTOR_TEST
+
 #ifdef SMALL_MODEL
 #define ROBOT_VER_1
 #else
