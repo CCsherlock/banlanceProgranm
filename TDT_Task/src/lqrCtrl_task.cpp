@@ -136,8 +136,17 @@ float legTq[2] = {0, 0};
 float legResultKp = 1;
 float chassisResultKp = 1;
 #else
+
+#define FORCE_DEFORCE 0 // 强制脱力调试
+
+#if FORCE_DEFORCE
+float legResultKp = 0;
+float chassisResultKp = 0;
+#else
 float legResultKp = 0.5;
 float chassisResultKp = 1;
+#endif
+
 #endif
 #if OUTPUT_TEST
 uint8_t resetZeroFlag = 0;
@@ -166,12 +175,12 @@ void lqrRunTask()
 {
     if (!lqrTaskInit)
     {
-        balance.LqrInit(); //平衡算法初始化 电机初始化 
+        balance.LqrInit(); // 平衡算法初始化 电机初始化
         lqrTaskInit = true;
     }
-    saveLqrMessage(); //不断检测是否有LQR参数变更
-    readLqrMessage(); //如果LQR参数改变，重新读取
-    balance.lqrCalRun(); //LQR算法计算
+    saveLqrMessage();    // 不断检测是否有LQR参数变更
+    readLqrMessage();    // 如果LQR参数改变，重新读取
+    balance.lqrCalRun(); // LQR算法计算
 }
 #define FLASH_SAVE_ADDR ((u32)0x080E0000)
 #define FLASH_DATA_LEN sizeof(laqK_buffer)
@@ -189,7 +198,7 @@ void saveLqrMessage()
         STMFLASH_Write(FLASH_SAVE_ADDR, temp, FLASH_DATA_LEN / 4);
         custom_RecvStruct.lqrKChange = 0;
         readflag = 1;
-				beepDbug(1);
+        beepDbug(1);
     }
 }
 /**
@@ -206,6 +215,6 @@ void readLqrMessage()
         memcpy(&balance.roboLqr->lqrK, laqK_buffer, FLASH_DATA_LEN);
         delayMs(10);
         readflag = 0;
-				beepDbug(2);
+        beepDbug(2);
     }
 }

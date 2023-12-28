@@ -235,13 +235,11 @@ void custom_Send_Data(void)
     custom_SendStruct.fiSpeed = balance.fiSpeedFb;
     custom_SendStruct.setTorque[LEFT] = balance.legTorque[LEFT];
     custom_SendStruct.motorSpeed[LEFT] = balance.chassis->legSpeed[LEFT];
+	  custom_SendStruct.setTheta[LEFT] = balance.angleSet[LEFT];
     /***** GetValueEnd *****/
-    sendData(5,
-             custom_SendStruct.setTorque[LEFT],
-             custom_SendStruct.fi,
-             custom_SendStruct.fiSpeed,
+    sendData(2,
              custom_SendStruct.theta[LEFT],
-             custom_SendStruct.angleSpeed[LEFT]);
+             custom_SendStruct.setTheta[LEFT]);
 }
 
 void sendData(int cnt, ...)

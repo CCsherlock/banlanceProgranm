@@ -449,6 +449,11 @@
               <FileType>8</FileType>
               <FilePath>..\TDT_Task\src\instableCheck_task.cpp</FilePath>
             </File>
+            <File>
+              <FileName>mode_task.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\TDT_Task\src\mode_task.cpp</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -508,6 +513,11 @@
               <FileName>kalmanFilter.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\TDT_Alg\src\kalmanFilter.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>angleTranseform.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\TDT_Alg\src\angleTranseform.cpp</FilePath>
             </File>
           </Files>
         </Group>

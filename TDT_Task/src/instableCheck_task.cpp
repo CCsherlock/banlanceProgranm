@@ -3,9 +3,9 @@
 #include "lqrCtrl_task.h"
 
 /*各项检测阈值*/
-#define CHASSIS_SPEED_THRESHOLD 15
-#define LEG_SPEED_THRESHOLD 10
-#define BODY_FI_THRESHOLD 50*RAD_PER_DEG
+#define CHASSIS_SPEED_THRESHOLD 40
+#define LEG_SPEED_THRESHOLD 30
+#define BODY_FI_THRESHOLD 70 * RAD_PER_DEG
 uint8_t instableFlag = false;
 RobotStateList::RobotStateList(/* args */)
 {
@@ -41,31 +41,30 @@ void RobotStateList::lostStableRecode()
     recodeTime_last = getSysTimeUs();
     if (stateTatolTime > instableTimeThreshold)
     {
-			stateTatolTime = instableTimeThreshold+1;
-      nowState = CHECK_ERROR;
-			if(!errorCntRecordFlag)
-			{
-				errorCntTimes++;
-				errorCntRecordFlag = true;
-			}
-			
+        stateTatolTime = instableTimeThreshold + 1;
+        nowState = CHECK_ERROR;
+        if (!errorCntRecordFlag)
+        {
+            errorCntTimes++;
+            errorCntRecordFlag = true;
+        }
     }
     else if (stateTatolTime > instableTimeThreshold / 2)
     {
         nowState = CHECK_WARNING;
-			errorCntRecordFlag = false;
+        errorCntRecordFlag = false;
     }
     else
     {
         nowState = CHECK_OK;
-			errorCntRecordFlag = false;
+        errorCntRecordFlag = false;
     }
 }
 void RobotStateList::resetState()
 {
     stateTatolTime = 0;
-		errorCntRecordFlag = 0;
-   	errorCntTimes = 0;
+    errorCntRecordFlag = 0;
+    errorCntTimes = 0;
     recodeTime_last = recodeTime = getSysTimeUs();
     nowState = CHECK_OK;
 }
@@ -82,7 +81,7 @@ void InstableCheck::checkInit()
     for (uint8_t i = 0; i < STATE_LIST_NUMBER; i++)
     {
         /* code */
-        stateList[i].setInstableTime(10);
+        stateList[i].setInstableTime(20);
         stateList[i].resetState();
     }
 }
@@ -99,11 +98,11 @@ void InstableCheck::checkLoop()
     {
         /* code */
         stateList[i].lostStableRecode();
-				nowState[i] = stateList[i].getNowState();
+        nowState[i] = stateList[i].getNowState();
         if (nowState[i] == CHECK_ERROR)
-				{
-					 errCnt++;
-				}
+        {
+            errCnt++;
+        }
     }
     if (errCnt)
     {
@@ -116,7 +115,7 @@ void InstableCheck::checkReset()
     for (uint8_t i = 0; i < STATE_LIST_NUMBER; i++)
     {
         stateList[i].resetState();
-				nowState[i] = stateList[i].getNowState();
+        nowState[i] = stateList[i].getNowState();
     }
 }
 void InstableCheck::checkList()

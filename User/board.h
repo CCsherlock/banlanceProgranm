@@ -91,10 +91,14 @@ enum IsEnable
 };
 
 /**
- * @brief define balance
+ * @brief define balance LEFT
  *
  */
 #define LEFT 0
+/**
+ * @brief define balance RIGHT
+ *
+ */
 #define RIGHT 1
 
 #if defined BIG_MODEL

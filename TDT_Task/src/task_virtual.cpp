@@ -15,7 +15,7 @@ VirtualTask::VirtualTask()
 	}
 	else
 	{
-		taskList = (VirtualTask **)realloc(taskList, sizeof(VirtualTask *) * taskNum+1);
+		taskList = (VirtualTask **)realloc(taskList, sizeof(VirtualTask *) * (taskNum+1));
 	}
 	
 	taskList[taskNum] = this;

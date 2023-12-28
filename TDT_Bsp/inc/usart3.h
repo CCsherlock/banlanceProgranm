@@ -16,6 +16,7 @@ struct Custom_Send_Struct_t
 	/*↓↓↓↓↓↓↓↓↓↓↓custom data start↓↓↓↓↓↓↓↓↓↓↓*/
 	float fi = 0;
 	float theta[2] = {0,0};
+	float setTheta[2] = {0,0};
 	float XSpeed[2] = {0,0};
 	float angleSpeed[2] = {0,0};
 	float fiSpeed = 0;
