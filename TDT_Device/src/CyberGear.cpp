@@ -178,7 +178,7 @@ void CyberGear::motorCtrlMode(float torque, float MechPosition, float speed, flo
 }
 /*******************************************************************************
  * @function     : 写入电机参数
- * @param        : 1.对应控制电机结构体 2.写入参数对应地址 3.写入参数值 4.写入参数数据类型
+ * @param        : 1.写入参数对应地址 2.写入参数值 
  * @return       : None
  * @description  : None
  *******************************************************************************/
@@ -196,6 +196,12 @@ void CyberGear::setMotorParameter(uint16_t index, uint8_t data[4])
     canTx(motorInfo.txdata, motorInfo.phcan, sendId);
     motorInfo.lostCnt++;
 }
+/*******************************************************************************
+ * @function     : 写入电机参数
+ * @param        : 1.写入参数对应地址 2.写入参数值 
+ * @return       : None
+ * @description  : None
+ *******************************************************************************/
 void CyberGear::setMotorParameter(uint16_t index, float data)
 {
     motorInfo.motor_mode = GET_PARAM_MODE;
@@ -212,6 +218,12 @@ void CyberGear::setMotorParameter(uint16_t index, float data)
     canTx(motorInfo.txdata, motorInfo.phcan, sendId);
     motorInfo.lostCnt++;
 }
+/*******************************************************************************
+ * @function     : 写入电机参数
+ * @param        : 1.写入参数对应地址 2.写入参数值 
+ * @return       : None
+ * @description  : None
+ *******************************************************************************/
 void CyberGear::setMotorParameter(uint16_t index, uint8_t data)
 {
     motorInfo.motor_mode = GET_PARAM_MODE;
@@ -318,6 +330,11 @@ void CyberGear::motorDataHandler(CanRxMsg *canRxData)
     motorInfo.lostCnt = 0;
     motorInfo.lostFlag = 0;
 }
+/**
+ * @brief 小米电机编码器信息获取
+ * 
+ * @param canRxData can接收的标准帧信息
+ */
 void CyberGear::megSpeedMessegeGet(CanRxMsg *canRxData)
 {
     uint8_t receiveBuffer[4];
@@ -345,6 +362,11 @@ void CyberGear::changeThisId(uint8_t changeId)
     _extID = changeId;
     initMotor();
 }
+/**
+ * @brief 小米电机丢失检测
+ * 
+ * @param motor 
+ */
 void cyberGearLostCheck(CyberGear *motor)
 {
     motor->motorInfo.lostCnt++;

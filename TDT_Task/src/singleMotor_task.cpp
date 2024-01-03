@@ -21,7 +21,7 @@ MotorCtrlMode motorCtrlmode =
         .ctrlTorque = 0,
         .ctrlSpeed = 0,
         .ctrlPossition = 0,
-        .setTargetId = 0x74,
+        .setTargetId = 0x74,//待更改电机ID
 };
 void setMotorId()
 {
