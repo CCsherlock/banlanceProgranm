@@ -1,5 +1,4 @@
 #include "motion_task.h"
-#include "dbus.h"
 #include "imu_task.h"
 #include "lqrCtrl_task.h"
 #include "instableCheck_task.h"
@@ -20,6 +19,7 @@ void Motion::motionModeSwitch()
     {
         robotMode = DEFORCE;
         robotMode_last = robotMode;
+				runModeJudge();
         return;
     }
     if (RC.Key.SW2 == Mid && RC.Key.SW1 == Mid) // 上力置中

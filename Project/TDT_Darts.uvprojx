@@ -338,9 +338,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>-frtti -Wno-invalid-source-encoding</MiscControls>
-              <Define>STM32F40_41xxx,USE_STDPERIPH_DRIVER,ARM_MATH_CM4,ARM_MATH_MATRIX_CHECK,ARM_MATH_ROUNDING,USE_MAIN_CTRL_RM_CBOARD,BIG_MODEL</Define>
+              <Define>STM32F40_41xxx,USE_STDPERIPH_DRIVER,ARM_MATH_CM4,ARM_MATH_MATRIX_CHECK,ARM_MATH_ROUNDING,USE_MAIN_CTRL_RM_CBOARD,SMALL_MODEL</Define>
               <Undefine></Undefine>
-              <IncludePath>C:\Users\sherlock\AppData\Local\Arm\Packs\ARM\CMSIS\5.9.0;..\ST_Lib\inc;..\User;..\DSP_Lib;..\TDT_Bsp\inc;..\TDT_Alg\inc;..\TDT_device\inc;..\TDT_Task\inc</IncludePath>
+              <IncludePath>C:\Users\sherlock\AppData\Local\Arm\Packs\ARM\CMSIS\5.9.0;..\ST_Lib\inc;..\User;..\DSP_Lib;..\TDT_Bsp\inc;..\TDT_Alg\inc;..\TDT_device\inc;..\TDT_Task\inc;..\Mode</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -458,6 +458,31 @@
               <FileName>singleMotor_task.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\TDT_Task\src\singleMotor_task.cpp</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Mode</GroupName>
+          <Files>
+            <File>
+              <FileName>sitMode.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\Mode\sitMode.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>crossStand.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\Mode\crossStand.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>deforceMode.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\Mode\deforceMode.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>jumpMode.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\Mode\jumpMode.cpp</FilePath>
             </File>
           </Files>
         </Group>

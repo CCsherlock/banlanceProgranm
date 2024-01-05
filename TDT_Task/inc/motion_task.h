@@ -4,6 +4,7 @@
 #include "board.h"
 #include "mode_task.h"
 #include "angleTranseform.h"
+#include "dbus.h"
 class Motion
 {
 private:
@@ -21,6 +22,6 @@ public:
 		uint8_t modeRecodeFlag = 0;
     float fiOffset = -4;
 };
-
+extern Motion robotMotion;
 extern void motionLoop();
 #endif

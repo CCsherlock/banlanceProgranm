@@ -1,10 +1,10 @@
 #include "instableCheck_task.h"
 #include "chassis_task.h"
 #include "lqrCtrl_task.h"
-
+#include "motion_task.h"
 /*各项检测阈值*/
 #define CHASSIS_SPEED_THRESHOLD 40
-#define LEG_SPEED_THRESHOLD 30
+#define LEG_SPEED_THRESHOLD 20
 #define BODY_FI_THRESHOLD 70 * RAD_PER_DEG
 uint8_t instableFlag = false;
 RobotStateList::RobotStateList(/* args */)
@@ -81,7 +81,7 @@ void InstableCheck::checkInit()
     for (uint8_t i = 0; i < STATE_LIST_NUMBER; i++)
     {
         /* code */
-        stateList[i].setInstableTime(20);
+        stateList[i].setInstableTime(10);
         stateList[i].resetState();
     }
 }
@@ -157,7 +157,7 @@ void InstableCheck::checkList()
         stateList[LEFT_LEG_STATE].TrigeFlag = false;
     }
     /*机体倾角*/
-    if (ABS(balance.fiFb) > BODY_FI_THRESHOLD)
+    if (ABS(balance.fiFb) > BODY_FI_THRESHOLD && robotMotion.robotMode_last!=DEFORCE)
     {
         stateList[BODY_FI_STATE].TrigeFlag = true;
     }

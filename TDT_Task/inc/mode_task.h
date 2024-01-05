@@ -3,6 +3,9 @@
 
 #include "board.h"
 #include "angleTranseform.h"
+#include "lqrCtrl_task.h"
+#include "dbus.h"
+#include "pid.h"
 #define ROBOT_MAX_V 1
 class RampCurve
 {
@@ -80,28 +83,28 @@ enum RobotMotion
     DEFORCE = 0U, // 脱力
     SIT,          // 坐姿
     CROSS_STAND,  // 交叉站姿
+		JUMP,
     ALL_MODE_NUM
 };
 class RunMode
 {
-private:
-    /* data */
-
 public:
     RunMode(RobotMotion _thisMode);
     virtual uint8_t intoModeRun(RobotMotion _modeLast) { return 0; };
     virtual void inModeRun(){};
     virtual void reset(){};
+    virtual void modeInit(){};
+    uint8_t modeInitFlag = false;
     uint8_t transeOverFlag = 0;
     uint8_t transeResetFlag = 0;
     struct RobotCtrlVal
     {
         /* data */
-        float chassisSpeed[2];  // 底盘直行速度设定
-        float chassisTurnSpeed; // 底盘转向速度设定
-        float chassisYaw;       // 底盘Yaw方向设定
-        float bodyPitch;        // 机体俯仰设定
-        float bodyTheta[2];     // 关节角度设定
+        double chassisSpeed[2];  // 底盘直行速度设定
+        double chassisTurnSpeed; // 底盘转向速度设定
+        double chassisYaw;       // 底盘Yaw方向设定
+        double bodyPitch;        // 机体俯仰设定
+        double bodyTheta[2];     // 关节角度设定
     } robotCtrl;
     RobotMotion runMode_last = DEFORCE;
     RobotMotion thisMode;
@@ -111,44 +114,5 @@ public:
     static int modeNum;
 };
 
-class DeforceMode : public RunMode
-{
-private:
-    /* data */
-public:
-    DeforceMode() : RunMode(DEFORCE){};
-    uint8_t intoModeRun(RobotMotion _modeLast) override;
-    void inModeRun() override;
-    void reset() override { transeResetFlag = true; };
-};
-extern DeforceMode deforceMode;
 
-class SitMode : public RunMode
-{
-private:
-    /* data */
-public:
-    SitMode(/* args */) : RunMode(SIT){};
-    uint8_t intoModeRun(RobotMotion _modeLast) override;
-    void inModeRun() override;
-    void reset() override;
-    RampCurve pitchRamp;
-    RampCurve thetaRamp[2];
-    uint8_t recodeTranseFlag = 0;
-    float thetaStart[2], thetaEnd[2];
-};
-extern SitMode sitMode;
-
-class CrossStandMode : public RunMode
-{
-public:
-    CrossStandMode() : RunMode(CROSS_STAND){};
-    uint8_t intoModeRun(RobotMotion _modeLast) override;
-    void inModeRun() override;
-    void reset() override;
-    RampCurve thetaRamp[2];
-    uint8_t recodeTranseFlag = 0;
-    float thetaStart[2], thetaEnd[2];
-};
-extern CrossStandMode standMode;
 #endif
