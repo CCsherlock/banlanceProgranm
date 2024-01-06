@@ -22,9 +22,15 @@ void TDT_Loop_1000Hz(void) // 1ms执行一次
 #if defined SINGLE_MOTOR_TEST
 	motorTestLoop();
 #else
-	lqrRunTask(); // LQR 参数运行
+#if OUTPUT_TEST
+
+#else
 	motionLoop(); // 机器人状态切换
 #endif
+	lqrRunTask(); // LQR 参数运行
+#endif
+	
+
 	if (!deforceFlag)
 	{
 		robotStabelCheck.checkLoop();
@@ -48,7 +54,8 @@ void TDT_Loop_500Hz(void) // 2ms执行一次
 {
 	Imu_Task(); // 陀螺仪解算程序
 	Motor::sendCanMsg();
-	ErrorChechAlarm(); // 机器人异常检测
+
+//	ErrorChechAlarm(); // 机器人异常检测
 }
 
 void TDT_Loop_200Hz(void) // 5ms执行一次

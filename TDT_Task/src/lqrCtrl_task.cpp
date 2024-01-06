@@ -129,7 +129,7 @@ void LqrCtrl::getFiFb()
     fiFb = bmi088Cal->Angle.pitch * RAD_PER_DEG * -1; // 单位 rad
     fiSpeedFb = bmi088Cal->gyro.radps.data[1] * -1;   // 单位 rad/s
 }
-#define OUTPUT_TEST 0
+
 float chassisTq[2] = {0, 0};
 float legTq[2] = {0, 0};
 #if defined BIG_MODEL
@@ -154,6 +154,12 @@ uint8_t resetZeroFlag = 0;
 void LqrCtrl::lqrOutput()
 {
 #if OUTPUT_TEST
+	
+		chassisTq[0] = (RC.Key.CH[1]/660.0f) * 5;
+		chassisTq[1] = (RC.Key.CH[1]/660.0f) * 5;
+		legTq[0] = (RC.Key.CH[3]/660.0f) * 2;
+		legTq[1] = (RC.Key.CH[3]/660.0f) * 2;
+	
     chassis->chassisCtrlTorque(chassisTq);
     chassis->legCtrlTorque(legTq);
 #else

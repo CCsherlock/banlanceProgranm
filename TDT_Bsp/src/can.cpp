@@ -330,11 +330,11 @@ void CAN1_RX0_IRQHandler(void)
 		{
 			chssisMotor[RIGHT]->motorDataHandler(&Can1RxMsg);
 		}
-		else if ((Can2RxMsg.ExtId & 0x0000FF00) == 0x007100)
+		else if ((Can1RxMsg.ExtId & 0x0000FF00) == 0x007100)
 		{
 			legMotor[LEFT]->motorDataHandler(&Can2RxMsg);
 		}
-		else if((Can2RxMsg.ExtId & 0x0000FF00) == 0x007200)
+		else if((Can1RxMsg.ExtId & 0x0000FF00) == 0x007200)
 		{
 			legMotor[RIGHT]->motorDataHandler(&Can2RxMsg);
 		}

@@ -59,6 +59,16 @@ void Chassis::chassisInit()
 float temp;
 void Chassis::chassisCtrlTorque(float torque[2])
 {
+#if OUTPUT_TEST
+    if (deforceFlag)
+    {
+        motorMode = DEFORCE;
+    }
+    else
+    {
+        motorMode = RUNNING;
+    }
+#else
     if (deforceFlag || instableFlag)
     {
         motorMode = DEFORCE;
@@ -67,6 +77,8 @@ void Chassis::chassisCtrlTorque(float torque[2])
     {
         motorMode = RUNNING;
     }
+#endif
+
     for (u8 i = 0; i < 2; i++)
     {
         /* code */
@@ -102,6 +114,16 @@ void Chassis::chassisCtrlTorque(float torque[2])
  */
 void Chassis::legCtrlTorque(float torque[2])
 {
+#if OUTPUT_TEST
+    if (deforceFlag)
+    {
+        motorMode = DEFORCE;
+    }
+    else
+    {
+        motorMode = RUNNING;
+    }
+#else
     if (deforceFlag || instableFlag)
     {
         motorMode = DEFORCE;
@@ -110,6 +132,7 @@ void Chassis::legCtrlTorque(float torque[2])
     {
         motorMode = RUNNING;
     }
+#endif
     for (u8 i = 0; i < 2; i++)
     {
         /* code */
