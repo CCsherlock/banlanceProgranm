@@ -117,11 +117,11 @@ void LqrCtrl::getThetaFb()
     {
 /* code */
 #if defined BIG_MODEL
-        angleFb[i] = -(chassis->getLegAngel()[i] + fiFb); // 单位 rad
+        angleFb[i] = -(chassis->getLegAngel()[i] + fiFb * legFbPossitive); // 单位 rad
 #else
         angleFb[i] = -(chassis->getLegAngel()[i] * RAD_PER_DEG + fiFb); // 单位 rad
 #endif
-        angleSpeedFb[i] = -((chassis->getLegSpeed()[i]) + fiSpeedFb); // 单位 rad/s
+        angleSpeedFb[i] = -((chassis->getLegSpeed()[i]) + fiSpeedFb * legFbPossitive); // 单位 rad/s
     }
 }
 void LqrCtrl::getFiFb()
@@ -133,7 +133,7 @@ void LqrCtrl::getFiFb()
 float chassisTq[2] = {0, 0};
 float legTq[2] = {0, 0};
 #if defined BIG_MODEL
-float legResultKp = 0.8;
+float legResultKp = 1;
 float chassisResultKp = 0;
 #else
 
@@ -157,8 +157,8 @@ void LqrCtrl::lqrOutput()
 	
 		chassisTq[0] = (RC.Key.CH[1]/660.0f) * 5;
 		chassisTq[1] = (RC.Key.CH[1]/660.0f) * 5;
-		legTq[0] = (RC.Key.CH[3]/660.0f) * 2;
-		legTq[1] = (RC.Key.CH[3]/660.0f) * 2;
+		legTq[0] = (RC.Key.CH[3]/660.0f) * -5;
+		legTq[1] = (RC.Key.CH[3]/660.0f) * 5;
 	
     chassis->chassisCtrlTorque(chassisTq);
     chassis->legCtrlTorque(legTq);

@@ -222,6 +222,7 @@ void USART1_IRQHandler(void)
     }
 }
 extern float legSpeed;
+extern float temp[2];
 void custom_Send_Data(void)
 {
     /*****GetValueStart******/
@@ -258,10 +259,15 @@ void custom_Send_Data(void)
 //						 balance.chassis->legSpeed[LEFT],
 //						 custom_SendStruct.angleSpeed[LEFT]);	
 
-    sendData(3,
-             custom_SendStruct.fi,
-						 custom_SendStruct.theta[LEFT],
-						 custom_SendStruct.setTorque[LEFT]);		
+//    sendData(3,
+//             custom_SendStruct.fi,
+//						 custom_SendStruct.theta[LEFT],
+//						 custom_SendStruct.setTorque[LEFT]);		
+
+    sendData(2,
+							temp[0],temp[1]);	
+//    sendData(2,
+//							custom_SendStruct.theta[LEFT],custom_SendStruct.theta[RIGHT]);
 }
 
 void sendData(int cnt, ...)

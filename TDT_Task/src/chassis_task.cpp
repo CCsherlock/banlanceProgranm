@@ -58,7 +58,7 @@ void Chassis::chassisInit()
  *
  * @param torque
  */
-float temp;
+float temp[2];
 void Chassis::chassisCtrlTorque(float torque[2])
 {
 #if OUTPUT_TEST
@@ -90,6 +90,7 @@ void Chassis::chassisCtrlTorque(float torque[2])
 #if defined SMALL_MODEL
             chssisMotor[i]->ctrlTorque(0);
 #elif defined BIG_MODEL
+
             chssisMotor[i]->stopMotor(0);
 #endif
             break;
@@ -99,7 +100,7 @@ void Chassis::chassisCtrlTorque(float torque[2])
 #elif defined BIG_MODEL
             if (chssisMotor[i]->motorInfo.motor_mode != RUN_MODE)
             {
-							for(uint8_t j = 0; j<10; j++)
+							for(uint8_t j = 0; j<50; j++)
 							{
 							 chssisMotor[i]->enableMotor();
 							}
@@ -147,6 +148,7 @@ void Chassis::legCtrlTorque(float torque[2])
 #if defined SMALL_MODEL
             legMotor[i]->ctrlTorque(0);
 #elif defined BIG_MODEL
+						temp[i] = 0;
             legMotor[i]->stopMotor(0);
 #endif
             break;
@@ -156,9 +158,13 @@ void Chassis::legCtrlTorque(float torque[2])
 #elif defined BIG_MODEL
             if (legMotor[i]->motorInfo.motor_mode != RUN_MODE)
             {
-                legMotor[i]->enableMotor();
+							for(uint8_t j = 0; j<50; j++)
+							{
+							 legMotor[i]->enableMotor();
+							}
             }
-            legMotor[i]->motorCtrlMode(torque[i], 0, 0, 0, 0);
+						temp[i] = torque[i];
+            legMotor[i]->motorCtrlMode(torque[i] * legOutputDir[i], 0, 0, 0, 0);
 #endif
             break;
         default:
