@@ -117,6 +117,10 @@ uint32_t CyberGear::getMotorID(uint32_t CAN_ID_Frame)
     motorInfo.lostCnt++;
     return (CAN_ID_Frame & 0xFFFF) >> 8;
 }
+void CyberGear::getMotorState(uint16_t CAN_ID_Data)
+{
+    memcpy(&motorInfo.motor_Id_mode,&CAN_ID_Data,sizeof(motorInfo.motor_Id_mode));
+}
 /*******************************************************************************
  * @function     : 使能电机
  * @param        : 对应控制电机结构体
@@ -319,6 +323,8 @@ void CyberGear::resetMegBoard()
 uint16_t decode_temp_mi = 0;
 void CyberGear::motorDataHandler(CanRxMsg *canRxData)
 {
+    memcpy(&motorInfo.EXT_ID_RX,canRxData,sizeof(motorInfo.EXT_ID_RX));
+    getMotorState(motorInfo.EXT_ID_RX.data);
     motorInfo.motor_fdb.angle_temp = uint16_to_float(canRxData->Data[0] << 8 | canRxData->Data[1], MIN_P, MAX_P, 16);
     motorInfo.motor_fdb.angle = motorInfo.motor_fdb.angle_temp / RAD_PER_DEG; // ±720 °
     motorInfo.motor_fdb.speed_temp = uint16_to_float(canRxData->Data[2] << 8 | canRxData->Data[3], V_MIN, V_MAX, 16);

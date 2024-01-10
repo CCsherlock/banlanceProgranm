@@ -80,8 +80,8 @@ enum motor_mode_e // 电机运行模式
 {
     GET_ID_MODE = 0,    // 获取电机ID
     GET_PARAM_MODE = 1, // 获取电机参数
-    RUN_MODE = 2,        // 运行模式
-		DEFORCE_MODE
+    RUN_MODE = 2,       // 运行模式
+    DEFORCE_MODE
 };
 struct EXT_ID_t // 32位扩展ID解析结构体
 {
@@ -90,6 +90,17 @@ struct EXT_ID_t // 32位扩展ID解析结构体
     uint32_t mode : 5;
     uint32_t res : 3;
 };
+#define RESET_MODE 0
+#define CALI_MODE 1
+#define MOTOR_MODE 2
+struct ID_FB_T
+{
+    /* data */
+    uint16_t motorId:8;
+    uint16_t motorErr:6;
+    uint16_t motorMode:2;
+};
+
 struct Motor_fdb_t // 电机编码器反馈结构体
 {
     // 电机反馈
@@ -129,13 +140,14 @@ enum motor_state_e // 电机状态（故障信息）
     HALL_ERR_ERR = 5,      // HALL编码故障
     NO_CALIBRATION_ERR = 6 // 未标定
 };
-
 struct MI_Motor_t
 {
     CAN_TypeDef *phcan;
     motor_state_e motor_state;
     motor_mode_e motor_mode;
+    ID_FB_T motor_Id_mode;
     EXT_ID_t EXT_ID;
+    EXT_ID_t EXT_ID_RX;
     uint8_t txdata[8];
     uint8_t lostFlag;
     uint16_t lostCnt;
@@ -170,6 +182,7 @@ public:
     void stopMotor(uint8_t clear_error);
     void motorDataHandler(CanRxMsg *canRxData);
     uint32_t getMotorID(uint32_t CAN_ID_Frame);
+    void getMotorState(uint16_t CAN_ID_Data);
     void setMotorParameter(uint16_t index, uint8_t data[4]);
     void setMotorParameter(uint16_t index, float data);
     void setMotorParameter(uint16_t index, uint8_t data);
@@ -178,10 +191,10 @@ public:
     void setCANID(uint8_t Target_ID);
     void megSpeedMessegeGet(CanRxMsg *canRxData);
     float megSpeed;
-		float megSpeed_encode;
+    float megSpeed_encode;
     float megAngle;
-		float megAngle_last;
-		float megTimeRecode;
+    float megAngle_last;
+    float megTimeRecode;
     void setMegZeroOffset();
     void resetMegBoard();
     void changeThisId(uint8_t changeId);
