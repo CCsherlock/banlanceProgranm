@@ -252,10 +252,16 @@ void custom_Send_Data(void)
 //             custom_SendStruct.fi,
 //						 balance.chassis->legAngel[LEFT],
 //						 custom_SendStruct.theta[LEFT]);
+
+//    sendData(3,
+//             custom_SendStruct.fiSpeed,
+//						 balance.chassis->legSpeed[LEFT],
+//						 custom_SendStruct.angleSpeed[LEFT]);	
+
     sendData(3,
-             custom_SendStruct.fiSpeed,
-						 balance.chassis->legSpeed[LEFT],
-						 custom_SendStruct.angleSpeed[LEFT]);						 
+             custom_SendStruct.fi,
+						 custom_SendStruct.theta[LEFT],
+						 custom_SendStruct.setTorque[LEFT]);		
 }
 
 void sendData(int cnt, ...)

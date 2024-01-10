@@ -133,7 +133,7 @@ void LqrCtrl::getFiFb()
 float chassisTq[2] = {0, 0};
 float legTq[2] = {0, 0};
 #if defined BIG_MODEL
-float legResultKp = 0.1;
+float legResultKp = 0.8;
 float chassisResultKp = 0;
 #else
 

@@ -121,14 +121,14 @@ void errorTestList()
 		errorList[MotorLostError].nError();
 	}
 	
-//	if(legMotor[LEFT]->megTrans.lostFlag||legMotor[RIGHT]->megTrans.lostFlag)
-//	{
-//		errorList[ENCODE_BOARD_LOST].error();
-//	}
-//	else
-//	{
-//		errorList[ENCODE_BOARD_LOST].nError();
-//	}
+	if(legMotor[LEFT]->megTrans.lostFlag||legMotor[RIGHT]->megTrans.lostFlag)
+	{
+		errorList[ENCODE_BOARD_LOST].error();
+	}
+	else
+	{
+		errorList[ENCODE_BOARD_LOST].nError();
+	}
 #endif
 	
 }

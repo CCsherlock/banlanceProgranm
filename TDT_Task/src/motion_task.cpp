@@ -5,7 +5,7 @@
 using namespace RCS;
 Motion robotMotion;
 RampCurve ThetaUpRamp;
-
+#define N0_STATE_TRANSE 1
 Motion::Motion()
 {
 }
@@ -34,6 +34,9 @@ void Motion::motionModeSwitch()
 }
 void Motion::runModeJudge()
 {
+#if N0_STATE_TRANSE
+	RunMode::modeList[robotMode]->inModeRun();
+#else
     if (robotMode != robotMode_last)
     {
         modeChangeFlag = true;
@@ -61,7 +64,8 @@ void Motion::runModeJudge()
         /* code */
         RunMode::modeList[robotMode]->inModeRun();
         robotMode_last = robotMode;
-    }
+    }	
+#endif
 }
 /**
  * @brief 速度设定

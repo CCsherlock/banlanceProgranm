@@ -99,7 +99,10 @@ void Chassis::chassisCtrlTorque(float torque[2])
 #elif defined BIG_MODEL
             if (chssisMotor[i]->motorInfo.motor_mode != RUN_MODE)
             {
-                chssisMotor[i]->enableMotor();
+							for(uint8_t j = 0; j<10; j++)
+							{
+							 chssisMotor[i]->enableMotor();
+							}
             }
             chssisMotor[i]->motorCtrlMode(torque[i], 0, 0, 0, 0);
 #endif
