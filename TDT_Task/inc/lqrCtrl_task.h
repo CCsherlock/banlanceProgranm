@@ -4,9 +4,14 @@
 #include "board.h"
 #include "lqr.h"
 #include "chassis_task.h"
+
+#if defined SMALL_MODLE
 #define MAX_CHASSIS_T 1.3
 #define MAX_LEG_T 1.2
-
+#else 
+#define MAX_CHASSIS_T 2
+#define MAX_LEG_T 2
+#endif
 class LqrCtrl
 {
 private:
@@ -41,19 +46,23 @@ public:
     float fiSpeedFb;                 // 机体角速度反馈值
     float chassisTorque[2] = {0, 0};
     float legTorque[2] = {0, 0};
-    int chassisFbPossitive = -1;
+    int chassisFbPossitive = 1;
     int legFbPossitive = 1;
     //		int chassisSetPossitive =-1;
     //		int legSetPossitive =-1;
-
+#if defined SMALL_MODLE
     int chassisSetPossitive = -1;
-
     int legSetPossitive = -1;
+#else
+	  int chassisSetPossitive = 1;
+    int legSetPossitive = 1;	
+#endif 
 };
 extern float laqK_buffer[40];
 void linkLqrFlash();
 void saveLqrMessage();
 void lqrRunTask();
 void readLqrMessage();
+void setMegBoardZero();
 extern LqrCtrl balance;
 #endif

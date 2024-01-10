@@ -33,7 +33,7 @@ void LqrCtrl::LqrInit()
     chassis->chassisInit();
     chassis->setChassisOutPutDir(-1, 1);
     chassis->setlegOutPutDir(1, -1);
-    chassis->setChassisFbDir(-1 * chassisFbPossitive, 1 * chassisFbPossitive);
+    chassis->setChassisFbDir(1 * chassisFbPossitive, -1 * chassisFbPossitive);
     chassis->setLegFbDir(1 * legFbPossitive, -1 * legFbPossitive);
 }
 /**
@@ -133,8 +133,8 @@ void LqrCtrl::getFiFb()
 float chassisTq[2] = {0, 0};
 float legTq[2] = {0, 0};
 #if defined BIG_MODEL
-float legResultKp = 1;
-float chassisResultKp = 1;
+float legResultKp = 0.1;
+float chassisResultKp = 0;
 #else
 
 #define FORCE_DEFORCE 0 // 强制脱力调试
@@ -186,6 +186,7 @@ void lqrRunTask()
     }
     saveLqrMessage();    // 不断检测是否有LQR参数变更
     readLqrMessage();    // 如果LQR参数改变，重新读取
+		setMegBoardZero();
     balance.lqrCalRun(); // LQR算法计算
 }
 #define FLASH_SAVE_ADDR ((u32)0x080E0000)
@@ -223,4 +224,13 @@ void readLqrMessage()
         readflag = 0;
         beepDbug(2);
     }
+}
+int setZeroFlag = 0;
+void setMegBoardZero()
+{
+	if(setZeroFlag)
+	{
+		legMotor[LEFT]->setMegZeroOffset();
+        legMotor[RIGHT]->setMegZeroOffset();
+	}
 }

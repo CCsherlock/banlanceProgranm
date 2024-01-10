@@ -348,6 +348,9 @@ void CyberGear::megSpeedMessegeGet(CanRxMsg *canRxData)
         receiveBuffer[i] = canRxData->Data[i + 4];
     }
     megSpeed = u8toflaot(receiveBuffer[3], receiveBuffer[2], receiveBuffer[1], receiveBuffer[0]); // rad/s
+		megSpeed_encode = (megAngle - megAngle_last)/timeIntervalFrom_f(megTimeRecode);
+		megTimeRecode = getSysTimeUs()/1e6f;
+		megAngle_last = megAngle;
     megTrans.lostCnt = 0;
     megTrans.lostFlag = 0;
 }

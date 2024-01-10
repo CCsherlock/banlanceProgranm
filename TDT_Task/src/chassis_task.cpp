@@ -11,6 +11,7 @@ Lpf2p encodeSpeedRightFilter;
 #elif defined BIG_MODEL
 CyberGear *chssisMotor[2];
 CyberGear *legMotor[2];
+Lpf2p thetaSpeedFilter[2];
 #endif
 Chassis::Chassis(/* args */)
 {
@@ -44,10 +45,11 @@ void Chassis::chassisInit()
     for (u8 i = 0; i < 2; i++)
     {
         /* code */
-        chssisMotor[i] = new CyberGear(CAN1, 0x73 + i, 0x103 + i, i, Motion_mode);
+        chssisMotor[i] = new CyberGear(CAN1, 0x71 + i, 0x103 + i, i, Motion_mode);
         chssisMotor[i]->initMotor();
-        legMotor[i] = new CyberGear(CAN1, 0x71 + i, 0x101 + i, i, Motion_mode);
+        legMotor[i] = new CyberGear(CAN1, 0x73 + i, 0x101 + i, i, Motion_mode);
         legMotor[i]->initMotor();
+				thetaSpeedFilter[i].SetCutoffFreq(2000,10);
     }
 #endif
 }
@@ -209,10 +211,12 @@ float *Chassis::getLegSpeed()
     legSpeed[LEFT] = encodeSpeedLeftFilter.Apply(legMotor[LEFT]->canInfo.speedFromEncoder) * legFbDir[LEFT];    // 单位 rad/s
     legSpeed[RIGHT] = encodeSpeedLeftFilter.Apply(legMotor[RIGHT]->canInfo.speedFromEncoder) * legFbDir[RIGHT]; // 单位 rad/s
 #elif defined BIG_MODEL
-    legSpeed[LEFT] = legMotor[LEFT]->motorInfo.motor_fdb.speed * chassisFbDir[LEFT];    // 电机反馈速度 rad/s
-    legSpeed[RIGHT] = legMotor[RIGHT]->motorInfo.motor_fdb.speed * chassisFbDir[RIGHT]; // 电机反馈速度 rad/s
-    // encodeLeftWindow.slideWindowFilter(-1 * legMotor[LEFT]->megSpeed);                  // 编码器反馈速度 rad/s
-    // encodeRightWindow.slideWindowFilter(-1 * legMotor[RIGHT]->megSpeed);                // 编码器反馈速度 rad/s
+//    legSpeed[LEFT] = legMotor[LEFT]->megSpeed * chassisFbDir[LEFT];    // 电机反馈速度 rad/s
+//    legSpeed[RIGHT] = legMotor[RIGHT]->megSpeed * chassisFbDir[RIGHT]; // 电机反馈速度 rad/s
+    legSpeed[LEFT] = thetaSpeedFilter[LEFT].Apply(legMotor[LEFT]->megSpeed * chassisFbDir[LEFT]);    // 电机反馈速度 rad/s
+    legSpeed[RIGHT] = thetaSpeedFilter[RIGHT].Apply(legMotor[RIGHT]->megSpeed * chassisFbDir[RIGHT]); // 电机反馈速度 rad/s
+//   legSpeed[LEFT] = encodeLeftWindow.slideWindowFilter(legMotor[LEFT]->megSpeed);                  // 编码器反馈速度 rad/s
+//   legSpeed[RIGHT] = encodeRightWindow.slideWindowFilter(legMotor[RIGHT]->megSpeed);                // 编码器反馈速度 rad/s
 #endif
     return legSpeed;
 }
@@ -227,8 +231,8 @@ float *Chassis::getLegAngel()
     legAngel[LEFT] = legMotor[LEFT]->canInfo.totalAngle_f * legFbDir[LEFT];    // 单位 °
     legAngel[RIGHT] = legMotor[RIGHT]->canInfo.totalAngle_f * legFbDir[RIGHT]; // 单位 °
 #elif defined BIG_MODEL
-    chassisAngel[LEFT] = legMotor[LEFT]->motorInfo.motor_fdb.angle * chassisFbDir[LEFT];    // 单位 rad
-    chassisAngel[RIGHT] = legMotor[RIGHT]->motorInfo.motor_fdb.angle * chassisFbDir[RIGHT]; // 单位 rad
+    legAngel[LEFT] = legMotor[LEFT]->megAngle * chassisFbDir[LEFT];    // 单位 rad
+    legAngel[RIGHT] = legMotor[RIGHT]->megAngle * chassisFbDir[RIGHT]; // 单位 rad
 #endif
     return legAngel;
 }

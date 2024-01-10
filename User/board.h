@@ -28,7 +28,7 @@ History:
 #include "TDT_USER.h"
 
 //#define SINGLE_MOTOR_TEST
-#define OUTPUT_TEST 1
+#define OUTPUT_TEST 0
 #ifdef SMALL_MODEL
 #define ROBOT_VER_1
 #else

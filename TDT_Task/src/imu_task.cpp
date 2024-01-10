@@ -71,6 +71,7 @@ gyro z 逆﹢ 顺﹣
 	 x 逆﹣ 顺﹢
 	 y 逆﹣ 顺﹢
 **/
+#define C_BOARD_POSSIVE 0
 #include "flash_var.h"
 void imuInit()
 {
@@ -84,11 +85,19 @@ void imuInit()
 	/*陀螺仪和加速度的方向旋转矩阵*/
 	//	float gyroScaleFactor[3][3] = {{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
 	// mpu6050Cal->setGyroScaleFactor(gyroScaleFactor);
+#if C_BOARD_POSSIVE
 	float gyroScaleFactor[3][3] = {{-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
+#else
+	float gyroScaleFactor[3][3] = {{-1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}};
+#endif
 	bmi088Cal->setGyroScaleFactor(gyroScaleFactor);
 	//	float accScaleFactor[3][3] = {{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
 	// mpu6050Cal->setAccScaleFactor(accScaleFactor);
+#if C_BOARD_POSSIVE
 	float accScaleFactor[3][3] = {{-1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
+#else
+	float accScaleFactor[3][3] = {{-1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, -1.0f}};
+#endif
 	bmi088Cal->setAccScaleFactor(accScaleFactor);
 	/*icm20602以及MPU6050初始化*/
 	// mpu6050Cal->init();

@@ -237,9 +237,25 @@ void custom_Send_Data(void)
     custom_SendStruct.motorSpeed[LEFT] = balance.chassis->legSpeed[LEFT];
 	  custom_SendStruct.setTheta[LEFT] = balance.angleSet[LEFT];
     /***** GetValueEnd *****/
-    sendData(2,
-             custom_SendStruct.theta[LEFT],
-             custom_SendStruct.setTheta[LEFT]);
+//    sendData(2,
+//             legMotor[LEFT]->megSpeed,
+//						 legMotor[LEFT]->megSpeed_encode);
+	
+//    sendData(5,
+//             custom_SendStruct.XSpeed[LEFT],
+//						 custom_SendStruct.theta[LEFT],
+//						 custom_SendStruct.angleSpeed[LEFT],
+//						 custom_SendStruct.fi,
+//						 custom_SendStruct.fiSpeed);
+
+//    sendData(3,
+//             custom_SendStruct.fi,
+//						 balance.chassis->legAngel[LEFT],
+//						 custom_SendStruct.theta[LEFT]);
+    sendData(3,
+             custom_SendStruct.fiSpeed,
+						 balance.chassis->legSpeed[LEFT],
+						 custom_SendStruct.angleSpeed[LEFT]);						 
 }
 
 void sendData(int cnt, ...)

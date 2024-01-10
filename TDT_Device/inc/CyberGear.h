@@ -178,7 +178,10 @@ public:
     void setCANID(uint8_t Target_ID);
     void megSpeedMessegeGet(CanRxMsg *canRxData);
     float megSpeed;
+		float megSpeed_encode;
     float megAngle;
+		float megAngle_last;
+		float megTimeRecode;
     void setMegZeroOffset();
     void resetMegBoard();
     void changeThisId(uint8_t changeId);
