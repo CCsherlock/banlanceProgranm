@@ -104,7 +104,9 @@ enum IsEnable
 #define RIGHT 1
 
 #if defined BIG_MODEL
-#define ROBOT_WHEEL_RADIO 210
+#define ROBOT_WHEEL_RADIUS 210
+
+#define OUTER_WHEEL_RADIO 5
 #else
 #define ROBOT_WHEEL_RADIO 100
 #endif // DEBUG

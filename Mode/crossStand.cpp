@@ -50,8 +50,8 @@ uint8_t CrossStandMode::intoModeRun(RobotMotion _modeLast)
             thetaRamp[RIGHT].reset();
             recodeTranseFlag = 1;
         }
-        robotCtrl.bodyTheta[LEFT] = thetaRamp[LEFT].ramp((thetaEnd[LEFT] - thetaStart[LEFT]), thetaStart[LEFT], thetaEnd[LEFT]);
-        robotCtrl.bodyTheta[RIGHT] = thetaRamp[RIGHT].ramp((thetaEnd[RIGHT] - thetaStart[RIGHT]), thetaStart[RIGHT], thetaEnd[RIGHT]);
+        robotCtrl.bodyTheta[LEFT] = thetaRamp[LEFT].ramp((thetaEnd[LEFT] - thetaStart[LEFT])/2, thetaStart[LEFT], thetaEnd[LEFT]);
+        robotCtrl.bodyTheta[RIGHT] = thetaRamp[RIGHT].ramp((thetaEnd[RIGHT] - thetaStart[RIGHT])/2, thetaStart[RIGHT], thetaEnd[RIGHT]);
         if (thetaRamp[LEFT].curveFinish && thetaRamp[RIGHT].curveFinish&& ABS(balance.angleFb[LEFT] - robotCtrl.bodyTheta[LEFT])<0.1 &&ABS(balance.angleFb[RIGHT] - robotCtrl.bodyTheta[RIGHT])<0.1)
         {
             thetaRamp[LEFT].reset();

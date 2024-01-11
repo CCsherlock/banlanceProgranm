@@ -272,11 +272,11 @@ void custom_Send_Data(void)
 //    sendData(2,
 //							custom_SendStruct.XSpeed[LEFT],custom_SendStruct.XSpeed[RIGHT]);
 
-//    sendData(2,
-//							custom_SendStruct.setChaTorque[LEFT],custom_SendStruct.setChaTorque[RIGHT]);
-
     sendData(2,
-							custom_SendStruct.theta[LEFT],custom_SendStruct.theta[RIGHT]);
+							custom_SendStruct.setChaTorque[LEFT],custom_SendStruct.setChaTorque[RIGHT]);
+
+//    sendData(2,
+//							custom_SendStruct.theta[LEFT],custom_SendStruct.theta[RIGHT]);
 }
 
 void sendData(int cnt, ...)

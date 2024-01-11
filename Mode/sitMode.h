@@ -17,7 +17,9 @@ public:
     RampCurve pitchRamp;
     RampCurve thetaRamp[2];
 		Pid *speedPid[2];
-		PidParam speedParam;
+		Pid *yawFollowOuterPid;
+		PidParam speedParam[2];
+		PidParam yawFollowOuter;
     uint8_t recodeTranseFlag = 0;
     float thetaStart[2], thetaEnd[2];
     float fiStart, fiEnd;

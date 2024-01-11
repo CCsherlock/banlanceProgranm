@@ -1,7 +1,8 @@
 #include "sitMode.h"
-
-float sitSpeedP = 20;
-float sitTurnP = 10;
+#include "imu_task.h"
+float sitSpeedP = 10;
+float sitTurnP = 0.1;
+float sitTurnPidP = 0.1;
 uint8_t SitMode::intoModeRun(RobotMotion _modeLast)
 {
 		if(!modeInitFlag)
@@ -12,6 +13,7 @@ uint8_t SitMode::intoModeRun(RobotMotion _modeLast)
     switch (_modeLast) 
     {
     case SIT:
+				robotCtrl.chassisYaw = bmi088Cal->Angle.yaw;
         robotCtrl.chassisSpeed[LEFT] = 0;  // m/s
         robotCtrl.chassisSpeed[RIGHT] = 0; // m/s
         robotCtrl.chassisTurnSpeed = 0;
@@ -39,6 +41,7 @@ uint8_t SitMode::intoModeRun(RobotMotion _modeLast)
         }
         break;
     case DEFORCE:
+				robotCtrl.chassisYaw = bmi088Cal->Angle.yaw;
         robotCtrl.chassisSpeed[LEFT] = 0;  // m/s
         robotCtrl.chassisSpeed[RIGHT] = 0; // m/s
         robotCtrl.chassisTurnSpeed = 0;
@@ -65,6 +68,7 @@ uint8_t SitMode::intoModeRun(RobotMotion _modeLast)
         }
         break;
     case CROSS_STAND:
+				robotCtrl.chassisYaw = bmi088Cal->Angle.yaw;
         robotCtrl.chassisSpeed[LEFT] = 0;  // m/s
         robotCtrl.chassisSpeed[RIGHT] = 0; // m/s
         robotCtrl.chassisTurnSpeed = 0;
@@ -89,6 +93,7 @@ uint8_t SitMode::intoModeRun(RobotMotion _modeLast)
         }
         break;
     case JUMP:
+				robotCtrl.chassisYaw = bmi088Cal->Angle.yaw;
         robotCtrl.chassisSpeed[LEFT] = 0;  // m/s
         robotCtrl.chassisSpeed[RIGHT] = 0; // m/s
         robotCtrl.chassisTurnSpeed = 0;
@@ -110,11 +115,13 @@ void SitMode::inModeRun()
 			modeInit();
 			modeInitFlag = true;
 		}
-    robotCtrl.chassisTurnSpeed = -(RC.Key.CH[0] / 660.f) * sitTurnP;                                               // m/s
-    robotCtrl.chassisSpeed[LEFT] = (RC.Key.CH[3] / 660.f) * ROBOT_MAX_V * sitSpeedP - robotCtrl.chassisTurnSpeed;  // m/s
-    robotCtrl.chassisSpeed[RIGHT] = (RC.Key.CH[3] / 660.f) * ROBOT_MAX_V * sitSpeedP + robotCtrl.chassisTurnSpeed; // m/s
+//		robotCtrl.chassisTurnSpeed = -(RC.Key.CH[0] / 660.f) * sitTurnP;    // m/s
+		robotCtrl.chassisYaw += -(RC.Key.CH[0] / 660.f) * sitTurnPidP;
+	  robotCtrl.chassisTurnSpeed = yawFollowOuterPid->Calculate(robotCtrl.chassisYaw);
+    robotCtrl.chassisSpeed[LEFT] = (RC.Key.CH[3] / 660.f) * ROBOT_MAX_V * sitSpeedP - robotCtrl.chassisTurnSpeed * sitTurnP;  // m/s
+    robotCtrl.chassisSpeed[RIGHT] = (RC.Key.CH[3] / 660.f) * ROBOT_MAX_V * sitSpeedP + robotCtrl.chassisTurnSpeed * sitTurnP; // m/s
 //    robotCtrl.chassisSpeed[LEFT] = speedPid[LEFT]->Calculate(robotCtrl.chassisSpeed[LEFT]);
-//    robotCtrl.chassisSpeed[RIGHT] = speedPid[LEFT]->Calculate(robotCtrl.chassisSpeed[RIGHT]);
+//    robotCtrl.chassisSpeed[RIGHT] = speedPid[RIGHT]->Calculate(robotCtrl.chassisSpeed[RIGHT]);
     robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 0) * RAD_PER_DEG;   // rad
     robotCtrl.bodyTheta[RIGHT] = standThetaCal(balance.angleFb[RIGHT], 0) * RAD_PER_DEG; // rad
     robotCtrl.bodyPitch = 0;
@@ -138,14 +145,27 @@ void SitMode::reset()
 }
 void SitMode::modeInit()
 {
-			speedPid[LEFT]	= new Pid(1);
+		speedPid[LEFT]	= new Pid(1);
 		speedPid[RIGHT]	= new Pid(1);
-		speedParam.kp = 0.5;
-		speedParam.ki = 0.1;
-		speedParam.integralErrorMax = 20;
-		speedParam.resultMax = 10;
-		speedPid[LEFT]->paramPtr = &speedParam;
+		yawFollowOuterPid = new Pid(1);
+		speedParam[LEFT].kp = 1;
+		speedParam[LEFT].ki = 0.1;
+		speedParam[LEFT].integralErrorMax = 20;
+		speedParam[LEFT].resultMax = 10;
+		speedPid[LEFT]->paramPtr = &speedParam[LEFT];
 		speedPid[LEFT]->fbValuePtr[0] = &balance.speedFb[LEFT];
-		speedPid[RIGHT]->paramPtr = &speedParam;
+		speedParam[RIGHT].kp = 1;
+		speedParam[RIGHT].ki = 0.1;
+		speedParam[RIGHT].integralErrorMax = 20;
+		speedParam[RIGHT].resultMax = 10;
+		speedPid[RIGHT]->paramPtr = &speedParam[RIGHT];
 		speedPid[RIGHT]->fbValuePtr[0] = &balance.speedFb[RIGHT];
+	
+		yawFollowOuter.kp = 1;
+		yawFollowOuter.ki = 0;
+	  yawFollowOuter.integralErrorMax = 0.5;
+		yawFollowOuter.resultMax = 10;
+		yawFollowOuterPid->paramPtr = &yawFollowOuter;
+		yawFollowOuterPid->fbValuePtr[0] = &bmi088Cal->Angle.yaw;
+
 }

@@ -182,8 +182,8 @@ float *Chassis::getChassisSpeed()
     chassisSpeed[LEFT] = chssisMotor[LEFT]->canInfo.speed * chassisFbDir[LEFT];    // 单位  RPM
     chassisSpeed[RIGHT] = chssisMotor[RIGHT]->canInfo.speed * chassisFbDir[RIGHT]; // 单位  RPM
 #elif defined BIG_MODEL
-    chassisSpeed[LEFT] = chssisMotor[LEFT]->motorInfo.motor_fdb.speed * chassisFbDir[LEFT] * ROBOT_WHEEL_RADIO / 1000.0;    // 单位  m/s
-    chassisSpeed[RIGHT] = chssisMotor[RIGHT]->motorInfo.motor_fdb.speed * chassisFbDir[RIGHT] * ROBOT_WHEEL_RADIO / 1000.0; // 单位  m/s
+    chassisSpeed[LEFT] = chssisMotor[LEFT]->motorInfo.motor_fdb.speed * chassisFbDir[LEFT] * ROBOT_WHEEL_RADIUS / 1000.0 / OUTER_WHEEL_RADIO;    // 单位  m/s
+    chassisSpeed[RIGHT] = chssisMotor[RIGHT]->motorInfo.motor_fdb.speed * chassisFbDir[RIGHT] * ROBOT_WHEEL_RADIUS / 1000.0 / OUTER_WHEEL_RADIO; // 单位  m/s
 #endif
     return chassisSpeed;
 }
