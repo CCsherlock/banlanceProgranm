@@ -182,12 +182,22 @@ void CyberGear::motorCtrlMode(float torque, float MechPosition, float speed, flo
 }
 /*******************************************************************************
  * @function     : 获取电机参数
- * @param        : 
+ * @param        : paramList 获取参数类型
  * @return       : None
  * @description  : None
  *******************************************************************************/
 void CyberGear::getSingleParam(uint16_t paramList)
 {
+    motorInfo.EXT_ID.mode = Communication_Type_GetSingleParameter;
+    motorInfo.EXT_ID.motor_id = _extID;
+    motorInfo.EXT_ID.res = 0;
+    motorInfo.EXT_ID.data = Master_CAN_ID;
+    motorInfo.txdata[0] = (uint8_t)paramList << 8;
+    motorInfo.txdata[1] = (uint8_t)paramList;
+    uint32_t sendId;
+    memcpy(&sendId, &motorInfo.EXT_ID, sizeof(motorInfo.EXT_ID));
+    canTx(motorInfo.txdata, motorInfo.phcan, sendId);
+    motorInfo.lostCnt++;
 }
 /*******************************************************************************
  * @function     : 写入电机参数

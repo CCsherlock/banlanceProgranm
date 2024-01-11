@@ -23,10 +23,9 @@
 #define Communication_Type_MotorStop 0x04     // 电机停止运行
 #define Communication_Type_SetPosZero 0x06    // 设置电机机械零位
 #define Communication_Type_CanID 0x07         // 更改当前电机CAN_ID
-#define Communication_Type_Control_Mode 0x12
-#define Communication_Type_GetSingleParameter 0x11 // 读取单个参数
-#define Communication_Type_SetSingleParameter 0x12 // 设定单个参数
-#define Communication_Type_ErrorFeedback 0x15      // 故障反馈帧
+#define Communication_Type_GetSingleParameter 0x17 // 读取单个参数
+#define Communication_Type_SetSingleParameter 0x18 // 设定单个参数
+#define Communication_Type_ErrorFeedback 0x21      // 故障反馈帧
 
 #define Run_mode 0x7005
 #define Iq_Ref 0x7006
