@@ -20,7 +20,8 @@ struct Custom_Send_Struct_t
 	float XSpeed[2] = {0,0};
 	float angleSpeed[2] = {0,0};
 	float fiSpeed = 0;
-	float setTorque[2] = {0,0};
+	float setLegTorque[2] = {0,0};
+	float setChaTorque[2] = {0,0};
 	float motorSpeed[2] = {0,0};
 	/*↑↑↑↑↑↑↑↑↑↑↑ custom data end ↑↑↑↑↑↑↑↑↑↑↑*/
 //	char frameEnd;

@@ -103,7 +103,7 @@ void LqrCtrl::getXfb()
 /* code */
 #if defined BIG_MODEL
         xFb[i] = chassis->getChassisAngel()[i];                 // 单位 rad
-        speedFb[i] = rpmToRadps(chassis->getChassisSpeed()[i]); // 单位 m/s
+        speedFb[i] = chassis->getChassisSpeed()[i];             // 单位 m/s
 #else
         xFb[i] = chassis->getChassisAngel()[i] * RAD_PER_DEG;          // 单位 rad
         speedFb[i] = rpmToRadps(chassis->getChassisSpeed()[i]) * 0.25; // 单位 m/s

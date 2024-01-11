@@ -90,7 +90,6 @@ void Chassis::chassisCtrlTorque(float torque[2])
 #if defined SMALL_MODEL
             chssisMotor[i]->ctrlTorque(0);
 #elif defined BIG_MODEL
-
             chssisMotor[i]->stopMotor(0);
 #endif
             break;
@@ -105,7 +104,7 @@ void Chassis::chassisCtrlTorque(float torque[2])
 							 chssisMotor[i]->enableMotor();
 							}
             }
-            chssisMotor[i]->motorCtrlMode(torque[i], 0, 0, 0, 0);
+            chssisMotor[i]->motorCtrlMode(torque[i] * chassisOutputDir[i], 0, 0, 0, 0);
 #endif
             break;
         default:

@@ -113,8 +113,8 @@ void SitMode::inModeRun()
     robotCtrl.chassisTurnSpeed = -(RC.Key.CH[0] / 660.f) * sitTurnP;                                               // m/s
     robotCtrl.chassisSpeed[LEFT] = (RC.Key.CH[3] / 660.f) * ROBOT_MAX_V * sitSpeedP - robotCtrl.chassisTurnSpeed;  // m/s
     robotCtrl.chassisSpeed[RIGHT] = (RC.Key.CH[3] / 660.f) * ROBOT_MAX_V * sitSpeedP + robotCtrl.chassisTurnSpeed; // m/s
-    robotCtrl.chassisSpeed[LEFT] = speedPid[LEFT]->Calculate(robotCtrl.chassisSpeed[LEFT]);
-    robotCtrl.chassisSpeed[RIGHT] = speedPid[LEFT]->Calculate(robotCtrl.chassisSpeed[RIGHT]);
+//    robotCtrl.chassisSpeed[LEFT] = speedPid[LEFT]->Calculate(robotCtrl.chassisSpeed[LEFT]);
+//    robotCtrl.chassisSpeed[RIGHT] = speedPid[LEFT]->Calculate(robotCtrl.chassisSpeed[RIGHT]);
     robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 0) * RAD_PER_DEG;   // rad
     robotCtrl.bodyTheta[RIGHT] = standThetaCal(balance.angleFb[RIGHT], 0) * RAD_PER_DEG; // rad
     robotCtrl.bodyPitch = 0;

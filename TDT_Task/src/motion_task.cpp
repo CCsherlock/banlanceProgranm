@@ -5,7 +5,7 @@
 using namespace RCS;
 Motion robotMotion;
 RampCurve ThetaUpRamp;
-#define N0_STATE_TRANSE 1
+#define N0_STATE_TRANSE 0
 Motion::Motion()
 {
 }
