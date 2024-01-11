@@ -182,6 +182,7 @@ public:
     void stopMotor(uint8_t clear_error);
     void motorDataHandler(CanRxMsg *canRxData);
     uint32_t getMotorID(uint32_t CAN_ID_Frame);
+    void getSingleParam(uint16_t paramList);
     void getMotorState(uint16_t CAN_ID_Data);
     void setMotorParameter(uint16_t index, uint8_t data[4]);
     void setMotorParameter(uint16_t index, float data);

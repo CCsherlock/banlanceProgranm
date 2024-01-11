@@ -119,7 +119,7 @@ uint32_t CyberGear::getMotorID(uint32_t CAN_ID_Frame)
 }
 void CyberGear::getMotorState(uint16_t CAN_ID_Data)
 {
-    memcpy(&motorInfo.motor_Id_mode,&CAN_ID_Data,sizeof(motorInfo.motor_Id_mode));
+    memcpy(&motorInfo.motor_Id_mode, &CAN_ID_Data, sizeof(motorInfo.motor_Id_mode));
 }
 /*******************************************************************************
  * @function     : 使能电机
@@ -181,8 +181,17 @@ void CyberGear::motorCtrlMode(float torque, float MechPosition, float speed, flo
     motorInfo.lostCnt++;
 }
 /*******************************************************************************
+ * @function     : 获取电机参数
+ * @param        : 
+ * @return       : None
+ * @description  : None
+ *******************************************************************************/
+void CyberGear::getSingleParam(uint16_t paramList)
+{
+}
+/*******************************************************************************
  * @function     : 写入电机参数
- * @param        : 1.写入参数对应地址 2.写入参数值 
+ * @param        : 1.写入参数对应地址 2.写入参数值
  * @return       : None
  * @description  : None
  *******************************************************************************/
@@ -202,7 +211,7 @@ void CyberGear::setMotorParameter(uint16_t index, uint8_t data[4])
 }
 /*******************************************************************************
  * @function     : 写入电机参数
- * @param        : 1.写入参数对应地址 2.写入参数值 
+ * @param        : 1.写入参数对应地址 2.写入参数值
  * @return       : None
  * @description  : None
  *******************************************************************************/
@@ -224,7 +233,7 @@ void CyberGear::setMotorParameter(uint16_t index, float data)
 }
 /*******************************************************************************
  * @function     : 写入电机参数
- * @param        : 1.写入参数对应地址 2.写入参数值 
+ * @param        : 1.写入参数对应地址 2.写入参数值
  * @return       : None
  * @description  : None
  *******************************************************************************/
@@ -323,7 +332,7 @@ void CyberGear::resetMegBoard()
 uint16_t decode_temp_mi = 0;
 void CyberGear::motorDataHandler(CanRxMsg *canRxData)
 {
-    memcpy(&motorInfo.EXT_ID_RX,canRxData,sizeof(motorInfo.EXT_ID_RX));
+    memcpy(&motorInfo.EXT_ID_RX, canRxData, sizeof(motorInfo.EXT_ID_RX));
     getMotorState(motorInfo.EXT_ID_RX.data);
     motorInfo.motor_fdb.angle_temp = uint16_to_float(canRxData->Data[0] << 8 | canRxData->Data[1], MIN_P, MAX_P, 16);
     motorInfo.motor_fdb.angle = motorInfo.motor_fdb.angle_temp / RAD_PER_DEG; // ±720 °
@@ -338,7 +347,7 @@ void CyberGear::motorDataHandler(CanRxMsg *canRxData)
 }
 /**
  * @brief 小米电机编码器信息获取
- * 
+ *
  * @param canRxData can接收的标准帧信息
  */
 void CyberGear::megSpeedMessegeGet(CanRxMsg *canRxData)
@@ -354,9 +363,9 @@ void CyberGear::megSpeedMessegeGet(CanRxMsg *canRxData)
         receiveBuffer[i] = canRxData->Data[i + 4];
     }
     megSpeed = u8toflaot(receiveBuffer[3], receiveBuffer[2], receiveBuffer[1], receiveBuffer[0]); // rad/s
-		megSpeed_encode = (megAngle - megAngle_last)/timeIntervalFrom_f(megTimeRecode);
-		megTimeRecode = getSysTimeUs()/1e6f;
-		megAngle_last = megAngle;
+    megSpeed_encode = (megAngle - megAngle_last) / timeIntervalFrom_f(megTimeRecode);
+    megTimeRecode = getSysTimeUs() / 1e6f;
+    megAngle_last = megAngle;
     megTrans.lostCnt = 0;
     megTrans.lostFlag = 0;
 }
@@ -373,8 +382,8 @@ void CyberGear::changeThisId(uint8_t changeId)
 }
 /**
  * @brief 小米电机丢失检测
- * 
- * @param motor 
+ *
+ * @param motor
  */
 void cyberGearLostCheck(CyberGear *motor)
 {
