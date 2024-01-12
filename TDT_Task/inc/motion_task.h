@@ -20,7 +20,7 @@ public:
     void runModeJudge();
     uint8_t modeChangeFlag = 0;
 		uint8_t modeRecodeFlag = 0;
-    float fiOffset = 4;
+    float fiOffset = 2;
 };
 extern Motion robotMotion;
 extern void motionLoop();

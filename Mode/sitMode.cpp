@@ -1,8 +1,8 @@
 #include "sitMode.h"
 #include "imu_task.h"
 float sitSpeedP = 10;
-float sitTurnP = 0.1;
-float sitTurnPidP = 0.1;
+float sitTurnP = 0.5;
+float sitTurnPidP = 0.01;
 uint8_t SitMode::intoModeRun(RobotMotion _modeLast)
 {
     if (!modeInitFlag)
@@ -115,12 +115,13 @@ void SitMode::inModeRun()
         modeInit();
         modeInitFlag = true;
     }
-    // robotCtrl.chassisTurnSpeed = -(RC.Key.CH[0] / 660.f) * sitTurnP;    // m/s
-    speedPidCalculate();
-    robotCtrl.chassisSpeed[LEFT] = (RC.Key.CH[3] / 660.f) * ROBOT_MAX_V * sitSpeedP - robotCtrl.chassisTurnSpeed * sitTurnP;  // m/s
-    robotCtrl.chassisSpeed[RIGHT] = (RC.Key.CH[3] / 660.f) * ROBOT_MAX_V * sitSpeedP + robotCtrl.chassisTurnSpeed * sitTurnP; // m/s
-    robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 0) * RAD_PER_DEG;                                        // rad
-    robotCtrl.bodyTheta[RIGHT] = standThetaCal(balance.angleFb[RIGHT], 0) * RAD_PER_DEG;                                      // rad
+    robotCtrl.chassisTurnSpeed = -(RC.Key.CH[0] / 660.f) * sitTurnP;    // m/s
+//    speedPidCalculate();
+    robotCtrl.chassisSpeed[LEFT] = (RC.Key.CH[3] / 660.f) * ROBOT_MAX_V * sitSpeedP - robotCtrl.chassisTurnSpeed;  // m/s
+    robotCtrl.chassisSpeed[RIGHT] = (RC.Key.CH[3] / 660.f) * ROBOT_MAX_V * sitSpeedP + robotCtrl.chassisTurnSpeed; // m/s
+//    robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 0) * RAD_PER_DEG;                                        // rad
+//    robotCtrl.bodyTheta[RIGHT] = standThetaCal(balance.angleFb[RIGHT], 0) * RAD_PER_DEG;                                      // rad
+		bodyThetaCalculate();
     robotCtrl.bodyPitch = 0;
     transeOverFlag = false;
     recodeTranseFlag = false;
@@ -158,41 +159,46 @@ void SitMode::modeInit()
     speedPid[RIGHT]->paramPtr = &speedParam[RIGHT];
     speedPid[RIGHT]->fbValuePtr[0] = &balance.speedFb[RIGHT];
 
-    yawFollowOuter[0].kp = 10;
-    yawFollowOuter[0].ki = 0;
+    yawFollowOuter[0].kp = 1;
+    yawFollowOuter[0].ki = 0.01;
     yawFollowOuter[0].integralErrorMax = 0.5;
-    yawFollowOuter[0].resultMax = 5;
+    yawFollowOuter[0].resultMax = 1;
 
-    yawFollowOuter[1].kp = 2;
-    yawFollowOuter[1].resultMax = 10;
+    yawFollowOuter[1].kp = 0.5;
+    yawFollowOuter[1].ki = 0.5;
+    yawFollowOuter[1].integralErrorMax = 1;
+    yawFollowOuter[1].resultMax = 5;
 
-    yawFollowOuter[2].kp = 3;
+    yawFollowOuter[2].kp = 0.2;
     yawFollowOuter[2].ki = 1;
-    yawFollowOuter[2].integralErrorMax = 20;
-    yawFollowOuter[2].resultMax = 20;
+    yawFollowOuter[2].integralErrorMax = 2;
+    yawFollowOuter[2].resultMax = 10;
     yawFollowOuterPid->paramPtr = &yawFollowOuter[0];
-    yawFollowOuterPid->fbValuePtr[0] = &bmi088Cal->Angle.yaw;
+		for(uint8_t i = 0;i<3;i++)
+		{
+			yawFollowOuterPid->fbValuePtr[i] = &bmi088Cal->Angle.yaw;
+		}
 }
 void SitMode::speedPidCalculate()
 {
     robotCtrl.chassisYaw += -(RC.Key.CH[0] / 660.f) * sitTurnPidP;
-    if (ABS(yawFollowOuterPid->error) > 10)
+    if (ABS(yawFollowOuterPid->error) > 20)
     {
         robotCtrl.chassisTurnSpeed = yawFollowOuterPid->Calculate(robotCtrl.chassisYaw, 2);
     }
-    else if (ABS(yawFollowOuterPid->error) > 5)
+    else if (20 > ABS(yawFollowOuterPid->error) && ABS(yawFollowOuterPid->error)  > 10)
     {
         robotCtrl.chassisTurnSpeed = yawFollowOuterPid->Calculate(robotCtrl.chassisYaw, 1);
     }
-    else
+    else if(ABS(yawFollowOuterPid->error) < 10 )
     {
         robotCtrl.chassisTurnSpeed = yawFollowOuterPid->Calculate(robotCtrl.chassisYaw, 0);
     }
 }
 void SitMode::bodyThetaCalculate()
 {
-    thetaBySpeed[LEFT] = (RC.Key.CH[3] / 660.f) * 30 *RAD_PER_DEG;
-    thetaBySpeed[RIGHT] = (RC.Key.CH[3] / 660.f) * 30 *RAD_PER_DEG;
+    thetaBySpeed[LEFT] = (RC.Key.CH[3] / 660.f) * 90 ;
+    thetaBySpeed[RIGHT] = (RC.Key.CH[3] / 660.f) * 90 ;
     robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 0 + thetaBySpeed[LEFT]) * RAD_PER_DEG;   // rad
     robotCtrl.bodyTheta[RIGHT] = standThetaCal(balance.angleFb[RIGHT], 0 + thetaBySpeed[RIGHT]) * RAD_PER_DEG; // rad
 }
