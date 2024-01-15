@@ -18,6 +18,7 @@ public:
     void bodyPitchCtrl();
     void bodyThetaCtrl();
     void runModeJudge();
+		void yawCtrl();
     uint8_t modeChangeFlag = 0;
 		uint8_t modeRecodeFlag = 0;
     float fiOffset = 2;

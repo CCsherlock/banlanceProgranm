@@ -11,6 +11,7 @@
 #else 
 #define MAX_CHASSIS_T 2
 #define MAX_LEG_T 5
+#define WHEEL_RADIAN 210
 #endif
 class LqrCtrl
 {
@@ -31,11 +32,16 @@ public:
     void getThetaFb();
     void getFiFb();
     void getXfb();
+    void getYawFb();
     bool lqrKsetFlag = false;
-    float xSet[2] = {0, 0};          // 底盘位置设定值
-    float xFb[2] = {0, 0};           // 底盘位置反馈值
-    float speedSet[2] = {0, 0};      // 底盘速度设定值
-    float speedFb[2] = {0, 0};       // 底盘速度反馈值
+    float xSet;          // 底盘位置设定值
+    float xFb;           // 底盘位置反馈值
+		float yawSet;
+		float yawFb;
+    float speedSet;      // 底盘速度设定值
+    float speedFb;       // 底盘速度反馈值
+		float yawSpeedSet;
+		float yawSpeedFb;
     float angleSet[2] = {0, 0};      // 关节角度设定值
     float angleFb[2] = {0, 0};       // 关节角度反馈值
     float angleSpeedSet[2] = {0, 0}; // 关节角速度设定值

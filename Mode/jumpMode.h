@@ -12,8 +12,6 @@ public:
     void reset() override;
     void modeInit() override;
     RampCurve thetaRamp[2];
-		Pid *speedPid[2];
-		PidParam speedParam;
     uint8_t recodeTranseFlag = 0;
     float thetaStart[2], thetaEnd[2];
     uint8_t jumpFinishFlag = true;

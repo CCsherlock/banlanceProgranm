@@ -26,10 +26,10 @@ private:
 public:
     enum Status
     {
-        X_LEFT = 0,
-        X_LEFT_DOT,
-        X_RIGHT,
-        X_RIGHT_DOT,
+        X = 0,
+        X_DOT,
+        W,
+        W_DOT,
         THETA_LEFT,
         THETA_LEFT_DOT,
         THETA_RIGHT,

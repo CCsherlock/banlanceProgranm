@@ -12,9 +12,8 @@ uint8_t CrossStandMode::intoModeRun(RobotMotion _modeLast)
     switch (_modeLast)
     {
     case CROSS_STAND:
-        robotCtrl.chassisSpeed[LEFT] = 0;  // m/s
-        robotCtrl.chassisSpeed[RIGHT] = 0; // m/s
-        robotCtrl.chassisTurnSpeed = 0;
+        robotCtrl.chassisSpeed = 0; // m/s
+				robotCtrl.chassisYaw = bmi088Cal->Angle.yaw;
         robotCtrl.bodyPitch = 0;
         if (!recodeTranseFlag)
         {
@@ -36,9 +35,8 @@ uint8_t CrossStandMode::intoModeRun(RobotMotion _modeLast)
         }
         break;
     case SIT:
-        robotCtrl.chassisSpeed[LEFT] = 0;  // m/s
-        robotCtrl.chassisSpeed[RIGHT] = 0; // m/s
-        robotCtrl.chassisTurnSpeed = 0;
+        robotCtrl.chassisSpeed = 0; // m/s
+				robotCtrl.chassisYaw = bmi088Cal->Angle.yaw;
         robotCtrl.bodyPitch = 0;
         if (!recodeTranseFlag)
         {
@@ -72,14 +70,8 @@ void CrossStandMode::inModeRun()
 			modeInit();
 			modeInitFlag = true;
 		}
-//    robotCtrl.chassisTurnSpeed = (RC.Key.CH[0] / 660.f) * standTurnP * 2;                                            // m/s
-//    robotCtrl.chassisSpeed[LEFT] = (RC.Key.CH[3] / 660.f) * ROBOT_MAX_V * standSpeedP - robotCtrl.chassisTurnSpeed;  // m/s
-//    robotCtrl.chassisSpeed[RIGHT] = (RC.Key.CH[3] / 660.f) * ROBOT_MAX_V * standSpeedP + robotCtrl.chassisTurnSpeed; // m/s
-//    robotCtrl.chassisSpeed[LEFT] = speedPid[LEFT]->Calculate(robotCtrl.chassisSpeed[LEFT]);
-//    robotCtrl.chassisSpeed[RIGHT] = speedPid[LEFT]->Calculate(robotCtrl.chassisSpeed[RIGHT]);
-		robotCtrl.chassisSpeed[LEFT] = 0;  // m/s
-    robotCtrl.chassisSpeed[RIGHT] = 0; // m/s
-    robotCtrl.chassisTurnSpeed = 0;
+		robotCtrl.chassisSpeed = 0;  // m/s
+    robotCtrl.chassisYaw = bmi088Cal->Angle.yaw;
     robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 180) * RAD_PER_DEG;   // rad
     robotCtrl.bodyTheta[RIGHT] = standThetaCal(balance.angleFb[RIGHT], 180) * RAD_PER_DEG; // rad
     robotCtrl.bodyPitch = 0;
@@ -102,14 +94,4 @@ void CrossStandMode::reset()
 }
 void CrossStandMode::modeInit()
 {
-		speedPid[LEFT]	= new Pid(1);
-		speedPid[RIGHT]	= new Pid(1);
-		speedParam.kp = 0.5;
-		speedParam.ki = 0.1;
-		speedParam.integralErrorMax = 10;
-		speedParam.resultMax = 5;
-		speedPid[LEFT]->paramPtr = &speedParam;
-		speedPid[LEFT]->fbValuePtr[0] = &balance.speedFb[LEFT];
-		speedPid[RIGHT]->paramPtr = &speedParam;
-		speedPid[RIGHT]->fbValuePtr[0] = &balance.speedFb[RIGHT];
 }

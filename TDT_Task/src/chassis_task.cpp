@@ -49,7 +49,7 @@ void Chassis::chassisInit()
         chssisMotor[i]->initMotor();
         legMotor[i] = new CyberGear(CAN1, 0x73 + i, 0x101 + i, i, Motion_mode);
         legMotor[i]->initMotor();
-				thetaSpeedFilter[i].SetCutoffFreq(2000,10);
+        thetaSpeedFilter[i].SetCutoffFreq(2000, 10);
     }
 #endif
 }
@@ -99,10 +99,10 @@ void Chassis::chassisCtrlTorque(float torque[2])
 #elif defined BIG_MODEL
             if (chssisMotor[i]->motorInfo.motor_mode != RUN_MODE)
             {
-							for(uint8_t j = 0; j<50; j++)
-							{
-							 chssisMotor[i]->enableMotor();
-							}
+                for (uint8_t j = 0; j < 50; j++)
+                {
+                    chssisMotor[i]->enableMotor();
+                }
             }
             chssisMotor[i]->motorCtrlMode(torque[i] * chassisOutputDir[i], 0, 0, 0, 0);
 #endif
@@ -147,7 +147,7 @@ void Chassis::legCtrlTorque(float torque[2])
 #if defined SMALL_MODEL
             legMotor[i]->ctrlTorque(0);
 #elif defined BIG_MODEL
-						temp[i] = 0;
+            temp[i] = 0;
             legMotor[i]->stopMotor(0);
 #endif
             break;
@@ -157,12 +157,12 @@ void Chassis::legCtrlTorque(float torque[2])
 #elif defined BIG_MODEL
             if (legMotor[i]->motorInfo.motor_mode != RUN_MODE)
             {
-							for(uint8_t j = 0; j<50; j++)
-							{
-							 legMotor[i]->enableMotor();
-							}
+                for (uint8_t j = 0; j < 50; j++)
+                {
+                    legMotor[i]->enableMotor();
+                }
             }
-						temp[i] = torque[i];
+            temp[i] = torque[i];
             legMotor[i]->motorCtrlMode(torque[i] * legOutputDir[i], 0, 0, 0, 0);
 #endif
             break;
@@ -219,9 +219,9 @@ float *Chassis::getLegSpeed()
     legSpeed[LEFT] = encodeSpeedLeftFilter.Apply(legMotor[LEFT]->canInfo.speedFromEncoder) * legFbDir[LEFT];    // 单位 rad/s
     legSpeed[RIGHT] = encodeSpeedLeftFilter.Apply(legMotor[RIGHT]->canInfo.speedFromEncoder) * legFbDir[RIGHT]; // 单位 rad/s
 #elif defined BIG_MODEL
-//    legSpeed[LEFT] = legMotor[LEFT]->megSpeed * chassisFbDir[LEFT];    // 电机反馈速度 rad/s
-//    legSpeed[RIGHT] = legMotor[RIGHT]->megSpeed * chassisFbDir[RIGHT]; // 电机反馈速度 rad/s
-    legSpeed[LEFT] = thetaSpeedFilter[LEFT].Apply(legMotor[LEFT]->megSpeed * chassisFbDir[LEFT]);    // 电机反馈速度 rad/s
+    //    legSpeed[LEFT] = legMotor[LEFT]->megSpeed * chassisFbDir[LEFT];    // 电机反馈速度 rad/s
+    //    legSpeed[RIGHT] = legMotor[RIGHT]->megSpeed * chassisFbDir[RIGHT]; // 电机反馈速度 rad/s
+    legSpeed[LEFT] = thetaSpeedFilter[LEFT].Apply(legMotor[LEFT]->megSpeed * chassisFbDir[LEFT]);     // 电机反馈速度 rad/s
     legSpeed[RIGHT] = thetaSpeedFilter[RIGHT].Apply(legMotor[RIGHT]->megSpeed * chassisFbDir[RIGHT]); // 电机反馈速度 rad/s
 //   legSpeed[LEFT] = encodeLeftWindow.slideWindowFilter(legMotor[LEFT]->megSpeed);                  // 编码器反馈速度 rad/s
 //   legSpeed[RIGHT] = encodeRightWindow.slideWindowFilter(legMotor[RIGHT]->megSpeed);                // 编码器反馈速度 rad/s

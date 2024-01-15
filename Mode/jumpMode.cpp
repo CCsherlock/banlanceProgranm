@@ -18,9 +18,8 @@ uint8_t JumpMode::intoModeRun(RobotMotion _modeLast)
         transeOverFlag = 1;
         break;
     default: 
-        robotCtrl.chassisSpeed[LEFT] = 0;  // m/s
-        robotCtrl.chassisSpeed[RIGHT] = 0; // m/s
-        robotCtrl.chassisTurnSpeed = 0;
+        robotCtrl.chassisSpeed = 0; // m/s
+				robotCtrl.chassisYaw = bmi088Cal->Angle.yaw;
         robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 0) * RAD_PER_DEG;   // rad
         robotCtrl.bodyTheta[RIGHT] = standThetaCal(balance.angleFb[RIGHT], 0) * RAD_PER_DEG; // rad
         robotCtrl.bodyPitch = balance.fiFb / RAD_PER_DEG;
@@ -38,9 +37,8 @@ void JumpMode::inModeRun()
 		}
     if (!jumpFinishFlag)
     {
-        robotCtrl.chassisSpeed[LEFT] = 0;  // m/s
-        robotCtrl.chassisSpeed[RIGHT] = 0; // m/s
-        robotCtrl.chassisTurnSpeed = 0;
+        robotCtrl.chassisSpeed = 0; // m/s
+				robotCtrl.chassisYaw = bmi088Cal->Angle.yaw;
         robotCtrl.bodyPitch = 0;
         robotCtrl.bodyTheta[LEFT] = thetaRamp[LEFT].ramp((thetaEnd[LEFT] - thetaStart[LEFT]) / 0.3, thetaStart[LEFT], thetaEnd[LEFT]);
         robotCtrl.bodyTheta[RIGHT] = thetaRamp[RIGHT].ramp((thetaEnd[RIGHT] - thetaStart[RIGHT]) / 0.3, thetaStart[RIGHT], thetaEnd[RIGHT]);
@@ -51,9 +49,8 @@ void JumpMode::inModeRun()
     }
     else
     {
-        robotCtrl.chassisSpeed[LEFT] = 0;  // m/s
-        robotCtrl.chassisSpeed[RIGHT] = 0; // m/s
-        robotCtrl.chassisTurnSpeed = 0;
+        robotCtrl.chassisSpeed = 0; // m/s
+				robotCtrl.chassisYaw = bmi088Cal->Angle.yaw;
         robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 0) * RAD_PER_DEG;   // rad
         robotCtrl.bodyTheta[RIGHT] = standThetaCal(balance.angleFb[RIGHT], 0) * RAD_PER_DEG; // rad
         robotCtrl.bodyPitch = 0;
@@ -77,12 +74,4 @@ void JumpMode::reset()
 }
 void JumpMode::modeInit()
 {
-		speedPid[LEFT]	= new Pid(1);
-		speedPid[RIGHT]	= new Pid(1);
-		speedParam.kp = 0;
-		speedParam.resultMax = 5;
-		speedPid[LEFT]->paramPtr = &speedParam;
-		speedPid[LEFT]->fbValuePtr[0] = &balance.speedFb[LEFT];
-		speedPid[RIGHT]->paramPtr = &speedParam;
-		speedPid[RIGHT]->fbValuePtr[0] = &balance.speedFb[RIGHT];
 }

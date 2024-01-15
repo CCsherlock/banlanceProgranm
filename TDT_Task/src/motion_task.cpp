@@ -73,8 +73,7 @@ void Motion::runModeJudge()
  */
 void Motion::chassisSpeedCtrl()
 {
-    balance.speedSet[LEFT] = RunMode::modeList[robotMode]->robotCtrl.chassisSpeed[LEFT];
-    balance.speedSet[RIGHT] = RunMode::modeList[robotMode]->robotCtrl.chassisSpeed[RIGHT];
+    balance.speedSet = RunMode::modeList[robotMode]->robotCtrl.chassisSpeed;
 }
 /**
  * @brief 内圈角度设定
@@ -93,7 +92,10 @@ void Motion::bodyPitchCtrl()
 {
     balance.fiSet = (RunMode::modeList[robotMode]->robotCtrl.bodyPitch + fiOffset) * RAD_PER_DEG; // rad
 }
-
+void Motion::yawCtrl()
+{
+    balance.yawSet = RunMode::modeList[robotMode]->robotCtrl.chassisYaw; //rad
+}
 void motionLoop()
 {
     robotMotion.motionModeSwitch(); // 设置机器人整体状态

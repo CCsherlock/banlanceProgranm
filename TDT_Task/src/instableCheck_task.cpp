@@ -121,7 +121,7 @@ void InstableCheck::checkReset()
 void InstableCheck::checkList()
 {
     /*左轮速度过快*/
-    if (ABS(balance.speedFb[LEFT]) > CHASSIS_SPEED_THRESHOLD)
+    if (ABS(balance.speedFb) > CHASSIS_SPEED_THRESHOLD)
     {
         stateList[LEFT_CHASSIS_STATE].TrigeFlag = true;
     }
@@ -130,7 +130,7 @@ void InstableCheck::checkList()
         stateList[LEFT_CHASSIS_STATE].TrigeFlag = false;
     }
     /*右轮轮速过快*/
-    if (ABS(balance.speedFb[RIGHT]) > CHASSIS_SPEED_THRESHOLD)
+    if (ABS(balance.speedFb) > CHASSIS_SPEED_THRESHOLD)
     {
         stateList[RIGHT_CHASSIS_STATE].TrigeFlag = true;
     }

@@ -18,10 +18,6 @@ public:
     void bodyThetaCalculate();
     RampCurve pitchRamp;
     RampCurve thetaRamp[2];
-		Pid *speedPid[2];
-		Pid *yawFollowOuterPid;
-		PidParam speedParam[2];
-		PidParam yawFollowOuter[3];
     uint8_t recodeTranseFlag = 0;
     float thetaStart[2], thetaEnd[2];
     float fiStart, fiEnd;

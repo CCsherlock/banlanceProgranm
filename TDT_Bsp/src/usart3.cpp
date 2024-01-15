@@ -229,54 +229,53 @@ void custom_Send_Data(void)
     custom_SendStruct.fi = balance.fiFb;
     custom_SendStruct.theta[LEFT] = balance.angleFb[LEFT];
     custom_SendStruct.theta[RIGHT] = balance.angleFb[RIGHT];
-    custom_SendStruct.XSpeed[LEFT] = balance.speedFb[LEFT];
-    custom_SendStruct.XSpeed[RIGHT] = balance.speedFb[RIGHT];
+    custom_SendStruct.XSpeed = balance.speedFb;
     custom_SendStruct.angleSpeed[LEFT] = balance.angleSpeedFb[LEFT];
     custom_SendStruct.angleSpeed[RIGHT] = balance.angleSpeedFb[RIGHT];
     custom_SendStruct.fiSpeed = balance.fiSpeedFb;
     custom_SendStruct.setLegTorque[LEFT] = balance.legTorque[LEFT];
     custom_SendStruct.motorSpeed[LEFT] = balance.chassis->legSpeed[LEFT];
-	  custom_SendStruct.setTheta[LEFT] = balance.angleSet[LEFT];
-		custom_SendStruct.setChaTorque[LEFT] = balance.chassisTorque[LEFT];
-		custom_SendStruct.setChaTorque[RIGHT] = balance.chassisTorque[RIGHT];
+    custom_SendStruct.setTheta[LEFT] = balance.angleSet[LEFT];
+    custom_SendStruct.setChaTorque[LEFT] = balance.chassisTorque[LEFT];
+    custom_SendStruct.setChaTorque[RIGHT] = balance.chassisTorque[RIGHT];
     /***** GetValueEnd *****/
-//    sendData(2,
-//             legMotor[LEFT]->megSpeed,
-//						 legMotor[LEFT]->megSpeed_encode);
-	
-//    sendData(5,
-//             custom_SendStruct.XSpeed[LEFT],
-//						 custom_SendStruct.theta[LEFT],
-//						 custom_SendStruct.angleSpeed[LEFT],
-//						 custom_SendStruct.fi,
-//						 custom_SendStruct.fiSpeed);
+    //    sendData(2,
+    //             legMotor[LEFT]->megSpeed,
+    //						 legMotor[LEFT]->megSpeed_encode);
 
-//    sendData(3,
-//             custom_SendStruct.fi,
-//						 balance.chassis->legAngel[LEFT],
-//						 custom_SendStruct.theta[LEFT]);
+    //    sendData(5,
+    //             custom_SendStruct.XSpeed[LEFT],
+    //						 custom_SendStruct.theta[LEFT],
+    //						 custom_SendStruct.angleSpeed[LEFT],
+    //						 custom_SendStruct.fi,
+    //						 custom_SendStruct.fiSpeed);
 
-//    sendData(3,
-//             custom_SendStruct.fiSpeed,
-//						 balance.chassis->legSpeed[LEFT],
-//						 custom_SendStruct.angleSpeed[LEFT]);	
+    //    sendData(3,
+    //             custom_SendStruct.fi,
+    //						 balance.chassis->legAngel[LEFT],
+    //						 custom_SendStruct.theta[LEFT]);
 
-//    sendData(3,
-//             custom_SendStruct.fi,
-//						 custom_SendStruct.theta[LEFT],
-//						 custom_SendStruct.setTorque[LEFT]);		
+    //    sendData(3,
+    //             custom_SendStruct.fiSpeed,
+    //						 balance.chassis->legSpeed[LEFT],
+    //						 custom_SendStruct.angleSpeed[LEFT]);
 
-//    sendData(2,
-//							temp[0],temp[1]);
+    //    sendData(3,
+    //             custom_SendStruct.fi,
+    //						 custom_SendStruct.theta[LEFT],
+    //						 custom_SendStruct.setTorque[LEFT]);
 
-//    sendData(2,
-//							custom_SendStruct.XSpeed[LEFT],custom_SendStruct.XSpeed[RIGHT]);
+    //    sendData(2,
+    //							temp[0],temp[1]);
+
+    //    sendData(2,
+    //							custom_SendStruct.XSpeed[LEFT],custom_SendStruct.XSpeed[RIGHT]);
 
     sendData(2,
-							custom_SendStruct.setChaTorque[LEFT],custom_SendStruct.setChaTorque[RIGHT]);
+             custom_SendStruct.setChaTorque[LEFT], custom_SendStruct.setChaTorque[RIGHT]);
 
-//    sendData(2,
-//							custom_SendStruct.theta[LEFT],custom_SendStruct.theta[RIGHT]);
+    //    sendData(2,
+    //							custom_SendStruct.theta[LEFT],custom_SendStruct.theta[RIGHT]);
 }
 
 void sendData(int cnt, ...)

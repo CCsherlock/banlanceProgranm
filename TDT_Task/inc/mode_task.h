@@ -5,7 +5,7 @@
 #include "angleTranseform.h"
 #include "lqrCtrl_task.h"
 #include "dbus.h"
-#include "pid.h"
+#include "imu_task.h"
 #define ROBOT_MAX_V 1
 class RampCurve
 {
@@ -100,7 +100,7 @@ public:
     struct RobotCtrlVal
     {
         /* data */
-        double chassisSpeed[2];  // 底盘直行速度设定
+        double chassisSpeed;  // 底盘直行速度设定
         double chassisTurnSpeed; // 底盘转向速度设定
         double chassisYaw;       // 底盘Yaw方向设定
         double bodyPitch;        // 机体俯仰设定
