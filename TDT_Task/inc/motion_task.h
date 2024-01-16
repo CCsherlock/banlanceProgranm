@@ -19,6 +19,7 @@ public:
     void bodyThetaCtrl();
     void runModeJudge();
 		void yawCtrl();
+    void motorOutputKpCtrl();
     uint8_t modeChangeFlag = 0;
 		uint8_t modeRecodeFlag = 0;
     float fiOffset = 0;

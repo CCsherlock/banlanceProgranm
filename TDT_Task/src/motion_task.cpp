@@ -19,7 +19,7 @@ void Motion::motionModeSwitch()
     {
         robotMode = DEFORCE;
         robotMode_last = robotMode;
-				runModeJudge();
+        runModeJudge();
         return;
     }
     if (RC.Key.SW2 == Mid && RC.Key.SW1 == Mid) // 上力置中
@@ -35,7 +35,7 @@ void Motion::motionModeSwitch()
 void Motion::runModeJudge()
 {
 #if N0_STATE_TRANSE
-	RunMode::modeList[robotMode]->inModeRun();
+    RunMode::modeList[robotMode]->inModeRun();
 #else
     if (robotMode != robotMode_last)
     {
@@ -44,7 +44,7 @@ void Motion::runModeJudge()
     for (uint8_t mode = 0; mode < ALL_MODE_NUM; mode++)
     {
         /* code */
-        if(mode != robotMode)
+        if (mode != robotMode)
         {
             RunMode::modeList[mode]->reset();
         }
@@ -64,7 +64,7 @@ void Motion::runModeJudge()
         /* code */
         RunMode::modeList[robotMode]->inModeRun();
         robotMode_last = robotMode;
-    }	
+    }
 #endif
 }
 /**
@@ -90,17 +90,23 @@ void Motion::bodyThetaCtrl()
  */
 void Motion::bodyPitchCtrl()
 {
-    balance.fiSet = (RunMode::modeList[robotMode]->robotCtrl.bodyPitch + fiOffset) * RAD_PER_DEG; // rad
+    balance.fiSet = (RunMode::modeList[robotMode]->robotCtrl.bodyPitch + fiOffset); // rad
 }
 void Motion::yawCtrl()
 {
-    balance.yawSet = RunMode::modeList[robotMode]->robotCtrl.chassisYaw; //rad
+    balance.yawSet = RunMode::modeList[robotMode]->robotCtrl.chassisYaw; // rad
+}
+void Motion::motorOutputKpCtrl()
+{
+    balance.legTorKpByMotion = RunMode::modeList[robotMode]->robotCtrl.legTorqueKp;
+    balance.chasTorKpByMotion = RunMode::modeList[robotMode]->robotCtrl.chaTorqueKp;
 }
 void motionLoop()
 {
-    robotMotion.motionModeSwitch(); // 设置机器人整体状态
-    robotMotion.chassisSpeedCtrl(); // 设置底盘速度
-    robotMotion.bodyThetaCtrl();    // 设置机器人内圈角度
-    robotMotion.bodyPitchCtrl();    // 设置机体俯角
-		robotMotion.yawCtrl();
+    robotMotion.motionModeSwitch();  // 设置机器人整体状态
+    robotMotion.chassisSpeedCtrl();  // 设置底盘速度
+    robotMotion.bodyThetaCtrl();     // 设置机器人内圈角度
+    robotMotion.bodyPitchCtrl();     // 设置机体俯角
+    robotMotion.yawCtrl();           // 设置机体航向角
+    robotMotion.motorOutputKpCtrl(); // 由状态选择器控制电机输出比例
 }

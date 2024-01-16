@@ -17,7 +17,7 @@ LqrCtrl::LqrCtrl(/* args */)
  * @brief 初始化lqr所需数据来源
  *  初始LQR算法矩阵 电机 陀螺仪参数
  *  规定两侧电机反馈值同向同号
- *                        ---> + 内圈正方向                       --->+车体方向            
+ *                        ---> + 内圈正方向                       --->+车体方向
  *  外圈正方向 + <--- |||---------------|||   L 左侧            |----------|
  *                     |                 |                      |		  		 |
  *                     |     R       000 |   --->+车体方向      |	  |==|\	 |
@@ -61,7 +61,7 @@ void LqrCtrl::getAllFbValue()
 {
     getXfb();
     getThetaFb();
-		getYawFb();
+    getYawFb();
 #if JS
     encodeSpeed_JS = -1 * legMotor[RIGHT]->megSpeed;
     motorSpeed_JS = chssisMotor[LEFT]->motorInfo.motor_fdb.speed_temp;
@@ -101,7 +101,7 @@ void LqrCtrl::getXfb()
 {
 /* code */
 #if defined BIG_MODEL
-    xFb = (chassis->getChassisAngel()[LEFT] + chassis->getChassisAngel()[RIGHT]) / 2 * WHEEL_RADIAN / 1000.0f;    // 单位 m
+    xFb = (chassis->getChassisAngel()[LEFT] + chassis->getChassisAngel()[RIGHT]) / 2 * WHEEL_RADIAN / 1000.0f;     // 单位 m
     speedFb = (chassis->getChassisSpeed()[LEFT] + chassis->getChassisSpeed()[RIGHT]) / 2 * WHEEL_RADIAN / 1000.0f; // 单位 m/s
 #else
     xFb[i] = chassis->getChassisAngel()[i] * RAD_PER_DEG;          // 单位 rad
@@ -129,18 +129,18 @@ void LqrCtrl::getFiFb()
 }
 /**
  * @brief yaw轴数据反馈 从车上方看，顺时针角度变大，角速度为﹢
- * 
+ *
  */
 void LqrCtrl::getYawFb()
 {
-    yawFb = -1*bmi088Cal->Angle.yaw * RAD_PER_DEG;
-    yawSpeedFb = -1*bmi088Cal->gyro.radps.data[2];
+    yawFb = -1 * bmi088Cal->Angle.yaw * RAD_PER_DEG;
+    yawSpeedFb = -1 * bmi088Cal->gyro.radps.data[2];
 }
 float chassisTq[2] = {0, 0};
 float legTq[2] = {0, 0};
 #if defined BIG_MODEL
-float legResultKp = 1;
-float chassisResultKp = 1;
+float legResultKp = 1;     // 调试使用的输出比例
+float chassisResultKp = 1; // 调试使用的输出比例
 #else
 
 #define FORCE_DEFORCE 0 // 强制脱力调试
@@ -171,14 +171,14 @@ void LqrCtrl::lqrOutput()
 #else
     chassisTorque[LEFT] = LIMIT(roboLqr->resultValue[roboLqr->OUT_LEFT_MOTOR], -MAX_CHASSIS_T, MAX_CHASSIS_T);
     chassisTorque[RIGHT] = LIMIT(roboLqr->resultValue[roboLqr->OUT_RIGHT_MOTOR], -MAX_CHASSIS_T, MAX_CHASSIS_T);
-    chassisTorque[LEFT] = chassisTorque[LEFT] * chassisSetPossitive * OUTER_WHEEL_RADIO * chassisResultKp;   // 底盘输出力矩乘以系数
-    chassisTorque[RIGHT] = chassisTorque[RIGHT] * chassisSetPossitive * OUTER_WHEEL_RADIO * chassisResultKp; // 底盘输出力矩乘以系数
+    chassisTorque[LEFT] = chassisTorque[LEFT] * chassisSetPossitive * OUTER_WHEEL_RADIO * chassisResultKp * chasTorKpByMotion;   // 底盘输出力矩乘以系数
+    chassisTorque[RIGHT] = chassisTorque[RIGHT] * chassisSetPossitive * OUTER_WHEEL_RADIO * chassisResultKp * chasTorKpByMotion; // 底盘输出力矩乘以系数
     chassis->chassisCtrlTorque(chassisTorque);
 
     legTorque[LEFT] = LIMIT(roboLqr->resultValue[roboLqr->IN_LEFT_MOTOR], -MAX_LEG_T, MAX_LEG_T);
     legTorque[RIGHT] = LIMIT(roboLqr->resultValue[roboLqr->IN_RIGHT_MOTOR], -MAX_LEG_T, MAX_LEG_T);
-    legTorque[LEFT] = legTorque[LEFT] * legSetPossitive * legResultKp;   // 腿部输出力矩乘以系数
-    legTorque[RIGHT] = legTorque[RIGHT] * legSetPossitive * legResultKp; // 腿部输出力矩乘以系数
+    legTorque[LEFT] = legTorque[LEFT] * legSetPossitive * legResultKp * legTorKpByMotion;   // 腿部输出力矩乘以系数
+    legTorque[RIGHT] = legTorque[RIGHT] * legSetPossitive * legResultKp * legTorKpByMotion; // 腿部输出力矩乘以系数
     chassis->legCtrlTorque(legTorque);
 #endif
 }

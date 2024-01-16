@@ -1,7 +1,5 @@
 #include "sitMode.h"
 float sitSpeedP = -10;
-float sitTurnP = 3;
-float sitTurnPidP = 0.01;
 uint8_t SitMode::intoModeRun(RobotMotion _modeLast)
 {
     if (!modeInitFlag)
@@ -13,7 +11,7 @@ uint8_t SitMode::intoModeRun(RobotMotion _modeLast)
     {
     case SIT:
         robotCtrl.chassisSpeed = 0; // m/s
-				robotCtrl.chassisYaw = bmi088Cal->Angle.yaw * RAD_PER_DEG;
+        robotCtrl.chassisYaw = balance.yawFb;
         robotCtrl.bodyPitch = 0;
         if (!recodeTranseFlag)
         {
@@ -23,7 +21,7 @@ uint8_t SitMode::intoModeRun(RobotMotion _modeLast)
             thetaStart[RIGHT] = balance.angleFb[RIGHT];
             thetaRamp[LEFT].reset();
             thetaRamp[RIGHT].reset();
-            fiStart = balance.fiFb / RAD_PER_DEG;
+            fiStart = balance.fiFb;
             fiEnd = fiStart;
             pitchRamp.reset();
             recodeTranseFlag = 1;
@@ -39,7 +37,7 @@ uint8_t SitMode::intoModeRun(RobotMotion _modeLast)
         break;
     case DEFORCE:
         robotCtrl.chassisSpeed = 0; // m/s
-				robotCtrl.chassisYaw = bmi088Cal->Angle.yaw * RAD_PER_DEG;
+        robotCtrl.chassisYaw = balance.yawFb;
         if (!recodeTranseFlag)
         {
             thetaEnd[LEFT] = standThetaCal(balance.angleFb[LEFT], 0) * RAD_PER_DEG;
@@ -48,23 +46,25 @@ uint8_t SitMode::intoModeRun(RobotMotion _modeLast)
             thetaStart[RIGHT] = balance.angleFb[RIGHT];
             thetaRamp[LEFT].reset();
             thetaRamp[RIGHT].reset();
-            fiStart = balance.fiFb / RAD_PER_DEG;
+            fiStart = balance.fiFb;
             fiEnd = 0;
             pitchRamp.reset();
             recodeTranseFlag = 1;
         }
         robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 0) * RAD_PER_DEG;   // rad
         robotCtrl.bodyTheta[RIGHT] = standThetaCal(balance.angleFb[RIGHT], 0) * RAD_PER_DEG; // rad
-        robotCtrl.bodyPitch = pitchRamp.ramp((fiEnd - fiStart)*2, fiStart, fiEnd);
-        if (pitchRamp.curveFinish)
+        robotCtrl.bodyPitch = pitchRamp.ramp((fiEnd - fiStart) * 2, fiStart, fiEnd);
+        robotCtrl.chaTorqueKp = 0;
+        if (pitchRamp.curveFinish && (ABS(balance.fiFb - fiEnd) < (30 * RAD_PER_DEG)))
         {
             pitchRamp.reset();
             transeOverFlag = true;
+            robotCtrl.chaTorqueKp = 1;
         }
         break;
     case CROSS_STAND:
         robotCtrl.chassisSpeed = 0; // m/s
-				robotCtrl.chassisYaw = bmi088Cal->Angle.yaw * RAD_PER_DEG;
+        robotCtrl.chassisYaw = balance.yawFb;
         robotCtrl.bodyPitch = 0;
         if (!recodeTranseFlag)
         {
@@ -87,7 +87,7 @@ uint8_t SitMode::intoModeRun(RobotMotion _modeLast)
         break;
     case JUMP:
         robotCtrl.chassisSpeed = 0; // m/s
-				robotCtrl.chassisYaw = bmi088Cal->Angle.yaw * RAD_PER_DEG;
+        robotCtrl.chassisYaw = balance.yawFb;
         robotCtrl.bodyPitch = 0;
         robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 0) * RAD_PER_DEG;   // rad
         robotCtrl.bodyTheta[RIGHT] = standThetaCal(balance.angleFb[RIGHT], 0) * RAD_PER_DEG; // rad
@@ -106,11 +106,11 @@ void SitMode::inModeRun()
         modeInit();
         modeInitFlag = true;
     }
-    robotCtrl.chassisYaw += (RC.Key.CH[0] / 660.f) * sitTurnP * 0.005;    // m/s
-    robotCtrl.chassisSpeed = (RC.Key.CH[3] / 660.f) * ROBOT_MAX_V * sitSpeedP; // m/s
-    robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 0) * RAD_PER_DEG;                                        // rad
-    robotCtrl.bodyTheta[RIGHT] = standThetaCal(balance.angleFb[RIGHT], 0) * RAD_PER_DEG;                                      // rad
-		bodyThetaCalculate();
+    robotCtrl.chassisYaw += (RC.Key.CH[0] / 660.f)  * ROBOT_MAX_W;                   // m/s
+    robotCtrl.chassisSpeed = -(RC.Key.CH[3] / 660.f) * ROBOT_MAX_V;           // m/s
+    robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 0) * RAD_PER_DEG;   // rad
+    robotCtrl.bodyTheta[RIGHT] = standThetaCal(balance.angleFb[RIGHT], 0) * RAD_PER_DEG; // rad
+    bodyThetaCalculate();
     robotCtrl.bodyPitch = 0;
     transeOverFlag = false;
     recodeTranseFlag = false;
@@ -135,12 +135,11 @@ void SitMode::modeInit()
 }
 void SitMode::speedPidCalculate()
 {
-
 }
 void SitMode::bodyThetaCalculate()
 {
-//    thetaBySpeed[LEFT] = (RC.Key.CH[3] / 660.f) * 90 ;
-//    thetaBySpeed[RIGHT] = (RC.Key.CH[3] / 660.f) * 90 ;
-    robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 0 + thetaBySpeed[LEFT]) * RAD_PER_DEG;   // rad
+    //    thetaBySpeed[LEFT] = (RC.Key.CH[3] / 660.f) * 90 ;
+    //    thetaBySpeed[RIGHT] = (RC.Key.CH[3] / 660.f) * 90 ;
+    robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 0 + thetaBySpeed[LEFT]) * RAD_PER_DEG;    // rad
     robotCtrl.bodyTheta[RIGHT] = standThetaCal(balance.angleFb[RIGHT], 0 + thetaBySpeed[RIGHT]) * RAD_PER_DEG; // rad
 }

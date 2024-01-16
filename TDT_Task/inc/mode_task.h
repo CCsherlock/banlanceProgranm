@@ -6,7 +6,8 @@
 #include "lqrCtrl_task.h"
 #include "dbus.h"
 #include "imu_task.h"
-#define ROBOT_MAX_V 3
+#define ROBOT_MAX_V 30
+#define ROBOT_MAX_W 0.01
 class RampCurve
 {
 private:
@@ -105,6 +106,8 @@ public:
         double chassisYaw;       // 底盘Yaw方向设定
         double bodyPitch;        // 机体俯仰设定
         double bodyTheta[2];     // 关节角度设定
+        float chaTorqueKp;
+        float legTorqueKp;
     } robotCtrl;
     RobotMotion runMode_last = DEFORCE;
     RobotMotion thisMode;

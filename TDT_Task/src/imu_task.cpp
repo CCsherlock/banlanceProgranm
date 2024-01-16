@@ -1,11 +1,3 @@
-/*
- * @Author: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
- * @Date: 2023-06-22 21:41:57
- * @LastEditors: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
- * @LastEditTime: 2023-11-27 15:02:06
- * @FilePath: \Projectd:\TDT2023\Programe\TDT-Frame\TDT_Task\src\imu_task.cpp
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
 /******************************
 File name: TDT_Task\src\imu_task.cpp
 Description: 陀螺仪姿态解算任务

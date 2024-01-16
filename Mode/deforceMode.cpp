@@ -6,7 +6,7 @@ void DeforceMode::inModeRun()
 		robotCtrl.chassisYaw = balance.yawFb;
     robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 0) * RAD_PER_DEG;   // rad
     robotCtrl.bodyTheta[RIGHT] = standThetaCal(balance.angleFb[RIGHT], 0) * RAD_PER_DEG; // rad
-    robotCtrl.bodyPitch = balance.fiFb / RAD_PER_DEG;
+    robotCtrl.bodyPitch = balance.fiFb;
     transeOverFlag = false;
     transeResetFlag = false;
 }
@@ -19,7 +19,7 @@ uint8_t DeforceMode::intoModeRun(RobotMotion _modeLast)
 				robotCtrl.chassisYaw = balance.yawFb;
         robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 0) * RAD_PER_DEG;   // rad
         robotCtrl.bodyTheta[RIGHT] = standThetaCal(balance.angleFb[RIGHT], 0) * RAD_PER_DEG; // rad
-        robotCtrl.bodyPitch = balance.fiFb / RAD_PER_DEG;
+        robotCtrl.bodyPitch = balance.fiFb;
         break;
     }
     transeOverFlag = true;
