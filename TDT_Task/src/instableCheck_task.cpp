@@ -3,9 +3,9 @@
 #include "lqrCtrl_task.h"
 #include "motion_task.h"
 /*各项检测阈值*/
-#define CHASSIS_SPEED_THRESHOLD 40
-#define LEG_SPEED_THRESHOLD 20
-#define BODY_FI_THRESHOLD 70 * RAD_PER_DEG
+#define CHASSIS_SPEED_THRESHOLD 4
+#define LEG_SPEED_THRESHOLD 6
+#define BODY_FI_THRESHOLD 50 * RAD_PER_DEG
 uint8_t instableFlag = false;
 RobotStateList::RobotStateList(/* args */)
 {
@@ -129,15 +129,6 @@ void InstableCheck::checkList()
     {
         stateList[LEFT_CHASSIS_STATE].TrigeFlag = false;
     }
-    /*右轮轮速过快*/
-    if (ABS(balance.speedFb) > CHASSIS_SPEED_THRESHOLD)
-    {
-        stateList[RIGHT_CHASSIS_STATE].TrigeFlag = true;
-    }
-    else
-    {
-        stateList[RIGHT_CHASSIS_STATE].TrigeFlag = false;
-    }
     /*左腿摆速过快*/
     if (ABS(balance.angleSpeedFb[LEFT]) > LEG_SPEED_THRESHOLD)
     {
@@ -148,7 +139,7 @@ void InstableCheck::checkList()
         stateList[LEFT_LEG_STATE].TrigeFlag = false;
     }
     /*右腿摆速过快*/
-    if (ABS(balance.angleSpeedFb[LEFT]) > LEG_SPEED_THRESHOLD)
+    if (ABS(balance.angleSpeedFb[RIGHT]) > LEG_SPEED_THRESHOLD)
     {
         stateList[LEFT_LEG_STATE].TrigeFlag = true;
     }

@@ -61,6 +61,7 @@ void LqrCtrl::getAllFbValue()
 {
     getXfb();
     getThetaFb();
+		getYawFb();
 #if JS
     encodeSpeed_JS = -1 * legMotor[RIGHT]->megSpeed;
     motorSpeed_JS = chssisMotor[LEFT]->motorInfo.motor_fdb.speed_temp;
@@ -101,7 +102,7 @@ void LqrCtrl::getXfb()
 /* code */
 #if defined BIG_MODEL
     xFb = (chassis->getChassisAngel()[LEFT] + chassis->getChassisAngel()[RIGHT]) / 2 * WHEEL_RADIAN / 1000.0f;    // 单位 m
-    speedFb = (chassis->getChassisSpeed()[LEFT] + chassis->getChassisSpeed()[LEFT]) / 2 * WHEEL_RADIAN / 1000.0f; // 单位 m/s
+    speedFb = (chassis->getChassisSpeed()[LEFT] + chassis->getChassisSpeed()[RIGHT]) / 2 * WHEEL_RADIAN / 1000.0f; // 单位 m/s
 #else
     xFb[i] = chassis->getChassisAngel()[i] * RAD_PER_DEG;          // 单位 rad
     speedFb[i] = rpmToRadps(chassis->getChassisSpeed()[i]) * 0.25; // 单位 m/s
@@ -114,11 +115,11 @@ void LqrCtrl::getThetaFb()
     {
 /* code */
 #if defined BIG_MODEL
-        angleFb[i] = -(chassis->getLegAngel()[i] + fiFb * legFbPossitive); // 单位 rad
+        angleFb[i] = (chassis->getLegAngel()[i] - fiFb * legFbPossitive); // 单位 rad
 #else
         angleFb[i] = -(chassis->getLegAngel()[i] * RAD_PER_DEG + fiFb); // 单位 rad
 #endif
-        angleSpeedFb[i] = -((chassis->getLegSpeed()[i]) + fiSpeedFb * legFbPossitive); // 单位 rad/s
+        angleSpeedFb[i] = (chassis->getLegSpeed()[i] - fiSpeedFb * legFbPossitive); // 单位 rad/s
     }
 }
 void LqrCtrl::getFiFb()
@@ -132,8 +133,8 @@ void LqrCtrl::getFiFb()
  */
 void LqrCtrl::getYawFb()
 {
-    yawFb = bmi088Cal->Angle.yaw * RAD_PER_DEG;
-    yawSpeedFb = bmi088Cal->gyro.radps.data[2];
+    yawFb = -1*bmi088Cal->Angle.yaw * RAD_PER_DEG;
+    yawSpeedFb = -1*bmi088Cal->gyro.radps.data[2];
 }
 float chassisTq[2] = {0, 0};
 float legTq[2] = {0, 0};

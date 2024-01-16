@@ -236,8 +236,8 @@ void custom_Send_Data(void)
     custom_SendStruct.setLegTorque[LEFT] = balance.legTorque[LEFT];
     custom_SendStruct.motorSpeed[LEFT] = balance.chassis->legSpeed[LEFT];
     custom_SendStruct.setTheta[LEFT] = balance.angleSet[LEFT];
-    custom_SendStruct.setChaTorque[LEFT] = balance.chassisTorque[LEFT];
-    custom_SendStruct.setChaTorque[RIGHT] = balance.chassisTorque[RIGHT];
+    custom_SendStruct.setChaTorque[LEFT] = balance.legTorque[LEFT];
+    custom_SendStruct.setChaTorque[RIGHT] = balance.legTorque[RIGHT];
     /***** GetValueEnd *****/
     //    sendData(2,
     //             legMotor[LEFT]->megSpeed,
@@ -268,14 +268,14 @@ void custom_Send_Data(void)
     //    sendData(2,
     //							temp[0],temp[1]);
 
-    //    sendData(2,
-    //							custom_SendStruct.XSpeed[LEFT],custom_SendStruct.XSpeed[RIGHT]);
+        sendData(3,
+    							balance.angleSpeedFb[LEFT],balance.speedFb,balance.fiSpeedFb);
 
-    sendData(2,
-             custom_SendStruct.setChaTorque[LEFT], custom_SendStruct.setChaTorque[RIGHT]);
+//    sendData(2,
+//             custom_SendStruct.setChaTorque[LEFT], custom_SendStruct.setChaTorque[RIGHT]);
 
-    //    sendData(2,
-    //							custom_SendStruct.theta[LEFT],custom_SendStruct.theta[RIGHT]);
+//        sendData(3,
+//    							custom_SendStruct.fi,custom_SendStruct.theta[LEFT],custom_SendStruct.theta[RIGHT]);
 }
 
 void sendData(int cnt, ...)

@@ -13,7 +13,6 @@ enum CheckState
 enum CheckList
 {
     LEFT_CHASSIS_STATE = 0U,
-    RIGHT_CHASSIS_STATE,
     LEFT_LEG_STATE,
     RIGHT_LEG_STATE,
     BODY_FI_STATE,

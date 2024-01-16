@@ -102,4 +102,5 @@ void motionLoop()
     robotMotion.chassisSpeedCtrl(); // 设置底盘速度
     robotMotion.bodyThetaCtrl();    // 设置机器人内圈角度
     robotMotion.bodyPitchCtrl();    // 设置机体俯角
+		robotMotion.yawCtrl();
 }

@@ -6,7 +6,7 @@
 #include "lqrCtrl_task.h"
 #include "dbus.h"
 #include "imu_task.h"
-#define ROBOT_MAX_V 1
+#define ROBOT_MAX_V 3
 class RampCurve
 {
 private:
