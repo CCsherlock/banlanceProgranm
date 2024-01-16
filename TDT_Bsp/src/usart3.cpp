@@ -3,6 +3,8 @@
 #include "lqrCtrl_task.h"
 #include "stdio.h"
 #include "chassis_task.h"
+#include "motion_task.h"
+#include "dbus.h"
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -268,8 +270,11 @@ void custom_Send_Data(void)
     //    sendData(2,
     //							temp[0],temp[1]);
 
-        sendData(3,
-    							balance.angleSpeedFb[LEFT],balance.speedFb,balance.fiSpeedFb);
+//        sendData(3,
+//    							balance.angleSpeedFb[LEFT],balance.speedFb,balance.fiSpeedFb);
+
+        sendData(6,
+    							balance.angleFb[LEFT],balance.angleSet[LEFT],balance.legTorque[LEFT],balance.angleFb[RIGHT],balance.angleSet[RIGHT],balance.legTorque[RIGHT]);
 
 //    sendData(2,
 //             custom_SendStruct.setChaTorque[LEFT], custom_SendStruct.setChaTorque[RIGHT]);
