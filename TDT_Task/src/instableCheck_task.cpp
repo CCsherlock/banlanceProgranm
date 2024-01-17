@@ -121,7 +121,7 @@ void InstableCheck::checkReset()
 void InstableCheck::checkList()
 {
     /*左轮速度过快*/
-    if (ABS(balance.speedFb) > CHASSIS_SPEED_THRESHOLD)
+    if (ABS(balance.speedFb) > CHASSIS_SPEED_THRESHOLD && robotMotion.robotMode != JUMP&& robotMotion.robotMode_last!=DEFORCE)
     {
         stateList[LEFT_CHASSIS_STATE].TrigeFlag = true;
     }
@@ -130,7 +130,7 @@ void InstableCheck::checkList()
         stateList[LEFT_CHASSIS_STATE].TrigeFlag = false;
     }
     /*左腿摆速过快*/
-    if (ABS(balance.angleSpeedFb[LEFT]) > LEG_SPEED_THRESHOLD)
+    if (ABS(balance.angleSpeedFb[LEFT]) > LEG_SPEED_THRESHOLD && robotMotion.robotMode != JUMP&& robotMotion.robotMode_last!=DEFORCE)
     {
         stateList[LEFT_LEG_STATE].TrigeFlag = true;
     }
@@ -139,7 +139,7 @@ void InstableCheck::checkList()
         stateList[LEFT_LEG_STATE].TrigeFlag = false;
     }
     /*右腿摆速过快*/
-    if (ABS(balance.angleSpeedFb[RIGHT]) > LEG_SPEED_THRESHOLD)
+    if (ABS(balance.angleSpeedFb[RIGHT]) > LEG_SPEED_THRESHOLD && robotMotion.robotMode != JUMP && robotMotion.robotMode_last!=DEFORCE)
     {
         stateList[LEFT_LEG_STATE].TrigeFlag = true;
     }
@@ -148,7 +148,7 @@ void InstableCheck::checkList()
         stateList[LEFT_LEG_STATE].TrigeFlag = false;
     }
     /*机体倾角*/
-    if (ABS(balance.fiFb) > BODY_FI_THRESHOLD && robotMotion.robotMode_last!=DEFORCE)
+    if (ABS(balance.fiFb) > BODY_FI_THRESHOLD && robotMotion.robotMode_last!=DEFORCE && robotMotion.robotMode != JUMP)
     {
         stateList[BODY_FI_STATE].TrigeFlag = true;
     }

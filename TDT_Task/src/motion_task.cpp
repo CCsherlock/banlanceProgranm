@@ -30,6 +30,10 @@ void Motion::motionModeSwitch()
     {
         robotMode = CROSS_STAND;
     }
+    else if (RC.Key.SW2 == Up && RC.Key.SW1 == Mid)
+    {
+        robotMode = JUMP;
+    }		
     runModeJudge();
 }
 void Motion::runModeJudge()

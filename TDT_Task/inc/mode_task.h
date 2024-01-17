@@ -109,8 +109,8 @@ public:
         double chassisYaw;       // 底盘Yaw方向设定
         double bodyPitch;        // 机体俯仰设定
         double bodyTheta[2];     // 关节角度设定
-        float chaTorqueKp;
-        float legTorqueKp;
+        float chaTorqueKp = 1;
+        float legTorqueKp = 1;
     } robotCtrl;
     RobotMotion runMode_last = DEFORCE;
     RobotMotion thisMode;

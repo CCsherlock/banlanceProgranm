@@ -10,7 +10,7 @@
 #define MAX_LEG_T 1.2
 #else
 #define MAX_CHASSIS_T 2
-#define MAX_LEG_T 5
+#define MAX_LEG_T 12
 #define WHEEL_RADIAN 210
 #endif
 class LqrCtrl
