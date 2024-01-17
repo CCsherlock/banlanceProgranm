@@ -38,6 +38,12 @@ public:
         FI_DOT,
         STATUS_NUM
     };
+		enum Param_Index
+		{
+			DOWN_PARAM = 0,
+			UP_PARAM,
+			PARAM_NUMBER
+		};
     enum Result
     {
         OUT_LEFT_MOTOR = 0,
@@ -47,18 +53,19 @@ public:
         RESULT_NUM
     };
     Lqr(int conditionvalueNum, int controlValueNum);
-    mat lqr_K;
+    mat lqr_K[PARAM_NUMBER];
     void lqrInit();
     void getLqrK(float *_LqrValue);
     uint8_t lqrKLoadFlag = 0;
     uint8_t lqrKChangeFlag = 0;
+		Param_Index nowLqrParamPlan = DOWN_PARAM;
     mat fd_Value;
     mat set_Value;
     mat err_Value;
     mat result_Value;
     void calLqrResult();
     bool getLqrKMatrix = 0;
-    float lqrK[CTR_VAL_NUM * (CON_VAL_NUM * 2)];
+    float lqrK[PARAM_NUMBER][CTR_VAL_NUM * (CON_VAL_NUM * 2)];
     float fdValue[CON_VAL_NUM * 2];
     float setValue[CON_VAL_NUM * 2];
     float errValue[CON_VAL_NUM * 2];

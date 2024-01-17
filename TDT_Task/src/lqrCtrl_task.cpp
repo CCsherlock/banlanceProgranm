@@ -9,7 +9,7 @@
 #include "filter.h"
 #include "beep.h"
 LqrCtrl balance;       // lqr运算实例化
-float laqK_buffer[40]; // lqrK矩阵暂存数组
+float laqK_buffer[40 * 2]; // lqrK矩阵暂存数组
 LqrCtrl::LqrCtrl(/* args */)
 {
 }
