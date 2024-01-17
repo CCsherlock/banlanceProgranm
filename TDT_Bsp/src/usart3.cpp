@@ -273,8 +273,12 @@ void custom_Send_Data(void)
 //        sendData(3,
 //    							balance.angleSpeedFb[LEFT],balance.speedFb,balance.fiSpeedFb);
 
-        sendData(6,
-    							balance.angleFb[LEFT],balance.angleSet[LEFT],balance.legTorque[LEFT],balance.angleFb[RIGHT],balance.angleSet[RIGHT],balance.legTorque[RIGHT]);
+//        sendData(6,
+//    							balance.angleFb[LEFT],balance.angleSet[LEFT],balance.legTorque[LEFT],balance.angleFb[RIGHT],balance.angleSet[RIGHT],balance.legTorque[RIGHT]);
+
+        sendData(3,
+    							balance.angleFb[LEFT],balance.angleSet[LEFT],balance.legTorque[LEFT]);
+
 
 //    sendData(2,
 //             custom_SendStruct.setChaTorque[LEFT], custom_SendStruct.setChaTorque[RIGHT]);

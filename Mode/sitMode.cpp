@@ -13,6 +13,7 @@ uint8_t SitMode::intoModeRun(RobotMotion _modeLast)
         robotCtrl.chassisSpeed = 0; // m/s
         robotCtrl.chassisYaw = balance.yawFb;
         robotCtrl.bodyPitch = 0;
+				robotCtrl.chassisTurnSpeed = 0;
         if (!recodeTranseFlag)
         {
 #if defined START_FROM_UP
@@ -45,6 +46,7 @@ uint8_t SitMode::intoModeRun(RobotMotion _modeLast)
     case DEFORCE:
         robotCtrl.chassisSpeed = 0; // m/s
         robotCtrl.chassisYaw = balance.yawFb;
+				robotCtrl.chassisTurnSpeed = 0;
         if (!recodeTranseFlag)
         {
 #if defined START_FROM_UP
@@ -86,6 +88,7 @@ uint8_t SitMode::intoModeRun(RobotMotion _modeLast)
     case CROSS_STAND:
         robotCtrl.chassisSpeed = 0; // m/s
         robotCtrl.chassisYaw = balance.yawFb;
+				robotCtrl.chassisTurnSpeed = 0;
         robotCtrl.bodyPitch = 0;
         if (!recodeTranseFlag)
         {
@@ -109,6 +112,7 @@ uint8_t SitMode::intoModeRun(RobotMotion _modeLast)
     case JUMP:
         robotCtrl.chassisSpeed = 0; // m/s
         robotCtrl.chassisYaw = balance.yawFb;
+				robotCtrl.chassisTurnSpeed = 0;
         robotCtrl.bodyPitch = 0;
 #if defined START_FROM_UP
 				robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 180) * RAD_PER_DEG;   // rad
@@ -134,18 +138,22 @@ void SitMode::inModeRun()
         modeInit();
         modeInitFlag = true;
     }
-    robotCtrl.chassisYaw += (RC.Key.CH[0] / 660.f)  * ROBOT_MAX_W;                   // m/s
-    robotCtrl.chassisSpeed = -(RC.Key.CH[3] / 660.f) * ROBOT_MAX_V;           // m/s
 #if defined START_FROM_UP
+		robotCtrl.chassisYaw += (RC.Key.CH[0] / 660.f)  * ROBOT_MAX_W;                   // m/s
+//		robotCtrl.chassisYaw = balance.yawFb;
+//		robotCtrl.chassisTurnSpeed = (RC.Key.CH[0] / 660.f)  * ROBOT_MAX_W * 10;
+    robotCtrl.chassisSpeed = (RC.Key.CH[3] / 660.f) * ROBOT_MAX_V / 10;           // m/s
     robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 180) * RAD_PER_DEG;   // rad
     robotCtrl.bodyTheta[RIGHT] = standThetaCal(balance.angleFb[RIGHT], 180) * RAD_PER_DEG; // rad
 #endif
 
 #if defined START_FROM_DOWN
+		robotCtrl.chassisYaw += (RC.Key.CH[0] / 660.f)  * ROBOT_MAX_W;                   // m/s
+    robotCtrl.chassisSpeed = -(RC.Key.CH[3] / 660.f) * ROBOT_MAX_V /2;           // m/s
     robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 0) * RAD_PER_DEG;   // rad
     robotCtrl.bodyTheta[RIGHT] = standThetaCal(balance.angleFb[RIGHT], 0) * RAD_PER_DEG; // rad
 #endif
-    bodyThetaCalculate();
+//    bodyThetaCalculate();
     robotCtrl.bodyPitch = 0;
     transeOverFlag = false;
     recodeTranseFlag = false;

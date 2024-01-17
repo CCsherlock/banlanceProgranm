@@ -124,7 +124,7 @@ void LqrCtrl::getThetaFb()
 }
 void LqrCtrl::getFiFb()
 {
-    fiFb = bmi088Cal->Angle.pitch * RAD_PER_DEG * -1; // 单位 rad
+    fiFb = (bmi088Cal->Angle.pitch * RAD_PER_DEG * -1) - balance.fiOffset; // 单位 rad
     fiSpeedFb = bmi088Cal->gyro.radps.data[1] * -1;   // 单位 rad/s
 }
 /**
@@ -238,5 +238,8 @@ void setMegBoardZero()
     {
         legMotor[LEFT]->setMegZeroOffset();
         legMotor[RIGHT]->setMegZeroOffset();
+				balance.fiOffset = 0;
+				balance.fiOffset = (bmi088Cal->Angle.pitch * RAD_PER_DEG * -1);
+				setZeroFlag = 0;
     }
 }

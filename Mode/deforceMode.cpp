@@ -4,6 +4,7 @@ void DeforceMode::inModeRun()
 {
     robotCtrl.chassisSpeed = 0; // m/s
 		robotCtrl.chassisYaw = balance.yawFb;
+		robotCtrl.chassisTurnSpeed = 0;
 #if defined START_FROM_UP
     robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 180) * RAD_PER_DEG;   // rad
     robotCtrl.bodyTheta[RIGHT] = standThetaCal(balance.angleFb[RIGHT], 180) * RAD_PER_DEG; // rad
@@ -24,6 +25,7 @@ uint8_t DeforceMode::intoModeRun(RobotMotion _modeLast)
     default:
         robotCtrl.chassisSpeed = 0; // m/s
 				robotCtrl.chassisYaw = balance.yawFb;
+				robotCtrl.chassisTurnSpeed = 0;
 #if defined START_FROM_UP
         robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 180) * RAD_PER_DEG;   // rad
         robotCtrl.bodyTheta[RIGHT] = standThetaCal(balance.angleFb[RIGHT], 180) * RAD_PER_DEG; // rad

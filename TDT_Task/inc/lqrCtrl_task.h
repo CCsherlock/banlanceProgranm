@@ -66,6 +66,7 @@ public:
   int legSetPossitive = 1;
   int chassisFbPossitive = 1;
   int legFbPossitive = -1;
+	float fiOffset = -0.0038092141;
 #endif
 };
 extern float laqK_buffer[40];

@@ -94,11 +94,12 @@ void Motion::bodyThetaCtrl()
  */
 void Motion::bodyPitchCtrl()
 {
-    balance.fiSet = (RunMode::modeList[robotMode]->robotCtrl.bodyPitch + fiOffset); // rad
+    balance.fiSet = (RunMode::modeList[robotMode]->robotCtrl.bodyPitch); // rad
 }
 void Motion::yawCtrl()
 {
     balance.yawSet = RunMode::modeList[robotMode]->robotCtrl.chassisYaw; // rad
+//		balance.yawSpeedSet = RunMode::modeList[robotMode]->robotCtrl.chassisTurnSpeed;
 }
 void Motion::motorOutputKpCtrl()
 {
