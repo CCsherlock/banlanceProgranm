@@ -203,7 +203,6 @@ void Custom_Init_Cboard(void)
 // 串口中断
 void USART1_IRQHandler(void)
 {
-    float recvTime = getSysTimeUs();
     u8 tmp;
     if (USART_GetITStatus(USART1, USART_IT_IDLE) != RESET)
     {

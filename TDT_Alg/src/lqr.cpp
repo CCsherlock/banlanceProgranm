@@ -14,6 +14,7 @@ void Lqr::lqrInit()
     if (!getLqrKMatrix)
     {
         Matrix_Init(&lqr_K[DOWN_PARAM], CTR_VAL_NUM, CON_VAL_NUM * 2, &lqrK[DOWN_PARAM][0]);
+				Matrix_Init(&lqr_K[UP_PARAM], CTR_VAL_NUM, CON_VAL_NUM * 2, &lqrK[UP_PARAM][0]);
         Matrix_Init(&fd_Value, CON_VAL_NUM * 2, 1, &fdValue[0]);
         Matrix_Init(&set_Value, CON_VAL_NUM * 2, 1, &setValue[0]);
         Matrix_Init(&err_Value, CON_VAL_NUM * 2, 1, &errValue[0]);
@@ -39,7 +40,7 @@ void Lqr::getLqrK(float *_LqrValue)
     }
     for (u8 i = 0; i < (CTR_VAL_NUM * (CON_VAL_NUM * 2)); i++)
     {
-        lqrK[nowLqrParamPlan][i] = *(custom_RecvStruct.lqrK[nowLqrParamPlan] + i);
+        lqrK[nowLqrParamPlan][i] = *(custom_RecvStruct.lqrK + i);
         lqrKLoadFlag = 1;
     }
 }
@@ -87,4 +88,8 @@ void Lqr::calLqrResult()
     matState = arm_mat_sub_f32(&set_Value, &fd_Value, &err_Value); // err = set - fb
     matState = arm_mat_mult_f32(&lqr_K[nowLqrParamPlan], &err_Value, &result_Value); // result = K * err
     // TODO  判断输出值nan和inf
+}
+void Lqr::setNowParam(Param_Index _setParam)
+{
+	nowLqrParamPlan = _setParam;
 }

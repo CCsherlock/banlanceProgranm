@@ -69,7 +69,7 @@ public:
 	float fiOffset = -0.0038092141;
 #endif
 };
-extern float laqK_buffer[40 * 2];
+extern float laqK_buffer[40];
 void linkLqrFlash();
 void saveLqrMessage();
 void lqrRunTask();

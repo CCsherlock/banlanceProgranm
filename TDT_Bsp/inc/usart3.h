@@ -33,7 +33,8 @@ struct Custom_Recv_Struct_t
 	uint8_t frameHeader; //0xA5
 	/*↓↓↓↓↓↓↓↓↓↓↓custom data start↓↓↓↓↓↓↓↓↓↓↓*/
 	uint8_t lqrKChange = 0;
-	float lqrK[2][40];
+	uint8_t lqr_plan = 0;
+	float lqrK[40];
 	/*↑↑↑↑↑↑↑↑↑↑↑ custom data end ↑↑↑↑↑↑↑↑↑↑↑*/
 	uint16_t CRC16CheckSum;
 };

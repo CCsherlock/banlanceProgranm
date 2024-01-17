@@ -13,6 +13,7 @@ uint8_t CrossStandMode::intoModeRun(RobotMotion _modeLast)
         robotCtrl.chassisSpeed = 0; // m/s
         robotCtrl.chassisYaw = balance.yawFb;
         robotCtrl.bodyPitch = 0;
+				balance.roboLqr->setNowParam(balance.roboLqr->DOWN_PARAM);
         if (!recodeTranseFlag)
         {
             thetaEnd[LEFT] = standThetaCal(balance.angleFb[LEFT], 180) * RAD_PER_DEG;
@@ -46,12 +47,21 @@ uint8_t CrossStandMode::intoModeRun(RobotMotion _modeLast)
             thetaRamp[RIGHT].reset();
             recodeTranseFlag = 1;
         }
-        robotCtrl.bodyTheta[LEFT] = thetaRamp[LEFT].ramp((thetaEnd[LEFT] - thetaStart[LEFT]) / 1.5, thetaStart[LEFT], thetaEnd[LEFT]);
+        robotCtrl.bodyTheta[LEFT] = thetaRamp[LEFT].ramp((thetaEnd[LEFT] - thetaStart[LEFT]) / 1.6, thetaStart[LEFT], thetaEnd[LEFT]);
         robotCtrl.bodyTheta[RIGHT] = thetaRamp[RIGHT].ramp((thetaEnd[RIGHT] - thetaStart[RIGHT]) / 1.5, thetaStart[RIGHT], thetaEnd[RIGHT]);
-        if (thetaRamp[LEFT].curveFinish && thetaRamp[RIGHT].curveFinish && ABS(balance.angleFb[LEFT] - robotCtrl.bodyTheta[LEFT]) < 0.02 && ABS(balance.angleFb[RIGHT] - robotCtrl.bodyTheta[RIGHT]) < 0.02)
+				if(ABS(balance.angleFb[LEFT] - thetaEnd[LEFT]) < 0.8 && ABS(balance.angleFb[RIGHT] - thetaEnd[RIGHT]) < 0.8)
+				{
+					balance.roboLqr->setNowParam(balance.roboLqr->UP_PARAM);
+				}
+				else
+				{
+					balance.roboLqr->setNowParam(balance.roboLqr->DOWN_PARAM);
+				}
+        if (thetaRamp[LEFT].curveFinish && thetaRamp[RIGHT].curveFinish && ABS(balance.angleFb[LEFT] - thetaEnd[LEFT]) < 0.2 && ABS(balance.angleFb[RIGHT] - thetaEnd[RIGHT]) < 0.2)
         {
             thetaRamp[LEFT].reset();
             thetaRamp[RIGHT].reset();
+						balance.roboLqr->setNowParam(balance.roboLqr->UP_PARAM);
             transeOverFlag = true;
         }
         break;
@@ -68,11 +78,12 @@ void CrossStandMode::inModeRun()
         modeInit();
         modeInitFlag = true;
     }
-//    robotCtrl.chassisSpeed = (RC.Key.CH[3] / 660.f) * ROBOT_MAX_V / 5; // m/s
+    robotCtrl.chassisSpeed = (RC.Key.CH[3] / 660.f) * ROBOT_MAX_V / 5; // m/s
+		balance.roboLqr->setNowParam(balance.roboLqr->UP_PARAM);
     robotCtrl.chassisYaw += (RC.Key.CH[0] / 660.f)  * ROBOT_MAX_W / 5;
-		robotCtrl.chassisYaw = balance.yawFb;
-    robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 175) * RAD_PER_DEG;   // rad
-    robotCtrl.bodyTheta[RIGHT] = standThetaCal(balance.angleFb[RIGHT], 175) * RAD_PER_DEG; // rad
+//		robotCtrl.chassisYaw = balance.yawFb;
+    robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 180) * RAD_PER_DEG;   // rad
+    robotCtrl.bodyTheta[RIGHT] = standThetaCal(balance.angleFb[RIGHT], 180) * RAD_PER_DEG; // rad
     robotCtrl.bodyPitch = 0;
     transeOverFlag = false;
     recodeTranseFlag = false;

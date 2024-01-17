@@ -72,7 +72,7 @@ public:
     float resultValue[CTR_VAL_NUM];
     void getFbValue(float *_fbvalue, u8 size);
     void getSetValue(float *_setValue, u8 size);
-
+		void setNowParam(Param_Index _setParam);
 };
 
 #endif

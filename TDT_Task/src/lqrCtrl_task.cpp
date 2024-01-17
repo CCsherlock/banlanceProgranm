@@ -9,7 +9,7 @@
 #include "filter.h"
 #include "beep.h"
 LqrCtrl balance;       // lqr运算实例化
-float laqK_buffer[40 * 2]; // lqrK矩阵暂存数组
+float laqK_buffer[40]; // lqrK矩阵暂存数组
 LqrCtrl::LqrCtrl(/* args */)
 {
 }
@@ -196,6 +196,7 @@ void lqrRunTask()
     balance.lqrCalRun(); // LQR算法计算
 }
 #define FLASH_SAVE_ADDR ((u32)0x080E0000)
+#define FLASH_SAVE_ADDR2 ((u32)0x080D0000)
 #define FLASH_DATA_LEN sizeof(laqK_buffer)
 bool readflag = 1;
 /**
@@ -206,9 +207,16 @@ void saveLqrMessage()
 {
     if (custom_RecvStruct.lqrKChange == 1)
     {
-        u32 temp[FLASH_DATA_LEN / 4];
-        memcpy(&temp, custom_RecvStruct.lqrK, FLASH_DATA_LEN);
-        STMFLASH_Write(FLASH_SAVE_ADDR, temp, FLASH_DATA_LEN / 4);
+       u32 temp[FLASH_DATA_LEN / 4];
+       memcpy(&temp, custom_RecvStruct.lqrK, FLASH_DATA_LEN);
+			if(custom_RecvStruct.lqr_plan == 0)
+			{
+				 STMFLASH_Write(FLASH_SAVE_ADDR, temp, FLASH_DATA_LEN / 4);
+			}
+			else if(custom_RecvStruct.lqr_plan == 1)
+			{
+				 STMFLASH_Write(FLASH_SAVE_ADDR2, temp, FLASH_DATA_LEN / 4);
+			}	
         custom_RecvStruct.lqrKChange = 0;
         readflag = 1;
         beepDbug(1);
@@ -223,9 +231,12 @@ void readLqrMessage()
     if (readflag)
     {
         u8 datatemp[FLASH_DATA_LEN];
-        STMFLASH_Read(FLASH_SAVE_ADDR, (u32 *)datatemp, FLASH_DATA_LEN / 4);
-        memcpy(&laqK_buffer, datatemp, FLASH_DATA_LEN);
-        memcpy(&balance.roboLqr->lqrK, laqK_buffer, FLASH_DATA_LEN);
+				 STMFLASH_Read(FLASH_SAVE_ADDR, (u32 *)datatemp, FLASH_DATA_LEN / 4);
+				 memcpy(&laqK_buffer, datatemp, FLASH_DATA_LEN);
+				 memcpy(&balance.roboLqr->lqrK[balance.roboLqr->DOWN_PARAM], laqK_buffer, FLASH_DATA_LEN);
+				 STMFLASH_Read(FLASH_SAVE_ADDR2, (u32 *)datatemp, FLASH_DATA_LEN / 4);
+				 memcpy(&laqK_buffer, datatemp, FLASH_DATA_LEN);
+				 memcpy(&balance.roboLqr->lqrK[balance.roboLqr->UP_PARAM], laqK_buffer, FLASH_DATA_LEN);
         delayMs(10);
         readflag = 0;
         beepDbug(2);

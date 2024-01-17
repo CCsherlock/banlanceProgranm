@@ -2,6 +2,7 @@
 
 void DeforceMode::inModeRun()
 {
+		balance.roboLqr->setNowParam(balance.roboLqr->DOWN_PARAM);
     robotCtrl.chassisSpeed = 0; // m/s
 		robotCtrl.chassisYaw = balance.yawFb;
 		robotCtrl.chassisTurnSpeed = 0;
@@ -23,6 +24,7 @@ uint8_t DeforceMode::intoModeRun(RobotMotion _modeLast)
     switch (_modeLast)
     {
     default:
+				balance.roboLqr->setNowParam(balance.roboLqr->DOWN_PARAM);
         robotCtrl.chassisSpeed = 0; // m/s
 				robotCtrl.chassisYaw = balance.yawFb;
 				robotCtrl.chassisTurnSpeed = 0;

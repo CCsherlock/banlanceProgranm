@@ -10,6 +10,7 @@ uint8_t SitMode::intoModeRun(RobotMotion _modeLast)
     switch (_modeLast)
     {
     case SIT:
+				balance.roboLqr->setNowParam(balance.roboLqr->DOWN_PARAM);
         robotCtrl.chassisSpeed = 0; // m/s
         robotCtrl.chassisYaw = balance.yawFb;
         robotCtrl.bodyPitch = 0;
@@ -44,6 +45,7 @@ uint8_t SitMode::intoModeRun(RobotMotion _modeLast)
         }
         break;
     case DEFORCE:
+				balance.roboLqr->setNowParam(balance.roboLqr->DOWN_PARAM);
         robotCtrl.chassisSpeed = 0; // m/s
         robotCtrl.chassisYaw = balance.yawFb;
 				robotCtrl.chassisTurnSpeed = 0;
@@ -86,6 +88,7 @@ uint8_t SitMode::intoModeRun(RobotMotion _modeLast)
         }
         break;
     case CROSS_STAND:
+				balance.roboLqr->setNowParam(balance.roboLqr->DOWN_PARAM);
         robotCtrl.chassisSpeed = 0; // m/s
         robotCtrl.chassisYaw = balance.yawFb;
 				robotCtrl.chassisTurnSpeed = 0;
@@ -110,6 +113,7 @@ uint8_t SitMode::intoModeRun(RobotMotion _modeLast)
         }
         break;
     case JUMP:
+				balance.roboLqr->setNowParam(balance.roboLqr->DOWN_PARAM);
         robotCtrl.chassisSpeed = 0; // m/s
         robotCtrl.chassisYaw = balance.yawFb;
 				robotCtrl.chassisTurnSpeed = 0;
@@ -138,6 +142,7 @@ void SitMode::inModeRun()
         modeInit();
         modeInitFlag = true;
     }
+		balance.roboLqr->setNowParam(balance.roboLqr->DOWN_PARAM);
 #if defined START_FROM_UP
 		robotCtrl.chassisYaw += (RC.Key.CH[0] / 660.f)  * ROBOT_MAX_W;                   // m/s
 //		robotCtrl.chassisYaw = balance.yawFb;
