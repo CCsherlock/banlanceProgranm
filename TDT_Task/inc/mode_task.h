@@ -8,6 +8,9 @@
 #include "imu_task.h"
 #define ROBOT_MAX_V 30
 #define ROBOT_MAX_W 0.01
+
+//#define START_FROM_UP
+#define START_FROM_DOWN
 class RampCurve
 {
 private:
