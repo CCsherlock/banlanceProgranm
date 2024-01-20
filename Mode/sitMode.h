@@ -13,9 +13,7 @@ public:
     uint8_t intoModeRun(RobotMotion _modeLast) override;
     void inModeRun() override;
     void reset() override;
-    void modeInit() override;
-    void speedPidCalculate();
-    void bodyThetaCalculate();
+    void modeInit() override {};
     RampCurve pitchRamp;
     RampCurve thetaRamp[2];
     uint8_t recodeTranseFlag = 0;
