@@ -8,6 +8,7 @@
 #include "dbus.h"
 #include "filter.h"
 #include "beep.h"
+#include "fallRecovery_task.h"
 LqrCtrl balance;       // lqr运算实例化
 float laqK_buffer[40]; // lqrK矩阵暂存数组
 LqrCtrl::LqrCtrl(/* args */)
@@ -40,12 +41,16 @@ void LqrCtrl::LqrInit()
  * @brief lqr算法执行
  *        获取反馈->获取设定值->lqr计算->输出
  */
+
 void LqrCtrl::lqrCalRun()
 {
     getAllFbValue();
     getAllSetValue();
     roboLqr->calLqrResult();
-    lqrOutput();
+    if (falling.nowFallSate != COMPLETE_FALL)
+    {
+        lqrOutput();
+    }
 }
 /**
  * @brief 获取所有反馈值并传入LQR模块
@@ -125,7 +130,7 @@ void LqrCtrl::getThetaFb()
 void LqrCtrl::getFiFb()
 {
     fiFb = (bmi088Cal->Angle.pitch * RAD_PER_DEG * -1) - balance.fiOffset; // 单位 rad
-    fiSpeedFb = bmi088Cal->gyro.radps.data[1] * -1;   // 单位 rad/s
+    fiSpeedFb = bmi088Cal->gyro.radps.data[1] * -1;                        // 单位 rad/s
 }
 /**
  * @brief yaw轴数据反馈 从车上方看，顺时针角度变大，角速度为﹢
@@ -207,16 +212,16 @@ void saveLqrMessage()
 {
     if (custom_RecvStruct.lqrKChange == 1)
     {
-       u32 temp[FLASH_DATA_LEN / 4];
-       memcpy(&temp, custom_RecvStruct.lqrK, FLASH_DATA_LEN);
-			if(custom_RecvStruct.lqr_plan == 0)
-			{
-				 STMFLASH_Write(FLASH_SAVE_ADDR, temp, FLASH_DATA_LEN / 4);
-			}
-			else if(custom_RecvStruct.lqr_plan == 1)
-			{
-				 STMFLASH_Write(FLASH_SAVE_ADDR2, temp, FLASH_DATA_LEN / 4);
-			}	
+        u32 temp[FLASH_DATA_LEN / 4];
+        memcpy(&temp, custom_RecvStruct.lqrK, FLASH_DATA_LEN);
+        if (custom_RecvStruct.lqr_plan == 0)
+        {
+            STMFLASH_Write(FLASH_SAVE_ADDR, temp, FLASH_DATA_LEN / 4);
+        }
+        else if (custom_RecvStruct.lqr_plan == 1)
+        {
+            STMFLASH_Write(FLASH_SAVE_ADDR2, temp, FLASH_DATA_LEN / 4);
+        }
         custom_RecvStruct.lqrKChange = 0;
         readflag = 1;
         beepDbug(1);
@@ -231,12 +236,12 @@ void readLqrMessage()
     if (readflag)
     {
         u8 datatemp[FLASH_DATA_LEN];
-				 STMFLASH_Read(FLASH_SAVE_ADDR, (u32 *)datatemp, FLASH_DATA_LEN / 4);
-				 memcpy(&laqK_buffer, datatemp, FLASH_DATA_LEN);
-				 memcpy(&balance.roboLqr->lqrK[balance.roboLqr->DOWN_PARAM], laqK_buffer, FLASH_DATA_LEN);
-				 STMFLASH_Read(FLASH_SAVE_ADDR2, (u32 *)datatemp, FLASH_DATA_LEN / 4);
-				 memcpy(&laqK_buffer, datatemp, FLASH_DATA_LEN);
-				 memcpy(&balance.roboLqr->lqrK[balance.roboLqr->UP_PARAM], laqK_buffer, FLASH_DATA_LEN);
+        STMFLASH_Read(FLASH_SAVE_ADDR, (u32 *)datatemp, FLASH_DATA_LEN / 4);
+        memcpy(&laqK_buffer, datatemp, FLASH_DATA_LEN);
+        memcpy(&balance.roboLqr->lqrK[balance.roboLqr->DOWN_PARAM], laqK_buffer, FLASH_DATA_LEN);
+        STMFLASH_Read(FLASH_SAVE_ADDR2, (u32 *)datatemp, FLASH_DATA_LEN / 4);
+        memcpy(&laqK_buffer, datatemp, FLASH_DATA_LEN);
+        memcpy(&balance.roboLqr->lqrK[balance.roboLqr->UP_PARAM], laqK_buffer, FLASH_DATA_LEN);
         delayMs(10);
         readflag = 0;
         beepDbug(2);
@@ -249,8 +254,8 @@ void setMegBoardZero()
     {
         legMotor[LEFT]->setMegZeroOffset();
         legMotor[RIGHT]->setMegZeroOffset();
-				balance.fiOffset = 0;
-				balance.fiOffset = (bmi088Cal->Angle.pitch * RAD_PER_DEG * -1);
-				setZeroFlag = 0;
+        balance.fiOffset = 0;
+        balance.fiOffset = (bmi088Cal->Angle.pitch * RAD_PER_DEG * -1);
+        setZeroFlag = 0;
     }
 }

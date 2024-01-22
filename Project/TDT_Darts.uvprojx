@@ -459,6 +459,11 @@
               <FileType>8</FileType>
               <FilePath>..\TDT_Task\src\singleMotor_task.cpp</FilePath>
             </File>
+            <File>
+              <FileName>fallRecovery_task.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\TDT_Task\src\fallRecovery_task.cpp</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

@@ -16,6 +16,7 @@
 #include "instableCheck_task.h"
 #include "CyberGear.h"
 #include "singleMotor_task.h"
+#include "fallRecovery_task.h"
 void TDT_Loop_1000Hz(void) // 1ms执行一次
 {
 	RC.run_1000Hz();
@@ -28,8 +29,8 @@ void TDT_Loop_1000Hz(void) // 1ms执行一次
 	motionLoop(); // 机器人状态切换
 #endif
 	lqrRunTask(); // LQR 参数运行
+	fallRecoveryRun();
 #endif
-	
 
 	if (!deforceFlag)
 	{
@@ -54,7 +55,7 @@ void TDT_Loop_500Hz(void) // 2ms执行一次
 {
 	Imu_Task(); // 陀螺仪解算程序
 	Motor::sendCanMsg();
-//	ErrorChechAlarm(); // 机器人异常检测
+	//	ErrorChechAlarm(); // 机器人异常检测
 }
 
 void TDT_Loop_200Hz(void) // 5ms执行一次
