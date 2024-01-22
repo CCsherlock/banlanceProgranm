@@ -2,7 +2,7 @@
 #include "chassis_task.h"
 #include "dbus.h"
 #include "imu_task.h"
-#define FALL_MAX_T 1
+#define FALL_MAX_T 5
 #define FALL_MAX_V PI
 FallRecover falling;
 FallRecover::FallRecover(/* args */)
@@ -17,7 +17,7 @@ void FallRecover::fallInit()
         legPidOuter[i]->fbValuePtr[0] = &legMotor[i]->megAngle; // rad
         legPidOuter[i]->paramPtr = &legCtrlOuterParam[i];
 
-        legCtrlOuterParam[i].kp = 0;
+        legCtrlOuterParam[i].kp = -1.5;
         legCtrlOuterParam[i].ki = 0;
         legCtrlOuterParam[i].integralErrorMax = 0;
         legCtrlOuterParam[i].resultMax = FALL_MAX_V;
@@ -27,8 +27,8 @@ void FallRecover::fallInit()
         legPidInner[i]->fbValuePtr[0] = &legMotor[i]->motorInfo.motor_fdb.speed; // radps
         legPidInner[i]->paramPtr = &legCtrlInnerParam[i];
 
-        legCtrlInnerParam[i].kp = 0;
-        legCtrlInnerParam[i].ki = 0;
+        legCtrlInnerParam[i].kp = 2;
+        legCtrlInnerParam[i].ki = 0.1;
         legCtrlInnerParam[i].integralErrorMax = 0;
         legCtrlInnerParam[i].resultMax = FALL_MAX_T;
         legCtrlInnerParam[i].positiveFBFlag = 0;
@@ -69,7 +69,7 @@ void FallRecover::fallPidCalculate()
     {
         for (uint8_t i = 0; i < 2; i++)
         {
-            legPidOuter[i]->Calculate(0);
+            legPidOuter[i]->Calculate(legAngleCtrl[i]);
         }
 				pidCalcnt = 0;
     }
@@ -79,7 +79,7 @@ void FallRecover::fallPidCalculate()
     }
 		pidCalcnt++;
 }
-float legPidOutputKp = 0;
+float legPidOutputKp = 1;
 void FallRecover::fallOutput()
 {
     if (!deforceFlag)
@@ -107,7 +107,7 @@ void FallRecover::fallOutput()
 }
 void FallRecover::fallJudge()
 {
-    if (ABS(bmi088Cal->Angle.roll) > 50 && ABS(bmi088Cal->Angle.pitch) < 40)
+    if ((ABS(bmi088Cal->Angle.roll) > 50 && ABS(bmi088Cal->Angle.pitch) < 40) || RC.Key.CH[4] == 2)
     {
         nowFallSate = COMPLETE_FALL;
     }
