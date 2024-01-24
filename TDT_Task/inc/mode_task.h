@@ -105,7 +105,6 @@ public:
     {
         /* data */
         double chassisSpeed;  // 底盘直行速度设定
-        double chassisTurnSpeed; // 底盘转向速度设定
         double chassisYaw;       // 底盘Yaw方向设定
         double bodyPitch;        // 机体俯仰设定
         double bodyTheta[2];     // 关节角度设定

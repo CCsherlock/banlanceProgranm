@@ -99,7 +99,6 @@ void Motion::bodyPitchCtrl()
 void Motion::yawCtrl()
 {
     balance.yawSet = RunMode::modeList[robotMode]->robotCtrl.chassisYaw; // rad
-//		balance.yawSpeedSet = RunMode::modeList[robotMode]->robotCtrl.chassisTurnSpeed;
 }
 void Motion::motorOutputKpCtrl()
 {

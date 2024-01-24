@@ -15,7 +15,6 @@ uint8_t SitMode::intoModeRun(RobotMotion _modeLast)
         robotCtrl.chassisSpeed = 0;                                // m/s
         robotCtrl.chassisYaw = balance.yawFb;                      // rad
         robotCtrl.bodyPitch = 0;                                   // rad
-        robotCtrl.chassisTurnSpeed = 0;                            // radps
         if (!recodeTranseFlag)                                     // 第一次进入进行初始位置记录与计算
         {
             thetaStart[LEFT] = balance.angleFb[LEFT];   // 记录当前起始角度
@@ -41,7 +40,6 @@ uint8_t SitMode::intoModeRun(RobotMotion _modeLast)
         balance.roboLqr->setNowParam(balance.roboLqr->DOWN_PARAM); // 设置当前LQR参数方案
         robotCtrl.chassisSpeed = 0;                                // m/s
         robotCtrl.chassisYaw = balance.yawFb;                      // rad
-        robotCtrl.chassisTurnSpeed = 0;                            // radps
         if (!recodeTranseFlag)                                     // 第一次进入进行初始位置记录与计算
         {
             thetaStart[LEFT] = balance.angleFb[LEFT];   // 记录当前起始角度
@@ -64,6 +62,7 @@ uint8_t SitMode::intoModeRun(RobotMotion _modeLast)
 #endif
         robotCtrl.bodyPitch = pitchRamp.ramp((fiEnd - fiStart) * 2, fiStart, fiEnd); // 起身Pitch轴角度计算，0.5s完成
         robotCtrl.chaTorqueKp = 0;                                                   // 在未完成起身前，不输出外圈力矩
+				robotCtrl.legTorqueKp = 1;																									 // 在未完成起身前，输出腿部力矩
         if (pitchRamp.curveFinish && (ABS(balance.fiFb - fiEnd) < (30 * RAD_PER_DEG)))
         {
             pitchRamp.reset(); // 转换曲线重置
@@ -75,7 +74,6 @@ uint8_t SitMode::intoModeRun(RobotMotion _modeLast)
         balance.roboLqr->setNowParam(balance.roboLqr->DOWN_PARAM); // 设置当前LQR参数方案
         robotCtrl.chassisSpeed = 0;                                // m/s
         robotCtrl.chassisYaw = balance.yawFb;
-        robotCtrl.chassisTurnSpeed = 0;
         robotCtrl.bodyPitch = 0;
         if (!recodeTranseFlag) // 第一次进入进行初始位置记录与计算
         {
@@ -100,10 +98,11 @@ uint8_t SitMode::intoModeRun(RobotMotion _modeLast)
         balance.roboLqr->setNowParam(balance.roboLqr->DOWN_PARAM); // 设置当前LQR参数方案
         robotCtrl.chassisSpeed = 0;                                // m/s
         robotCtrl.chassisYaw = balance.yawFb;
-        robotCtrl.chassisTurnSpeed = 0;
         robotCtrl.bodyPitch = 0;
         robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 0) * RAD_PER_DEG;   // rad
         robotCtrl.bodyTheta[RIGHT] = standThetaCal(balance.angleFb[RIGHT], 0) * RAD_PER_DEG; // rad
+				robotCtrl.chaTorqueKp = 0; //跳跃恢复坐姿脱力保护
+				robotCtrl.legTorqueKp = 0;//跳跃恢复坐姿脱力保护
         transeOverFlag = true;
         break;
     default:
