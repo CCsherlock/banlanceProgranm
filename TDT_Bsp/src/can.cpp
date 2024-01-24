@@ -319,8 +319,9 @@ void CAN1_RX0_IRQHandler(void)
 		}
 		Can1.Motor_Information_Calculate(Can_1, &Can1RxMsg);
 #if defined BIG_MODEL
-		testMotor.motorDataHandler(&Can1RxMsg);
+		
 #if defined SINGLE_MOTOR_TEST
+		testMotor.motorDataHandler(&Can1RxMsg);
 #else
 		if ((Can1RxMsg.ExtId & 0x0000FF00) == 0x007100)
 		{

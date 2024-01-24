@@ -109,7 +109,7 @@ void errorTestList()
 		errorList[MotorLostError].nError();
 	}
 #else
-	if(chssisMotor[LEFT]->motorInfo.lostFlag 
+	if(chssisMotor[LEFT]->motorInfo.lostFlag
 		||chssisMotor[RIGHT]->motorInfo.lostFlag
 		||legMotor[LEFT]->motorInfo.lostFlag
 		||legMotor[RIGHT]->motorInfo.lostFlag)

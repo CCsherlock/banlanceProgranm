@@ -269,16 +269,16 @@ void custom_Send_Data(void)
     //    sendData(2,
     //							temp[0],temp[1]);
 
-//        sendData(3,
-//    							balance.angleSpeedFb[LEFT],balance.speedFb,balance.fiSpeedFb);
+        sendData(3,
+    							balance.chassisTorque,chssisMotor[LEFT]->motorInfo.motor_fdb.torque,chssisMotor[LEFT]->motorInfo.motor_fdb.speed);
 
 //        sendData(6,
 //    							balance.angleFb[LEFT],balance.angleSet[LEFT],balance.legTorque[LEFT],balance.angleFb[RIGHT],balance.angleSet[RIGHT],balance.legTorque[RIGHT]);
 
-        sendData(3,
-    							balance.angleFb[LEFT],balance.angleSet[LEFT],balance.legTorque[LEFT]);
+//        sendData(2,
+//    							balance.angleFb[RIGHT],balance.angleFb[LEFT]);
 
-
+//			sendData(2,legMotor[RIGHT]->motorInfo.motor_fdb.angle,legMotor[LEFT]->motorInfo.motor_fdb.angle);
 //    sendData(2,
 //             custom_SendStruct.setChaTorque[LEFT], custom_SendStruct.setChaTorque[RIGHT]);
 

@@ -144,8 +144,8 @@ void LqrCtrl::getYawFb()
 float chassisTq[2] = {0, 0};
 float legTq[2] = {0, 0};
 #if defined BIG_MODEL
-float legResultKp = 0;     // 调试使用的输出比例
-float chassisResultKp = 0; // 调试使用的输出比例
+float legResultKp = 1;     // 调试使用的输出比例
+float chassisResultKp = 1; // 调试使用的输出比例
 #else
 
 #define FORCE_DEFORCE 0 // 强制脱力调试

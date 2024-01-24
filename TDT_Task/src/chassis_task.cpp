@@ -157,7 +157,7 @@ void Chassis::legCtrlTorque(float torque[2])
 #elif defined BIG_MODEL
             if (legMotor[i]->motorInfo.motor_mode != RUN_MODE)
             {
-                for (uint8_t j = 0; j < 50; j++)
+                for (uint8_t j = 0; j < 20; j++)
                 {
                     legMotor[i]->enableMotor();
                 }
