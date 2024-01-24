@@ -2,11 +2,6 @@
 
 uint8_t JumpMode::intoModeRun(RobotMotion _modeLast)
 {
-  if (!modeInitFlag)
-  {
-    modeInit();
-    modeInitFlag = true;
-  }
   switch (_modeLast)
   {
   case SIT:
@@ -16,6 +11,8 @@ uint8_t JumpMode::intoModeRun(RobotMotion _modeLast)
     robotCtrl.chassisSpeed = 0; // m/s
     thetaEnd[LEFT] = jumpThetaCal(balance.angleFb[LEFT], 360, 360, -1) * RAD_PER_DEG;
     thetaEnd[RIGHT] = jumpThetaCal(balance.angleFb[RIGHT], 360, 360, -1) * RAD_PER_DEG;
+	  robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 0) * RAD_PER_DEG;   // rad
+    robotCtrl.bodyTheta[RIGHT] = standThetaCal(balance.angleFb[RIGHT], 0) * RAD_PER_DEG; // rad
     jumpFinishFlag = 0;
     transeOverFlag = 1;
     break;
@@ -32,13 +29,9 @@ uint8_t JumpMode::intoModeRun(RobotMotion _modeLast)
 }
 void JumpMode::inModeRun()
 {
-  if (!modeInitFlag)
-  {
-    modeInit();
-    modeInitFlag = true;
-  }
   if (!jumpFinishFlag)
   {
+		 balance.roboLqr->setNowParam(balance.roboLqr->DOWN_PARAM); // 设置当前LQR参数方案
     robotCtrl.chassisSpeed = 0; // m/s
     robotCtrl.chassisYaw = balance.yawFb;
     robotCtrl.bodyPitch = 0;
@@ -51,8 +44,9 @@ void JumpMode::inModeRun()
   }
   else
   {
-    robotCtrl.chassisSpeed = 0; // m/s
-    robotCtrl.chassisYaw = balance.yawFb;
+		balance.roboLqr->setNowParam(balance.roboLqr->DOWN_PARAM); // 设置当前LQR参数方案
+    robotCtrl.chassisYaw += (RC.Key.CH[0] / 660.f) * ROBOT_MAX_W;                        // rad
+    robotCtrl.chassisSpeed = -(RC.Key.CH[3] / 660.f) * ROBOT_MAX_V / 2;                  // m/s
     robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 0) * RAD_PER_DEG;   // rad
     robotCtrl.bodyTheta[RIGHT] = standThetaCal(balance.angleFb[RIGHT], 0) * RAD_PER_DEG; // rad
     robotCtrl.bodyPitch = 0;
@@ -63,17 +57,9 @@ void JumpMode::inModeRun()
 }
 void JumpMode::reset()
 {
-  if (!modeInitFlag)
-  {
-    modeInit();
-    modeInitFlag = true;
-  }
   thetaRamp[LEFT].reset();
   thetaRamp[RIGHT].reset();
   transeOverFlag = false;
   recodeTranseFlag = false;
   transeResetFlag = true;
-}
-void JumpMode::modeInit()
-{
 }

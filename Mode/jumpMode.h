@@ -6,11 +6,11 @@
 class JumpMode : public RunMode
 {
 public:
-    JumpMode() : RunMode(JUMP) {};
+    JumpMode() : RunMode(JUMP) {modeInit();};
     uint8_t intoModeRun(RobotMotion _modeLast) override;
     void inModeRun() override;
     void reset() override;
-    void modeInit() override;
+    void modeInit() override{};
     RampCurve thetaRamp[2];
     uint8_t recodeTranseFlag = 0;
     float thetaStart[2], thetaEnd[2];
