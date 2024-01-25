@@ -4,6 +4,7 @@
 #include "stdio.h"
 #include "chassis_task.h"
 #include "motion_task.h"
+#include "slideJudge_task.h"
 #include "dbus.h"
 #include <stdarg.h>
 #include <stdlib.h>
@@ -269,8 +270,8 @@ void custom_Send_Data(void)
     //    sendData(2,
     //							temp[0],temp[1]);
 
-        sendData(3,
-    							balance.chassisTorque,chssisMotor[LEFT]->motorInfo.motor_fdb.torque,chssisMotor[LEFT]->motorInfo.motor_fdb.speed);
+//        sendData(3,
+//    							balance.chassisTorque,chssisMotor[LEFT]->motorInfo.motor_fdb.torque,chssisMotor[LEFT]->motorInfo.motor_fdb.speed);
 
 //        sendData(6,
 //    							balance.angleFb[LEFT],balance.angleSet[LEFT],balance.legTorque[LEFT],balance.angleFb[RIGHT],balance.angleSet[RIGHT],balance.legTorque[RIGHT]);
@@ -284,6 +285,13 @@ void custom_Send_Data(void)
 
 //        sendData(3,
 //    							custom_SendStruct.fi,custom_SendStruct.theta[LEFT],custom_SendStruct.theta[RIGHT]);
+
+
+        sendData(3,
+    							slideJude.bodyxAccFrommMotor,slideJude.bodyxAccFromImu,slideJude.xAccErr);
+//        sendData(3,
+//    							slideJude.bodywSpeedFrommMotor,slideJude.bodywSpeedFromImu,slideJude.wSpeedErr);
+
 }
 
 void sendData(int cnt, ...)

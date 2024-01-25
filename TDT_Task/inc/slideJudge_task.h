@@ -16,7 +16,7 @@ public:
     void calculateAcc();
     void init();
     bool initFlag = false;
-    float bodyxAccFromImu;
+    float bodyxAccFromImu,bodyxAccFromImu_cal;
     float bodyxAccFrommMotor;
     float bodywSpeedFromImu;
     float bodywSpeedFrommMotor;

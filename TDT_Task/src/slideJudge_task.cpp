@@ -3,11 +3,15 @@
 #include "chassis_task.h"
 #include "differential.h"
 #include "lqrCtrl_task.h"
+#include "filter.h"
 Differential diffXspeed;
 Differential diffWspped;
 Differential diffWGyro;
 
 SlideJudge slideJude;
+
+Lpf2p diffXMotorFilter;
+Lpf2p diffXImuFilter;
 #define SLIDE_X_ACC_ERR_THREDHOLD 100
 #define SLIDE_W_SPEED_ERR_THREDHOLD 100
 #define SLIDE_X_ACC_THREDHOLD 500
@@ -19,16 +23,21 @@ SlideJudge::SlideJudge(/* args */)
 
 void SlideJudge::calculateAcc()
 {
-    bodyxAccFrommMotor = diffXspeed.calDiffResult();
-    bodyxAccFromImu = bmi088Cal->acc.accValue.data[0];
+//    bodyxAccFrommMotor = diffXspeed.calDiffResult();
+		bodyxAccFrommMotor = diffXMotorFilter.Apply(diffXspeed.calDiffResult()) * OUTER_WHEEL_RADIO;
+//    bodyxAccFromImu = bmi088Cal->acc.accValue.data[0];
+		bodyxAccFromImu_cal = bmi088Cal->acc.accValue.data[0] * cos(bmi088Cal->Angle.pitch*RAD_PER_DEG) + bmi088Cal->acc.accValue.data[2] * sin(bmi088Cal->Angle.pitch*RAD_PER_DEG);
+		bodyxAccFromImu = diffXImuFilter.Apply(bodyxAccFromImu_cal);
     bodywSpeedFromImu = bmi088Cal->gyro.radps.data[2];
-    bodywSpeedFrommMotor = balance.wSpeedFb;
+    bodywSpeedFrommMotor = balance.wSpeedFb * OUTER_WHEEL_RADIO / 2;
 }
 void SlideJudge::init()
 {
     diffXspeed.init(&balance.speedFb, 200);
     diffWGyro.init(&bmi088Cal->gyro.radps.data[2], 300);
     diffWspped.init(&balance.wSpeedFb, 200);
+		diffXMotorFilter.SetCutoffFreq(2000,10);
+		diffXImuFilter.SetCutoffFreq(2000,10);
     initFlag = true;
 }
 void SlideJudge::calculateXSpeed()
