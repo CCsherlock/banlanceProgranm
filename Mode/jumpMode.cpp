@@ -5,7 +5,7 @@ uint8_t JumpMode::intoModeRun(RobotMotion _modeLast)
   switch (_modeLast)
   {
   case SIT:
-		 balance.roboLqr->setNowParam(balance.roboLqr->UP_PARAM); // 设置当前LQR参数方案
+		 balance.roboLqr->setNowParam(balance.roboLqr->UP_PARAM); // 璁剧疆褰撳墠LQR鍙傛暟鏂规
     thetaStart[LEFT] = balance.angleFb[LEFT];
     thetaStart[RIGHT] = balance.angleFb[RIGHT];
     robotCtrl.chassisYaw = balance.yawFb;
@@ -32,7 +32,7 @@ void JumpMode::inModeRun()
 {
   if (!jumpFinishFlag)
   {
-		 balance.roboLqr->setNowParam(balance.roboLqr->UP_PARAM); // 设置当前LQR参数方案
+		 balance.roboLqr->setNowParam(balance.roboLqr->UP_PARAM); // 璁剧疆褰撳墠LQR鍙傛暟鏂规
     robotCtrl.chassisSpeed = 3; // m/s
     robotCtrl.chassisYaw = balance.yawFb;
     robotCtrl.bodyPitch = 0;
@@ -45,7 +45,7 @@ void JumpMode::inModeRun()
   }
   else
   {
-		balance.roboLqr->setNowParam(balance.roboLqr->DOWN_PARAM); // 设置当前LQR参数方案
+		balance.roboLqr->setNowParam(balance.roboLqr->DOWN_PARAM); // 璁剧疆褰撳墠LQR鍙傛暟鏂规
     robotCtrl.chassisYaw += (RC.Key.CH[0] / 660.f) * ROBOT_MAX_W;                        // rad
     robotCtrl.chassisSpeed = -(RC.Key.CH[3] / 660.f) * ROBOT_MAX_V / 2;                  // m/s
     robotCtrl.bodyTheta[LEFT] = standThetaCal(balance.angleFb[LEFT], 0) * RAD_PER_DEG;   // rad

@@ -17,6 +17,7 @@
 #include "CyberGear.h"
 #include "singleMotor_task.h"
 #include "fallRecovery_task.h"
+#include "slideJudge_task.h"
 void TDT_Loop_1000Hz(void) // 1ms执行一次
 {
 	RC.run_1000Hz();
@@ -40,7 +41,7 @@ void TDT_Loop_1000Hz(void) // 1ms执行一次
 	{
 		robotStabelCheck.checkReset();
 	}
-
+	slideJude.judgeRun();
 #if defined BIG_MODEL
 	for (uint8_t i = 0; i < 2; i++)
 	{

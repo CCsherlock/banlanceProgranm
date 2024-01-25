@@ -15,8 +15,8 @@ void DeforceMode::inModeRun()
     robotCtrl.bodyTheta[RIGHT] = standThetaCal(balance.angleFb[RIGHT], 0) * RAD_PER_DEG; // rad
 #endif
     robotCtrl.bodyPitch = balance.fiFb;
-		robotCtrl.chaTorqueKp = 0; //脱力保护
-		robotCtrl.legTorqueKp = 0;//脱力保护
+		robotCtrl.chaTorqueKp = 0; //鑴卞姏淇濇姢
+		robotCtrl.legTorqueKp = 0;//鑴卞姏淇濇姢
     transeOverFlag = false;
     transeResetFlag = false;
 }
@@ -38,8 +38,8 @@ uint8_t DeforceMode::intoModeRun(RobotMotion _modeLast)
         robotCtrl.bodyTheta[RIGHT] = standThetaCal(balance.angleFb[RIGHT], 0) * RAD_PER_DEG; // rad
 #endif
         robotCtrl.bodyPitch = balance.fiFb;
-				robotCtrl.chaTorqueKp = 0; //脱力保护
-				robotCtrl.legTorqueKp = 0;//脱力保护
+				robotCtrl.chaTorqueKp = 0; //鑴卞姏淇濇姢
+				robotCtrl.legTorqueKp = 0;//鑴卞姏淇濇姢
         break;
     }
     transeOverFlag = true;

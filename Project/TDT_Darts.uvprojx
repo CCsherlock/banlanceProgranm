@@ -17,8 +17,8 @@
         <TargetCommonOption>
           <Device>STM32F405RGTx</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.2.13.0</PackID>
-          <PackURL>http://www.keil.com/pack</PackURL>
+          <PackID>Keil.STM32F4xx_DFP.2.15.0</PackID>
+          <PackURL>http://www.keil.com/pack/</PackURL>
           <Cpu>IROM(0x08000000,0x00100000) IRAM(0x20000000,0x00020000) IRAM2(0x10000000,0x00010000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
@@ -464,6 +464,11 @@
               <FileType>8</FileType>
               <FilePath>..\TDT_Task\src\fallRecovery_task.cpp</FilePath>
             </File>
+            <File>
+              <FileName>slideJudge_task.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\TDT_Task\src\slideJudge_task.cpp</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -503,6 +508,11 @@
               <FileName>lqr.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\TDT_Alg\src\lqr.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>differential.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\TDT_Alg\src\differential.cpp</FilePath>
             </File>
             <File>
               <FileName>crc.cpp</FileName>

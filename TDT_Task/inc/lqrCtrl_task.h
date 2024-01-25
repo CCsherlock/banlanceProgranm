@@ -11,7 +11,8 @@
 #else
 #define MAX_CHASSIS_T 2
 #define MAX_LEG_T 12
-#define WHEEL_RADIAN 210
+#define WHEEL_RADIAN 210/1000.0f
+#define CHAASIS_WHEEL_DISS 105/1000.0f
 #endif
 class LqrCtrl
 {
@@ -40,6 +41,7 @@ public:
   float yawFb;
   float speedSet; // 底盘速度设定值
   float speedFb;  // 底盘速度反馈值
+  float wSpeedFb; // 由轮速计算的旋转速度
   float yawSpeedSet;
   float yawSpeedFb;
   float angleSet[2] = {0, 0};      // 关节角度设定值

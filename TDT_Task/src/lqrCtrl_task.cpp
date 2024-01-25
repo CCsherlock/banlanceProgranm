@@ -106,8 +106,9 @@ void LqrCtrl::getXfb()
 {
 /* code */
 #if defined BIG_MODEL
-    xFb = (chassis->getChassisAngel()[LEFT] + chassis->getChassisAngel()[RIGHT]) / 2 * WHEEL_RADIAN / 1000.0f;     // 单位 m
-    speedFb = (chassis->getChassisSpeed()[LEFT] + chassis->getChassisSpeed()[RIGHT]) / 2 * WHEEL_RADIAN / 1000.0f; // 单位 m/s
+    xFb = (chassis->getChassisAngel()[LEFT] + chassis->getChassisAngel()[RIGHT]) / 2 * WHEEL_RADIAN;     // 单位 m
+    speedFb = (chassis->getChassisSpeed()[LEFT] + chassis->getChassisSpeed()[RIGHT]) / 2 * WHEEL_RADIAN; // 单位 m/s
+    wSpeedFb = (chassis->getChassisSpeed()[LEFT] - chassis->getChassisSpeed()[RIGHT]) / 2 * WHEEL_RADIAN / CHAASIS_WHEEL_DISS;
 #else
     xFb[i] = chassis->getChassisAngel()[i] * RAD_PER_DEG;          // 单位 rad
     speedFb[i] = rpmToRadps(chassis->getChassisSpeed()[i]) * 0.25; // 单位 m/s
