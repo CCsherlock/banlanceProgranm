@@ -9,13 +9,13 @@ private:
     /* data */
 public:
     SlideJudge(/* args */);
-    bool isSlide = false;
-    bool isXSlide = false;
-    bool isWSlide = false;
+    uint8_t isSlide = 0;
+    uint8_t isXSlide = 0;
+    uint8_t isWSlide = 0;
     void judgeRun();
     void calculateAcc();
     void init();
-    bool initFlag = false;
+    uint8_t initFlag = 0;
     float bodyxAccFromImu,bodyxAccFromImu_cal;
     float bodyxAccFrommMotor;
     float bodywSpeedFromImu;
@@ -26,7 +26,7 @@ public:
     void calculateXSpeed();
     float recodeXspeed, recodeXAcc;
     uint64_t recordXTime;
-    bool xSpeedRecodeFlag = false;
+    uint8_t xSpeedRecodeFlag = 0;
 };
 extern SlideJudge slideJude;
 

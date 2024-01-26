@@ -11,8 +11,7 @@
 #else
 #define MAX_CHASSIS_T 2
 #define MAX_LEG_T 12
-#define WHEEL_RADIAN 210/1000.0f
-#define CHAASIS_WHEEL_DISS 105/1000.0f
+
 #endif
 class LqrCtrl
 {

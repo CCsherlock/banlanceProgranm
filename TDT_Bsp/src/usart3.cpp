@@ -287,10 +287,16 @@ void custom_Send_Data(void)
 //    							custom_SendStruct.fi,custom_SendStruct.theta[LEFT],custom_SendStruct.theta[RIGHT]);
 
 
-        sendData(3,
-    							slideJude.bodyxAccFrommMotor,slideJude.bodyxAccFromImu,slideJude.xAccErr);
+//        sendData(4,
+//    							slideJude.bodyxAccFrommMotor,slideJude.bodyxAccFromImu,slideJude.xAccErr,slideJude.isSlide);
+//				sendData(2,
+//    							slideJude.isXSlide,slideJude.isWSlide);									
 //        sendData(3,
 //    							slideJude.bodywSpeedFrommMotor,slideJude.bodywSpeedFromImu,slideJude.wSpeedErr);
+//				sendData(2,
+//    							slideJude.xSpeedEstimate,balance.chassis->chassisXSpeed);	
+
+					sendData(1,balance.chasTorKpByMotion);
 
 }
 

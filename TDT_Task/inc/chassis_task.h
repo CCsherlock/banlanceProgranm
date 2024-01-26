@@ -4,6 +4,8 @@
 #include "ut_motor.h"
 #include "motor.h"
 #include "CyberGear.h"
+#define WHEEL_RADIAN 210/1000.0f
+#define CHAASIS_WHEEL_DISS 105/1000.0f
 class Chassis
 {
 private:
@@ -22,6 +24,8 @@ public:
     Chassis(/* args */);
     void chassisInit();
     float chassisSpeed[2];
+		float chassisXSpeed;
+		float chassisWSpeed;
     float chassisAngel[2];
     float legSpeed[2];
     float legAngel[2];

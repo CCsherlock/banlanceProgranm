@@ -185,6 +185,8 @@ float *Chassis::getChassisSpeed()
     chassisSpeed[LEFT] = chssisMotor[LEFT]->motorInfo.motor_fdb.speed * chassisFbDir[LEFT] * ROBOT_WHEEL_RADIUS / 1000.0 / OUTER_WHEEL_RADIO;    // 单位  m/s
     chassisSpeed[RIGHT] = chssisMotor[RIGHT]->motorInfo.motor_fdb.speed * chassisFbDir[RIGHT] * ROBOT_WHEEL_RADIUS / 1000.0 / OUTER_WHEEL_RADIO; // 单位  m/s
 #endif
+		chassisXSpeed =  (chassisSpeed[LEFT] + chassisSpeed[RIGHT]) / 2 * WHEEL_RADIAN;
+		chassisWSpeed =  (chassisSpeed[LEFT] - chassisSpeed[RIGHT]) * WHEEL_RADIAN / 0.105f;
     return chassisSpeed;
 }
 /**

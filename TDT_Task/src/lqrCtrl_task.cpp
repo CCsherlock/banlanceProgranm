@@ -9,6 +9,7 @@
 #include "filter.h"
 #include "beep.h"
 #include "fallRecovery_task.h"
+#include "slideJudge_task.h"
 LqrCtrl balance;       // lqr运算实例化
 float laqK_buffer[40]; // lqrK矩阵暂存数组
 LqrCtrl::LqrCtrl(/* args */)
@@ -107,8 +108,17 @@ void LqrCtrl::getXfb()
 /* code */
 #if defined BIG_MODEL
     xFb = (chassis->getChassisAngel()[LEFT] + chassis->getChassisAngel()[RIGHT]) / 2 * WHEEL_RADIAN;     // 单位 m
-    speedFb = (chassis->getChassisSpeed()[LEFT] + chassis->getChassisSpeed()[RIGHT]) / 2 * WHEEL_RADIAN; // 单位 m/s
-    wSpeedFb = (chassis->getChassisSpeed()[LEFT] - chassis->getChassisSpeed()[RIGHT]) * WHEEL_RADIAN / 0.105f;
+	chassis->getChassisSpeed();
+	if(slideJude.isSlide)
+	{
+		 speedFb = slideJude.xSpeedEstimate; // 单位 m/s
+	}
+	else
+	{
+		 speedFb = chassis->chassisXSpeed; // 单位 m/s
+	}
+   
+    wSpeedFb = chassis->chassisWSpeed;
 #else
     xFb[i] = chassis->getChassisAngel()[i] * RAD_PER_DEG;          // 单位 rad
     speedFb[i] = rpmToRadps(chassis->getChassisSpeed()[i]) * 0.25; // 单位 m/s
