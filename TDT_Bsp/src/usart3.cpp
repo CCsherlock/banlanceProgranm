@@ -293,10 +293,10 @@ void custom_Send_Data(void)
 //    							slideJude.isXSlide,slideJude.isWSlide);									
 //        sendData(3,
 //    							slideJude.bodywSpeedFrommMotor,slideJude.bodywSpeedFromImu,slideJude.wSpeedErr);
-//				sendData(2,
-//    							slideJude.xSpeedEstimate,balance.chassis->chassisXSpeed);	
+				sendData(2,
+    							slideJude.xSpeedEstimate,balance.chassis->chassisXSpeed);	
 
-					sendData(1,balance.chasTorKpByMotion);
+//					sendData(2,slideJude.xSpeedErr,balance.chasTorKpBySlide);
 
 }
 

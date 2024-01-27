@@ -12,10 +12,11 @@ SlideJudge slideJude;
 
 Lpf2p diffXMotorFilter;
 Lpf2p diffXImuFilter;
-#define SLIDE_X_ACC_ERR_THREDHOLD 0.5   // x方向加速度差值阈值
-#define SLIDE_X_SPEED_ERR_THREDHOLD 0.1 // x方向速度差值阈值
+#define SLIDE_X_ACC_ERR_THREDHOLD 1   // x方向加速度差值阈值
+#define SLIDE_X_SPEED_ERR_THREDHOLD 0.001 // x方向速度差值阈值
 #define SLIDE_W_SPEED_ERR_THREDHOLD 6   // w方向速度差值阈值
-#define SLIDE_X_ACC_THREDHOLD 0.5       // x方向加速度判定阈值
+#define SLIDE_X_ACC_THREDHOLD 1       // x方向加速度判定阈值
+#define SLIDE_X_SPEED_THREDHOLD 0.05       // x方向加速度判定阈值
 #define SLIDE_W_SPEED_THREDHOLD 12      // w方向轮子计算速度判定阈值
 #define SLIDE_W_SPEED_BODY_THREDHOLD 1  // w方向陀螺仪判定阈值,给X方向判定使用
 #define SLIDE_JUDGE_TIME 50             // 打滑判定时间裕度ms
@@ -93,7 +94,8 @@ void SlideJudge::judgeRun()
     /*通过速度判断是否恢复不打滑*/
     if (isSlide) // 已经开始打滑
     {
-        if (ABS(xSpeedErr) < SLIDE_X_SPEED_ERR_THREDHOLD) // 估算速度和当前轮速误差较小
+        if (ABS(xSpeedErr) < SLIDE_X_SPEED_ERR_THREDHOLD ||
+						ABS(balance.chassis->chassisXSpeed) < SLIDE_X_SPEED_THREDHOLD) // 估算速度和当前轮速误差较小
         {
             isXSlide = 0;
         }
@@ -106,6 +108,11 @@ void SlideJudge::judgeRun()
     if (isXSlide || isWSlide)
     {
         slideJudgeTime++;
+			if(slideJudgeTime >= SLIDE_JUDGE_TIME)
+			{
+				isSlide = 1;
+				slideJudgeTime = SLIDE_JUDGE_TIME; // 打滑后设置最短的打滑时间
+			}
     }
     else
     {
@@ -113,17 +120,19 @@ void SlideJudge::judgeRun()
         {
             slideJudgeTime--;
         }
+				else
+				{
+					 isSlide = 0;
+				}
     }
 
-    if (slideJudgeTime >= SLIDE_JUDGE_TIME) // 计数时间大于阈值则判断为打滑，阈值的设置为加速度误判裕度
+    if (isSlide) // 计数时间大于阈值则判断为打滑，阈值的设置为加速度误判裕度
     {
-        isSlide = 1;
-        balance.chasTorKpByMotion = 0;          // 打滑后减小轮输出（可以做斜坡函数或者速度PID）
-        slideJudgeTime = SLIDE_JUDGE_TIME * 10; // 打滑后设置最短的打滑时间
+        balance.chasTorKpBySlide = 0;          // 打滑后减小轮输出（可以做斜坡函数或者速度PID）
     }
-    else if (slideJudgeTime < 10) // 打滑计数减到一定阈值恢复正常
+    else// 打滑计数减到一定阈值恢复正常
     {
-        balance.chasTorKpByMotion = 1; // 打滑恢复后调整轮输出
-        isSlide = 0;
+        balance.chasTorKpBySlide = 1; // 打滑恢复后调整轮输出
+       
     }
 }

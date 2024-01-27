@@ -55,6 +55,7 @@ public:
   float legTorque[2] = {0, 0};
   float legTorKpByMotion;  // 由模式选择器控制的输出比例
   float chasTorKpByMotion; // 由模式选择器控制的输出比例
+	float chasTorKpBySlide;
   //		int chassisSetPossitive =-1;
   //		int legSetPossitive =-1;
 #if defined SMALL_MODLE

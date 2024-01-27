@@ -187,8 +187,8 @@ void LqrCtrl::lqrOutput()
 #else
     chassisTorque[LEFT] = LIMIT(roboLqr->resultValue[roboLqr->OUT_LEFT_MOTOR], -MAX_CHASSIS_T, MAX_CHASSIS_T);
     chassisTorque[RIGHT] = LIMIT(roboLqr->resultValue[roboLqr->OUT_RIGHT_MOTOR], -MAX_CHASSIS_T, MAX_CHASSIS_T);
-    chassisTorque[LEFT] = chassisTorque[LEFT] * chassisSetPossitive * OUTER_WHEEL_RADIO * chassisResultKp * chasTorKpByMotion;   // 底盘输出力矩乘以系数
-    chassisTorque[RIGHT] = chassisTorque[RIGHT] * chassisSetPossitive * OUTER_WHEEL_RADIO * chassisResultKp * chasTorKpByMotion; // 底盘输出力矩乘以系数
+    chassisTorque[LEFT] = chassisTorque[LEFT] * chassisSetPossitive * OUTER_WHEEL_RADIO * chassisResultKp * chasTorKpByMotion * chasTorKpBySlide;   // 底盘输出力矩乘以系数
+    chassisTorque[RIGHT] = chassisTorque[RIGHT] * chassisSetPossitive * OUTER_WHEEL_RADIO * chassisResultKp * chasTorKpByMotion * chasTorKpBySlide; // 底盘输出力矩乘以系数
     chassis->chassisCtrlTorque(chassisTorque);
 
     legTorque[LEFT] = LIMIT(roboLqr->resultValue[roboLqr->IN_LEFT_MOTOR], -MAX_LEG_T, MAX_LEG_T);
