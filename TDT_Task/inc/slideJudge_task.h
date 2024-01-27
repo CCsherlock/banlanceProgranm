@@ -16,11 +16,11 @@ public:
     void calculateAcc();
     void init();
     uint8_t initFlag = 0;
-    float bodyxAccFromImu,bodyxAccFromImu_cal;
+    float bodyxAccFromImu, bodyxAccFromImu_cal;
     float bodyxAccFrommMotor;
     float bodywSpeedFromImu;
     float bodywSpeedFrommMotor;
-    float xAccErr, wSpeedErr;
+    float xAccErr, wSpeedErr, xSpeedErr;
     float xSpeedEstimate;
     uint32_t slideJudgeTime;
     void calculateXSpeed();
