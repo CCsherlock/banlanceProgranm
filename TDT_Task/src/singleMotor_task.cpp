@@ -1,8 +1,9 @@
 #include "singleMotor_task.h"
 #include "cyberGear.h"
+#include "LKMotor.h"
 #include "dbus.h"
 CyberGear testMotor(CAN1, 0x7F, 1, Motion_mode);
-
+LKMotor testlKMotor(CAN1, 2);
 struct MotorCtrlMode
 {
     uint8_t setId;
@@ -21,7 +22,7 @@ MotorCtrlMode motorCtrlmode =
         .ctrlTorque = 0,
         .ctrlSpeed = 0,
         .ctrlPossition = 0,
-        .setTargetId = 0x74,//待更改电机ID
+        .setTargetId = 0x74, // 待更改电机ID
 };
 void setMotorId()
 {
@@ -34,13 +35,16 @@ void setMotorParam()
     testMotor.setMotorParameter(Run_mode, (uint8_t)Current_mode);
 }
 float ctrlTestT = 0;
+int16_t ctrlCurrunt = 0;
 void setMotorTorque()
 {
-    if (testMotor.motorInfo.motor_mode != RUN_MODE)
-    {
-        testMotor.enableMotor();
-    }
-    testMotor.motorCtrlMode(ctrlTestT, 0, 0, 0, 0);
+    //    if (testMotor.motorInfo.motor_mode != RUN_MODE)
+    //    {
+    //        testMotor.enableMotor();
+    //    }
+    //    testMotor.motorCtrlMode(ctrlTestT, 0, 0, 0, 0);
+    testlKMotor.motorCtrlCurrunt(ctrlCurrunt);
+    //		testlKMotor.motorCtrlTorque(ctrlTestT);
 }
 void setMotorSpeed()
 {
@@ -48,23 +52,36 @@ void setMotorSpeed()
 void setMotorPossition()
 {
 }
+float speedTest;
+float possitionTest;
 void motorTestLoop()
 {
     static uint8_t motorInit;
     if (!motorInit)
     {
-        testMotor.initMotor();
+        //        testMotor.initMotor();
+        testlKMotor.startMotor();
         motorInit = true;
     }
     if (motorCtrlmode.setId)
     {
-        setMotorId();
+        //        setMotorId();
+			testlKMotor.stopMotor();
     }
     else if (motorCtrlmode.setParam)
     {
+        testlKMotor.startMotor();
     }
     else if (motorCtrlmode.ctrlTorque)
     {
         setMotorTorque();
     }
+		else if (motorCtrlmode.ctrlSpeed)
+		{
+			testlKMotor.motorCtrlSpeed(speedTest);
+		}
+		else if (motorCtrlmode.ctrlPossition)
+		{
+			testlKMotor.motorCtrlPossion(possitionTest);	
+		}
 }

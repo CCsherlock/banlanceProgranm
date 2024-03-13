@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2021-05-09 06:17:01
- * @LastEditTime: 2021-05-10 12:18:02
- * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2024-03-12 22:01:58
+ * @LastEditors: Sherlock 943477295@qq.com
  * @Description: In User Settings Edit
  * @FilePath: \Projectd:\TDT\TDT-Infantry\Infantry_II\TDT_Bsp\inc\can.h
  */
@@ -31,7 +31,7 @@ void canInit(CAN_TypeDef *can_x);
 //void TDT_Can_Tx(vec4f* value,CAN_TypeDef * can_x,uint32_t id);
 void canTx(float *data, CAN_TypeDef *can_x, uint32_t id);
 void canTx(u8 data[8], CAN_TypeDef *can_x, uint32_t id);
-
+void canTx(u8 data[8], CAN_TypeDef *can_x, uint8_t isExtID , uint32_t id);
 ///@}
 
 #ifdef __cplusplus

@@ -9,7 +9,7 @@ Motor *legMotor[2];
 Lpf2p encodeSpeedLeftFilter;
 Lpf2p encodeSpeedRightFilter;
 #elif defined BIG_MODEL
-CyberGear *chssisMotor[2];
+LKMotor *chssisMotor[2];
 CyberGear *legMotor[2];
 Lpf2p thetaSpeedFilter[2];
 #endif
@@ -45,8 +45,7 @@ void Chassis::chassisInit()
     for (u8 i = 0; i < 2; i++)
     {
         /* code */
-        chssisMotor[i] = new CyberGear(CAN1, 0x71 + i, 0x103 + i, i, Motion_mode);
-        chssisMotor[i]->initMotor();
+        chssisMotor[i] = new LKMotor(CAN1, i + 1);
         legMotor[i] = new CyberGear(CAN1, 0x73 + i, 0x101 + i, i, Motion_mode);
         legMotor[i]->initMotor();
         thetaSpeedFilter[i].SetCutoffFreq(2000, 10);
@@ -90,21 +89,21 @@ void Chassis::chassisCtrlTorque(float torque[2])
 #if defined SMALL_MODEL
             chssisMotor[i]->ctrlTorque(0);
 #elif defined BIG_MODEL
-            chssisMotor[i]->stopMotor(0);
+            chssisMotor[i]->stopMotor();
 #endif
             break;
         case RUNNING:
 #if defined SMALL_MODEL
             chssisMotor[i]->ctrlTorque(torque[i] * chassisOutputDir[i]);
 #elif defined BIG_MODEL
-            if (chssisMotor[i]->motorInfo.motor_mode != RUN_MODE)
+            if (chssisMotor[i]->motorMode != LK_START)
             {
                 for (uint8_t j = 0; j < 50; j++)
                 {
-                    chssisMotor[i]->enableMotor();
+                    chssisMotor[i]->startMotor();
                 }
             }
-            chssisMotor[i]->motorCtrlMode(torque[i] * chassisOutputDir[i], 0, 0, 0, 0);
+            chssisMotor[i]->motorCtrlTorque(torque[i] * chassisOutputDir[i]);
 #endif
             break;
         default:
@@ -182,11 +181,11 @@ float *Chassis::getChassisSpeed()
     chassisSpeed[LEFT] = chssisMotor[LEFT]->canInfo.speed * chassisFbDir[LEFT];    // 单位  RPM
     chassisSpeed[RIGHT] = chssisMotor[RIGHT]->canInfo.speed * chassisFbDir[RIGHT]; // 单位  RPM
 #elif defined BIG_MODEL
-    chassisSpeed[LEFT] = chssisMotor[LEFT]->motorInfo.motor_fdb.speed * chassisFbDir[LEFT] * ROBOT_WHEEL_RADIUS / 1000.0 / OUTER_WHEEL_RADIO;    // 单位  m/s
-    chassisSpeed[RIGHT] = chssisMotor[RIGHT]->motorInfo.motor_fdb.speed * chassisFbDir[RIGHT] * ROBOT_WHEEL_RADIUS / 1000.0 / OUTER_WHEEL_RADIO; // 单位  m/s
+    chassisSpeed[LEFT] = chssisMotor[LEFT]->motorInfo.speed_rad * chassisFbDir[LEFT] * ROBOT_WHEEL_RADIUS / 1000.0 / OUTER_WHEEL_RADIO;    // 单位  m/s
+    chassisSpeed[RIGHT] = chssisMotor[RIGHT]->motorInfo.speed_rad * chassisFbDir[RIGHT] * ROBOT_WHEEL_RADIUS / 1000.0 / OUTER_WHEEL_RADIO; // 单位  m/s
 #endif
-		chassisXSpeed =  (chassisSpeed[LEFT] + chassisSpeed[RIGHT]) / 2 * WHEEL_RADIAN;
-		chassisWSpeed =  (chassisSpeed[LEFT] - chassisSpeed[RIGHT]) * WHEEL_RADIAN / 0.105f;
+    chassisXSpeed = (chassisSpeed[LEFT] + chassisSpeed[RIGHT]) / 2 * WHEEL_RADIAN;
+    chassisWSpeed = (chassisSpeed[LEFT] - chassisSpeed[RIGHT]) * WHEEL_RADIAN / CHAASIS_WHEEL_DISS;
     return chassisSpeed;
 }
 /**
@@ -200,8 +199,8 @@ float *Chassis::getChassisAngel()
     chassisAngel[LEFT] = chssisMotor[LEFT]->canInfo.totalAngle_f * chassisFbDir[LEFT];    // 单位 °
     chassisAngel[RIGHT] = chssisMotor[RIGHT]->canInfo.totalAngle_f * chassisFbDir[RIGHT]; // 单位 °
 #elif defined BIG_MODEL
-    chassisAngel[LEFT] = chssisMotor[LEFT]->motorInfo.motor_fdb.angle * chassisFbDir[LEFT];    // 单位 rad
-    chassisAngel[RIGHT] = chssisMotor[RIGHT]->motorInfo.motor_fdb.angle * chassisFbDir[RIGHT]; // 单位 rad
+    chassisAngel[LEFT] = chssisMotor[LEFT]->motorInfo.possition * chassisFbDir[LEFT];    // 单位 rad
+    chassisAngel[RIGHT] = chssisMotor[RIGHT]->motorInfo.possition * chassisFbDir[RIGHT]; // 单位 rad
 #endif
     return chassisAngel;
 }

@@ -18,6 +18,7 @@
 #include "singleMotor_task.h"
 #include "fallRecovery_task.h"
 #include "slideJudge_task.h"
+#include "LKMotor.h"
 void TDT_Loop_1000Hz(void) // 1ms执行一次
 {
 	RC.run_1000Hz();
@@ -46,7 +47,7 @@ void TDT_Loop_1000Hz(void) // 1ms执行一次
 	for (uint8_t i = 0; i < 2; i++)
 	{
 		/* code */
-		cyberGearLostCheck(chssisMotor[i]);
+		LkMotorLostCheck(chssisMotor[i]);
 		cyberGearLostCheck(legMotor[i]);
 	}
 #endif
@@ -56,7 +57,7 @@ void TDT_Loop_500Hz(void) // 2ms执行一次
 {
 	Imu_Task(); // 陀螺仪解算程序
 	Motor::sendCanMsg();
-//		ErrorChechAlarm(); // 机器人异常检测
+	//		ErrorChechAlarm(); // 机器人异常检测
 }
 
 void TDT_Loop_200Hz(void) // 5ms执行一次

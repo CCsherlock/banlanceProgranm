@@ -4,6 +4,7 @@
 #include "ut_motor.h"
 #include "motor.h"
 #include "CyberGear.h"
+#include "LKMotor.h"
 #define WHEEL_RADIAN 210/1000.0f
 #define CHAASIS_WHEEL_DISS 105/1000.0f
 class Chassis
@@ -47,7 +48,7 @@ public:
 extern Motor *chssisMotor[2];
 extern Motor *legMotor[2];
 #elif defined BIG_MODEL
-extern CyberGear *chssisMotor[2];
+extern LKMotor *chssisMotor[2];
 extern CyberGear *legMotor[2];
 #endif
 

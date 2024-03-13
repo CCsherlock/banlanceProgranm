@@ -47,7 +47,7 @@ static void canGpioNvicInit(CAN_TypeDef *can_x)
 	if (can_x == CAN1)
 	{
 #if defined USE_MAIN_CTRL_RM_CBOARD
-		RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE); // 初始化CNA1时钟
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE);  // 初始化CNA1时钟
 		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE); // 初始化GPIO时钟
 		// GPIO复用
 		GPIO_PinAFConfig(GPIOD, GPIO_PinSource0, GPIO_AF_CAN1);
@@ -58,7 +58,7 @@ static void canGpioNvicInit(CAN_TypeDef *can_x)
 		CanGpio.GPIO_OType = GPIO_OType_PP;
 		CanGpio.GPIO_Speed = GPIO_Speed_100MHz;
 		GPIO_Init(GPIOD, &CanGpio);
-		
+
 #else
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE); // 初始化CNA1时钟
 
@@ -307,27 +307,32 @@ void CAN2_TX_IRQHandler(void)
 Can Can1;
 Can Can2;
 extern CyberGear testMotor;
+extern LKMotor testlKMotor;
 void CAN1_RX0_IRQHandler(void)
 {
 	if (CAN_GetITStatus(CAN1, CAN_IT_FMP0) != RESET)
 	{
 		CAN_Receive(CAN1, CAN_FIFO0, &Can1RxMsg);
 		// CAN信息处理
-		if(Can1RxMsg.StdId == 0x201)
+		if (Can1RxMsg.StdId == 0x201)
 		{
 			Can1.Motor_Information_Calculate(Can_1, &Can1RxMsg);
 		}
 		Can1.Motor_Information_Calculate(Can_1, &Can1RxMsg);
 #if defined BIG_MODEL
-		
+
 #if defined SINGLE_MOTOR_TEST
-		testMotor.motorDataHandler(&Can1RxMsg);
+		// testMotor.motorDataHandler(&Can1RxMsg);
+		if (Can1RxMsg.StdId == testlKMotor.motorStdId)
+		{
+			testlKMotor.motorDataHandler(&Can1RxMsg);
+		}
 #else
 		if ((Can1RxMsg.ExtId & 0x0000FF00) == 0x007100)
 		{
 			chssisMotor[LEFT]->motorDataHandler(&Can1RxMsg);
 		}
-		else if((Can1RxMsg.ExtId & 0x0000FF00) == 0x007200)
+		else if ((Can1RxMsg.ExtId & 0x0000FF00) == 0x007200)
 		{
 			chssisMotor[RIGHT]->motorDataHandler(&Can1RxMsg);
 		}
@@ -335,7 +340,7 @@ void CAN1_RX0_IRQHandler(void)
 		{
 			legMotor[LEFT]->motorDataHandler(&Can1RxMsg);
 		}
-		else if((Can1RxMsg.ExtId & 0x0000FF00) == 0x007400)
+		else if ((Can1RxMsg.ExtId & 0x0000FF00) == 0x007400)
 		{
 			legMotor[RIGHT]->motorDataHandler(&Can1RxMsg);
 		}
@@ -359,11 +364,11 @@ void CAN2_RX0_IRQHandler(void)
 		// CAN信息处理
 		Can2.Motor_Information_Calculate(Can_2, &Can2RxMsg);
 #if defined BIG_MODEL
-		if(Can2RxMsg.StdId == 0x101)
+		if (Can2RxMsg.StdId == 0x101)
 		{
 			legMotor[LEFT]->megSpeedMessegeGet(&Can2RxMsg);
 		}
-		if(Can2RxMsg.StdId == 0x102)
+		if (Can2RxMsg.StdId == 0x102)
 		{
 			legMotor[RIGHT]->megSpeedMessegeGet(&Can2RxMsg);
 		}
@@ -417,20 +422,20 @@ void canTx(vec4f *value, CAN_TypeDef *can_x, uint32_t id)
 void canTx(float *data, CAN_TypeDef *can_x, uint32_t id)
 {
 	CanTxMsg Can1TxMsg;
-//	if (id != 0x200 || id != 0x1FF)
-//	{
-//		Can1TxMsg.IDE = CAN_Id_Extended; // 标准帧 CAN_Id_Standard 使用标准标识符 CAN_Id_Extended 使用标准标识符 + 扩展标识符
-//		Can1TxMsg.ExtId = id;			 // 范围为 0 到 0x7FF
-//	}
-//	else
-//	{
-//		Can1TxMsg.IDE = CAN_Id_Standard; // 标准帧 CAN_Id_Standard 使用标准标识符 CAN_Id_Extended 使用标准标识符 + 扩展标识符
-//		Can1TxMsg.StdId = id;			 // 范围为 0 到 0x7FF
-//	}
+	//	if (id != 0x200 || id != 0x1FF)
+	//	{
+	//		Can1TxMsg.IDE = CAN_Id_Extended; // 标准帧 CAN_Id_Standard 使用标准标识符 CAN_Id_Extended 使用标准标识符 + 扩展标识符
+	//		Can1TxMsg.ExtId = id;			 // 范围为 0 到 0x7FF
+	//	}
+	//	else
+	//	{
+	//		Can1TxMsg.IDE = CAN_Id_Standard; // 标准帧 CAN_Id_Standard 使用标准标识符 CAN_Id_Extended 使用标准标识符 + 扩展标识符
+	//		Can1TxMsg.StdId = id;			 // 范围为 0 到 0x7FF
+	//	}
 	Can1TxMsg.IDE = CAN_Id_Standard; // 标准帧 CAN_Id_Standard 使用标准标识符 CAN_Id_Extended 使用标准标识符 + 扩展标识符
 	Can1TxMsg.StdId = id;			 // 范围为 0 到 0x7FF
-	Can1TxMsg.RTR = CAN_RTR_Data; // 数据帧 CAN_RTR_Data 数据帧 CAN_RTR_Remote 远程帧
-	Can1TxMsg.DLC = 8;			  // 帧长度 范围是 0 到 0x8
+	Can1TxMsg.RTR = CAN_RTR_Data;	 // 数据帧 CAN_RTR_Data 数据帧 CAN_RTR_Remote 远程帧
+	Can1TxMsg.DLC = 8;				 // 帧长度 范围是 0 到 0x8
 
 	Can1TxMsg.StdId = id; // 范围为 0 到 0x7FF
 
@@ -449,7 +454,7 @@ void canTx(float *data, CAN_TypeDef *can_x, uint32_t id)
 void canTx(u8 data[8], CAN_TypeDef *can_x, uint32_t id)
 {
 	CanTxMsg Can1TxMsg;
-	if (id != 0x200 && id != 0x1FF && id!= 0x100)
+	if (id != 0x200 && id != 0x1FF && id != 0x100 && id != 0x288 && id != 0x280)
 	{
 		Can1TxMsg.IDE = CAN_Id_Extended; // 标准帧 CAN_Id_Standard 使用标准标识符 CAN_Id_Extended 使用标准标识符 + 扩展标识符
 		Can1TxMsg.ExtId = id;			 // 范围为 0 到 0x7FF
@@ -461,6 +466,30 @@ void canTx(u8 data[8], CAN_TypeDef *can_x, uint32_t id)
 	}
 	Can1TxMsg.RTR = CAN_RTR_Data; // 数据帧 CAN_RTR_Data 数据帧 CAN_RTR_Remote 远程帧
 	Can1TxMsg.DLC = 8;			  // 帧长度 范围是 0 到 0x8
+
+	memcpy(Can1TxMsg.Data, data, 8);
+
+	u8 mbox = self_CAN_Transmit(can_x, &Can1TxMsg);
+	delayUs(110);
+}
+void canTx(u8 data[8], CAN_TypeDef *can_x, uint8_t isExtID, uint32_t id)
+{
+	CanTxMsg Can1TxMsg;
+	if (isExtID)
+	{
+		Can1TxMsg.IDE = CAN_Id_Extended; // 标准帧 CAN_Id_Standard 使用标准标识符 CAN_Id_Extended 使用标准标识符 + 扩展标识符
+		Can1TxMsg.ExtId = id;			 // 范围为 0 到 0x7FF
+	}
+	else
+	{
+		Can1TxMsg.IDE = CAN_Id_Standard; // 标准帧 CAN_Id_Standard 使用标准标识符 CAN_Id_Extended 使用标准标识符 + 扩展标识符
+		Can1TxMsg.StdId = id;			 // 范围为 0 到 0x7FF
+	}
+
+	Can1TxMsg.RTR = CAN_RTR_Data; // 数据帧 CAN_RTR_Data 数据帧 CAN_RTR_Remote 远程帧
+	Can1TxMsg.DLC = 8;			  // 帧长度 范围是 0 到 0x8
+
+	Can1TxMsg.StdId = id; // 范围为 0 到 0x7FF
 
 	memcpy(Can1TxMsg.Data, data, 8);
 
